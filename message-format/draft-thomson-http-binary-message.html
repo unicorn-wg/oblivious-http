@@ -1068,14 +1068,7 @@ Message with Known-Length {
 
 Known-Length Field Section {
   Length (i) = 2..,
-  Field (..) ...,
-}
-
-Field {
-  Name Length (i) = 1..,
-  Name (..),
-  Value Length (i) = 1..,
-  Value (..),
+  Field Line (..) ...,
 }
 
 Known-Length Content {
@@ -1141,7 +1134,7 @@ Indeterminate-Length Content Chunk {
 }
 
 Indeterminate-Length Field Section {
-  Field (..) ...,
+  Field Line (..) ...,
   Content Terminator (i) = 0,
 }
 
@@ -1286,28 +1279,48 @@ follows.<a href="#section-3.5.1-4" class="pilcrow">¶</a></p>
 <a href="#section-3.6" class="section-number selfRef">3.6. </a><a href="#name-header-and-trailer-fields" class="section-name selfRef">Header and Trailer Fields</a>
         </h3>
 <p id="section-3.6-1">Header and trailer field sections consist of zero or more field lines; see
-Section 5 of <span>[<a href="#HTTP" class="xref">HTTP</a>]</span>. Each field line includes a name and a value. Both the
-name and value are non-zero length sequences of bytes.<a href="#section-3.6-1" class="pilcrow">¶</a></p>
-<p id="section-3.6-2">For field names, byte values that are not permitted in an HTTP field name cause
+Section 5 of <span>[<a href="#HTTP" class="xref">HTTP</a>]</span>. The format of a field section depends on whether the
+message is known- or intermediate-length.<a href="#section-3.6-1" class="pilcrow">¶</a></p>
+<p id="section-3.6-2">Each field line includes a name and a value. Both the name and value are
+non-zero length sequences of bytes. The format of a field line is shown in
+<a href="#format-field-line" class="xref">Figure 6</a>.<a href="#section-3.6-2" class="pilcrow">¶</a></p>
+<span id="name-format-of-a-field-line"></span><div id="format-field-line">
+<figure id="figure-6">
+          <div class="artwork art-text alignLeft" id="section-3.6-3.1">
+<pre>
+Field Line {
+  Name Length (i) = 1..,
+  Name (..),
+  Value Length (i) = 1..,
+  Value (..),
+}
+</pre>
+</div>
+<figcaption><a href="#figure-6" class="selfRef">Figure 6</a>:
+<a href="#name-format-of-a-field-line" class="selfRef">Format of a Field Line</a>
+          </figcaption></figure>
+</div>
+<p id="section-3.6-4">For field names, byte values that are not permitted in an HTTP field name cause
 the message to be invalid; see Section 5.1 of <span>[<a href="#HTTP" class="xref">HTTP</a>]</span> and <a href="#invalid" class="xref">Section 4</a>. In
 addition, values from the ASCII uppercase range (0x41-0x5a inclusive) MUST be
 translated to lowercase values (0x61-0x7a) when encoding messages. A recipient
 MUST treat a message containing field names with bytes in the range 0x41-0x5a
-as invalid; see <a href="#invalid" class="xref">Section 4</a>.<a href="#section-3.6-2" class="pilcrow">¶</a></p>
-<p id="section-3.6-3">For field values, byte values that are not permitted in an HTTP field value
-cause the message to be invalid; see Section 5.5 of <span>[<a href="#HTTP" class="xref">HTTP</a>]</span> and <a href="#invalid" class="xref">Section 4</a>.<a href="#section-3.6-3" class="pilcrow">¶</a></p>
-<p id="section-3.6-4">The same field name can be repeated in multiple field lines; see Section 5.2 of
-<span>[<a href="#HTTP" class="xref">HTTP</a>]</span>.<a href="#section-3.6-4" class="pilcrow">¶</a></p>
-<p id="section-3.6-5">Like HTTP/2, this format has an exception for the combination of multiple
+as invalid; see <a href="#invalid" class="xref">Section 4</a>.<a href="#section-3.6-4" class="pilcrow">¶</a></p>
+<p id="section-3.6-5">For field values, byte values that are not permitted in an HTTP field value
+cause the message to be invalid; see Section 5.5 of <span>[<a href="#HTTP" class="xref">HTTP</a>]</span> and <a href="#invalid" class="xref">Section 4</a>.<a href="#section-3.6-5" class="pilcrow">¶</a></p>
+<p id="section-3.6-6">The same field name can be repeated in multiple field lines; see Section 5.2 of
+<span>[<a href="#HTTP" class="xref">HTTP</a>]</span> for the semantics of repeated field names and rules for combining
+values.<a href="#section-3.6-6" class="pilcrow">¶</a></p>
+<p id="section-3.6-7">Like HTTP/2, this format has an exception for the combination of multiple
 instances of the <code>Cookie</code> field. Instances of fields with the ASCII-encoded
 value of <code>cookie</code> are combined using a semicolon octet (0x3b) rather than a
-comma; see Section 8.1.2.5 of <span>[<a href="#H2" class="xref">H2</a>]</span>.<a href="#section-3.6-5" class="pilcrow">¶</a></p>
-<p id="section-3.6-6">This format provides fixed locations for content that would be carried in
+comma; see Section 8.1.2.5 of <span>[<a href="#H2" class="xref">H2</a>]</span>.<a href="#section-3.6-7" class="pilcrow">¶</a></p>
+<p id="section-3.6-8">This format provides fixed locations for content that would be carried in
 HTTP/2 pseudo-fields. Therefore, there is no need to include values for
 <code>:method</code>, <code>:scheme</code>, <code>:authority</code>, <code>:path</code>, or <code>:status</code>. Fields that contain
 one of these names cause the message to be invalid; see <a href="#invalid" class="xref">Section 4</a>.
 Pseudo-fields that are defined by protocol extensions can be included.
-Pseudo-fields MUST precede other fields, if present.<a href="#section-3.6-6" class="pilcrow">¶</a></p>
+Pseudo-fields MUST precede other fields, if present.<a href="#section-3.6-8" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="content">
