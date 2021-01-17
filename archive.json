@@ -1,0 +1,268 @@
+{
+  "magic": "E!vIA5L86J2I",
+  "timestamp": "2021-01-17T00:32:56.440367+00:00",
+  "repo": "unicorn-wg/oblivious-http",
+  "labels": [
+    {
+      "name": "bug",
+      "description": "Something isn't working",
+      "color": "d73a4a"
+    },
+    {
+      "name": "documentation",
+      "description": "Improvements or additions to documentation",
+      "color": "0075ca"
+    },
+    {
+      "name": "duplicate",
+      "description": "This issue or pull request already exists",
+      "color": "cfd3d7"
+    },
+    {
+      "name": "enhancement",
+      "description": "New feature or request",
+      "color": "a2eeef"
+    },
+    {
+      "name": "good first issue",
+      "description": "Good for newcomers",
+      "color": "7057ff"
+    },
+    {
+      "name": "help wanted",
+      "description": "Extra attention is needed",
+      "color": "008672"
+    },
+    {
+      "name": "invalid",
+      "description": "This doesn't seem right",
+      "color": "e4e669"
+    },
+    {
+      "name": "question",
+      "description": "Further information is requested",
+      "color": "d876e3"
+    },
+    {
+      "name": "wontfix",
+      "description": "This will not be worked on",
+      "color": "ffffff"
+    }
+  ],
+  "issues": [
+    {
+      "number": 2,
+      "id": "MDU6SXNzdWU3ODY1NDIwMjQ=",
+      "title": "Informational status codes",
+      "url": "https://github.com/unicorn-wg/oblivious-http/issues/2",
+      "state": "OPEN",
+      "author": "martinthomson",
+      "authorAssociation": "MEMBER",
+      "assignees": [],
+      "labels": [],
+      "body": "We aren't really able to carry informational status codes using this form of encapsulation.\r\n\r\nSure, we could encode an informational status as a new message, but we don't have anywhere to include it, except as the content of a response, along with the final status code.  That might not be helpful if you consider things like 100-continue.\r\n\r\nMy recommendation is to make this limitation clear and prohibit the use of 100-continue.\r\n",
+      "createdAt": "2021-01-15T05:13:15Z",
+      "updatedAt": "2021-01-15T05:13:15Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 4,
+      "id": "MDU6SXNzdWU3ODY1OTg2NDU=",
+      "title": "Padding",
+      "url": "https://github.com/unicorn-wg/oblivious-http/issues/4",
+      "state": "OPEN",
+      "author": "martinthomson",
+      "authorAssociation": "MEMBER",
+      "assignees": [],
+      "labels": [],
+      "body": "The format I've sketched out for binary messages can be padded with zeros without needing a separate padding field.  That's probably a feature worth mentioning in both drafts.",
+      "createdAt": "2021-01-15T06:27:26Z",
+      "updatedAt": "2021-01-15T06:27:26Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 5,
+      "id": "MDU6SXNzdWU3ODY2MTA2MjQ=",
+      "title": "y u no proxy?",
+      "url": "https://github.com/unicorn-wg/oblivious-http/issues/5",
+      "state": "OPEN",
+      "author": "martinthomson",
+      "authorAssociation": "MEMBER",
+      "assignees": [],
+      "labels": [],
+      "body": "We need to explain the advantages of this over making a new connection via a proxy for every request.  That is largely performance-related: TLS costs a lot more than this does, both in terms of round trips (1 extra), in terms of bytes exchanged (waaay more), and in terms of CPU cycles spent doing crypto (2x at least).",
+      "createdAt": "2021-01-15T06:36:13Z",
+      "updatedAt": "2021-01-15T06:36:13Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 6,
+      "id": "MDU6SXNzdWU3ODY2MjE2NDM=",
+      "title": "What trust does each entity place in other entities?",
+      "url": "https://github.com/unicorn-wg/oblivious-http/issues/6",
+      "state": "OPEN",
+      "author": "martinthomson",
+      "authorAssociation": "MEMBER",
+      "assignees": [],
+      "labels": [],
+      "body": "This also needs to talk about how different entities might authenticate others that are involved in order to back that trust with something more concrete.\r\n\r\nSpamming/DoS: request resources trust proxy resources not to pass on spam; same for target resources and request resources.  A request resource might want to authenticate a proxy resource so that they can limit the proxies they accept.  A target resource might do the same to request resources, but a more plausible deployment model is those two being the same entity (something that you can't have with proxy/request). \r\n\r\nInformation protection: clients trust proxy resources not to give their information to request resources.  That is, not their IP address, nor any strong indication that two requests come from the same entity.  (We have seen cases where people think this might be required for anti-abuse, but I think that ignores the spamming/DoS relationship to the detriment of user privacy.  This might be a fun discussion.)",
+      "createdAt": "2021-01-15T06:41:33Z",
+      "updatedAt": "2021-01-15T06:41:33Z",
+      "closedAt": null,
+      "comments": []
+    }
+  ],
+  "pulls": [
+    {
+      "number": 1,
+      "id": "MDExOlB1bGxSZXF1ZXN0NTU1MzI5NjA4",
+      "title": "Overview",
+      "url": "https://github.com/unicorn-wg/oblivious-http/pull/1",
+      "state": "MERGED",
+      "author": "martinthomson",
+      "authorAssociation": "MEMBER",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2021-01-15T01:38:01Z",
+      "updatedAt": "2021-01-15T17:15:52Z",
+      "baseRepository": "unicorn-wg/oblivious-http",
+      "baseRefName": "main",
+      "baseRefOid": "501f54803ff2879722decce1041bac235bf74dcd",
+      "headRepository": "unicorn-wg/oblivious-http",
+      "headRefName": "overview",
+      "headRefOid": "3ffe08d009791ae96e719ba6c14cdb2161ae49e4",
+      "closedAt": "2021-01-15T17:15:52Z",
+      "mergedAt": "2021-01-15T17:15:52Z",
+      "mergedBy": "chris-wood",
+      "mergeCommit": {
+        "oid": "fab065c185f6dcb9d11965556a2a71d668a4e365"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTY5NDQ4Mjk4",
+          "commit": {
+            "abbreviatedOid": "3ffe08d"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2021-01-15T17:15:43Z",
+          "updatedAt": "2021-01-15T17:15:43Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 3,
+      "id": "MDExOlB1bGxSZXF1ZXN0NTU1NDI2NTA2",
+      "title": "Message format",
+      "url": "https://github.com/unicorn-wg/oblivious-http/pull/3",
+      "state": "OPEN",
+      "author": "martinthomson",
+      "authorAssociation": "MEMBER",
+      "assignees": [],
+      "labels": [],
+      "body": "This is fully-featured, which is a little awkward.  We can probably trim this down a little once we have a better handle on the requirements.",
+      "createdAt": "2021-01-15T06:01:46Z",
+      "updatedAt": "2021-01-15T06:05:46Z",
+      "baseRepository": "unicorn-wg/oblivious-http",
+      "baseRefName": "main",
+      "baseRefOid": "501f54803ff2879722decce1041bac235bf74dcd",
+      "headRepository": "unicorn-wg/oblivious-http",
+      "headRefName": "message-format",
+      "headRefOid": "2cdb3b95fa377b8fa212181fc2813f006e0297a5",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 7,
+      "id": "MDExOlB1bGxSZXF1ZXN0NTU1ODcwMDUw",
+      "title": "Port and modify ODoH encapsulation details.",
+      "url": "https://github.com/unicorn-wg/oblivious-http/pull/7",
+      "state": "OPEN",
+      "author": "chris-wood",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "This is mostly a port from ODoH to start. We can modify/tweak as needed going forward.",
+      "createdAt": "2021-01-15T18:21:04Z",
+      "updatedAt": "2021-01-15T19:43:28Z",
+      "baseRepository": "unicorn-wg/oblivious-http",
+      "baseRefName": "main",
+      "baseRefOid": "fab065c185f6dcb9d11965556a2a71d668a4e365",
+      "headRepository": "unicorn-wg/oblivious-http",
+      "headRefName": "caw/first-hpke",
+      "headRefOid": "008247cf1dfca4e413bc03ce33c1081e716c8055",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": [
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTY5NTY2Mzg5",
+          "commit": {
+            "abbreviatedOid": "008247c"
+          },
+          "author": "tfpauly",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-01-15T19:38:51Z",
+          "updatedAt": "2021-01-15T19:38:51Z",
+          "comments": [
+            {
+              "originalPosition": 106,
+              "body": "Why not describe this above where the struct with padding is defined?",
+              "createdAt": "2021-01-15T19:38:51Z",
+              "updatedAt": "2021-01-15T19:38:51Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTY5NTY2NTA2",
+          "commit": {
+            "abbreviatedOid": "008247c"
+          },
+          "author": "tfpauly",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2021-01-15T19:39:03Z",
+          "updatedAt": "2021-01-15T19:39:03Z",
+          "comments": []
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTY5NTY5Mzgz",
+          "commit": {
+            "abbreviatedOid": "008247c"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-01-15T19:43:28Z",
+          "updatedAt": "2021-01-15T19:43:28Z",
+          "comments": [
+            {
+              "originalPosition": 106,
+              "body": "I left it here in case we wanted more details (recommended padding policy a la ECH?). We can move it around, though.",
+              "createdAt": "2021-01-15T19:43:28Z",
+              "updatedAt": "2021-01-15T19:43:28Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
