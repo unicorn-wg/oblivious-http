@@ -322,8 +322,9 @@ Table of Contents
 
    2.  Extract a pseudorandom key "prk" using the "Extract" function
        provided by the KDF algorithm associated with "context".  The
-       "ikm" input to this function is "secret"; the "salt" input is
-       "request".
+       "ikm" input to this function is "secret"; the "salt" input is the
+       concatenation of "enc" (from "enc_request") and "Nk" random
+       bytes.
 
    3.  Use the "Expand" function provided by the same KDF to extract an
        AEAD key "key", of length "Nk" - the length of the keys used by
