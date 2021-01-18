@@ -1039,6 +1039,13 @@ ignorant of the use of oblivious HTTP to reach it.<a href="#section-2-2.10.1" cl
 </dd>
       <dd class="break"></dd>
 </dl>
+<p id="section-2-3">This draft includes pseudocode that uses the functions and conventions defined
+in <span>[<a href="#HPKE" class="xref">HPKE</a>]</span>.<a href="#section-2-3" class="pilcrow">¶</a></p>
+<p id="section-2-4">This draft uses the variable-length integer encoding from Section 16 of
+<span>[<a href="#QUIC" class="xref">QUIC</a>]</span>. Encoding and decoding variable-length
+integers to a sequence of bytes are described using the functions <code>vencode()</code>
+and <code>vdecode()</code>. The function <code>len()</code> takes the length of a sequence of bytes.<a href="#section-2-4" class="pilcrow">¶</a></p>
+<p id="section-2-5">Formats are described using notation from Section 1.3 of <span>[<a href="#QUIC" class="xref">QUIC</a>]</span>.<a href="#section-2-5" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="overview">
@@ -1136,7 +1143,7 @@ request.<a href="#section-3-6.10" class="pilcrow">¶</a>
 <p id="section-4-1">HTTP message encapsulation uses HPKE for request and response encryption.
 An encapsulated HTTP message includes the following values:<a href="#section-4-1" class="pilcrow">¶</a></p>
 <ol start="1" type="1" class="normal type-1" id="section-4-2">
-<li id="section-4-2.1">A binary-encoded HTTP message [CITEME].<a href="#section-4-2.1" class="pilcrow">¶</a>
+<li id="section-4-2.1">A binary-encoded HTTP message; see <span>[<a href="#BINARY" class="xref">BINARY</a>]</span>.<a href="#section-4-2.1" class="pilcrow">¶</a>
 </li>
         <li id="section-4-2.2">Padding of arbitrary length which MUST contain all zeroes.<a href="#section-4-2.2" class="pilcrow">¶</a>
 </li>
@@ -1152,69 +1159,93 @@ Plaintext Message {
 }
 </pre><a href="#section-4-4" class="pilcrow">¶</a>
 </div>
-<p id="section-4-5">This structure is then encrypted under a key with a specific identity, forming an encapsulated HTTP
-message, with the following structure:<a href="#section-4-5" class="pilcrow">¶</a></p>
-<div class="artwork art-text alignLeft" id="section-4-6">
+<p id="section-4-5">An Encapsulated Request is comprised of a length-prefixed key identifier and a
+HPKE-protected request message. HPKE protection includes an encapsulated KEM
+shared secret (or <code>enc</code>), plus the AEAD-protected request message. An
+Encapsulated Request is shown in <a href="#fig-enc-request" class="xref">Figure 2</a>. <a href="#request" class="xref">Section 4.1</a> describes the
+process for constructing and processing an Encapsulated Request.<a href="#section-4-5" class="pilcrow">¶</a></p>
+<span id="name-encapsulated-request"></span><div id="fig-enc-request">
+<figure id="figure-2">
+        <div class="artwork art-text alignLeft" id="section-4-6.1">
 <pre>
 Key Identifer {
   Key ID Length (i),
   Key ID (..),
 }
 
-Encapsulated Message {
-  Key Identifier (..)
-  Encrypted Message Length (i),
-  Encrypted Message (..),
+Encapsulated Request {
+  Key Identifier (..),
+  Encapsulated KEM Shared Secret (..),
+  AEAD-Protected Request (..),
 }
-</pre><a href="#section-4-6" class="pilcrow">¶</a>
+</pre>
 </div>
-<p id="section-4-7">The encapsulated message Key ID, as well as the encryption mechanics, are different for requests
-and responses, as described below.<a href="#section-4-7" class="pilcrow">¶</a></p>
+<figcaption><a href="#figure-2" class="selfRef">Figure 2</a>:
+<a href="#name-encapsulated-request" class="selfRef">Encapsulated Request</a>
+        </figcaption></figure>
+</div>
+<p id="section-4-7">Responses are bound to responses and so consist only of AEAD-protected content.
+<a href="#response" class="xref">Section 4.2</a> describes the process for constructing and processing an
+Encapsulated Response.<a href="#section-4-7" class="pilcrow">¶</a></p>
 <div id="request">
 <section id="section-4.1">
         <h3 id="name-hpke-encapsulation-of-reque">
 <a href="#section-4.1" class="section-number selfRef">4.1. </a><a href="#name-hpke-encapsulation-of-reque" class="section-name selfRef">HPKE Encapsulation of Requests</a>
         </h3>
-<p id="section-4.1-1">Clients encapsulate a request Plaintext Message <code>msg</code> with an HPKE public key <code>pkR</code>, whose Key Identifier
-is <code>keyID</code> as follows:<a href="#section-4.1-1" class="pilcrow">¶</a></p>
+<p id="section-4.1-1">Clients encapsulate a request <code>request</code> with an HPKE public key <code>pkR</code>,
+whose Key Identifier is <code>keyID</code> as follows:<a href="#section-4.1-1" class="pilcrow">¶</a></p>
 <ol start="1" type="1" class="normal type-1" id="section-4.1-2">
-<li id="section-4.1-2.1">Compute an HPKE context using <code>pkR</code>, yielding <code>context</code> and encapsulation key <code>enc</code><a href="#section-4.1-2.1" class="pilcrow">¶</a>
+<li id="section-4.1-2.1">Compute an HPKE context using <code>pkR</code>, yielding <code>context</code> and encapsulation
+key <code>enc</code>.<a href="#section-4.1-2.1" class="pilcrow">¶</a>
 </li>
-          <li id="section-4.1-2.2">Encrypt (seal) <code>msg</code> with <code>keyID</code> as associated data using <code>context</code>, yielding ciphertext <code>ct</code><a href="#section-4.1-2.2" class="pilcrow">¶</a>
+          <li id="section-4.1-2.2">Construct additional associated data, <code>aad</code>, by prepending a single byte
+with a value of 0x01 to the key identifier. The key identifier length is not
+included in the AAD.<a href="#section-4.1-2.2" class="pilcrow">¶</a>
 </li>
-          <li id="section-4.1-2.3">Concatenate <code>enc</code> and <code>ct</code>, yielding an Encrypted Message <code>encrypted_msg</code><a href="#section-4.1-2.3" class="pilcrow">¶</a>
+          <li id="section-4.1-2.3">Encrypt (seal) <code>request</code> with <code>keyID</code> as associated data using <code>context</code>,
+yielding ciphertext <code>ct</code>.<a href="#section-4.1-2.3" class="pilcrow">¶</a>
+</li>
+          <li id="section-4.1-2.4">Concatenate the length of <code>keyID</code> as a variable-length integer, <code>keyID</code>,
+<code>enc</code> and <code>ct</code>, yielding an Encapsulated Request <code>enc_request</code>.<a href="#section-4.1-2.4" class="pilcrow">¶</a>
 </li>
         </ol>
 <p id="section-4.1-3">In pseudocode, this procedure is as follows:<a href="#section-4.1-3" class="pilcrow">¶</a></p>
 <div class="artwork art-text alignLeft" id="section-4.1-4">
 <pre>
 enc, context = SetupBaseS(pkR, "request")
-aad = 0x01 || keyID
-encrypted_msg = context.Seal(aad, msg)
+aad = concat(0x01, keyID)
+ct = context.Seal(aad, request)
+enc_request = concat(vencode(len(keyID)), keyID, enc, ct)
 </pre><a href="#section-4.1-4" class="pilcrow">¶</a>
 </div>
-<p id="section-4.1-5">Clients construct the Encapsulated Message <code>req</code> using <code>keyID</code> and <code>encrypted_msg</code>.<a href="#section-4.1-5" class="pilcrow">¶</a></p>
-<p id="section-4.1-6">Servers decrypt an Encapsulated Message by reversing this process. Given an Encapsulated Message <code>req</code> request
-with Key Identifier <code>keyID</code> corresponding to an existing HPKE private key <code>skR</code>, servers decapsulate
-the Message as follows:<a href="#section-4.1-6" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-4.1-7">
-<li id="section-4.1-7.1">Parse the <code>req</code> Encrypted Message as the concatenation of <code>enc</code> and <code>encrypted_message</code><a href="#section-4.1-7.1" class="pilcrow">¶</a>
+<p id="section-4.1-5">Servers decrypt an Encapsulated Request by reversing this process. Given an
+Encapsulated Request <code>enc_request</code>, a server:<a href="#section-4.1-5" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-4.1-6">
+<li id="section-4.1-6.1">Parses <code>enc_request</code> into <code>keyID</code>, <code>enc</code>, and <code>ct</code> (indicated using the
+function <code>parse()</code> in pseudocode). The server is then able to find the HPKE
+private key, <code>skR</code>, corresponding to <code>keyID</code>.<a href="#section-4.1-6.1" class="pilcrow">¶</a>
 </li>
-          <li id="section-4.1-7.2">Compute an HPKE context using <code>skR</code> and the encapsulated key <code>enc</code> from <code>req</code>, yielding <code>context</code><a href="#section-4.1-7.2" class="pilcrow">¶</a>
+          <li id="section-4.1-6.2">Compute an HPKE context using <code>skR</code> and the encapsulated key <code>enc</code>, yielding
+<code>context</code>.<a href="#section-4.1-6.2" class="pilcrow">¶</a>
 </li>
-          <li id="section-4.1-7.3">Decrypt <code>encrypted_message</code> with <code>keyID</code> as associated data, yielding <code>msg</code> or an error on failure<a href="#section-4.1-7.3" class="pilcrow">¶</a>
+          <li id="section-4.1-6.3">Construct additional associated data, <code>aad</code>, by prepending a single byte
+with a value of 0x01 to the key identifier.<a href="#section-4.1-6.3" class="pilcrow">¶</a>
+</li>
+          <li id="section-4.1-6.4">Decrypt <code>ct</code> using <code>aad</code> as associated data, yielding <code>request</code> or an error
+on failure.<a href="#section-4.1-6.4" class="pilcrow">¶</a>
 </li>
         </ol>
-<p id="section-4.1-8">In pseudocode, this procedure is as follows:<a href="#section-4.1-8" class="pilcrow">¶</a></p>
-<div class="artwork art-text alignLeft" id="section-4.1-9">
+<p id="section-4.1-7">In pseudocode, this procedure is as follows:<a href="#section-4.1-7" class="pilcrow">¶</a></p>
+<div class="artwork art-text alignLeft" id="section-4.1-8">
 <pre>
+keyID, enc, ct = parse(enc_request)
 context = SetupBaseR(enc, skR, "request")
-aad = 0x01 || keyID
-msg, error = context.Open(aad, ct)
-</pre><a href="#section-4.1-9" class="pilcrow">¶</a>
+aad = concat(0x01, keyID)
+request, error = context.Open(aad, ct)
+</pre><a href="#section-4.1-8" class="pilcrow">¶</a>
 </div>
-<p id="section-4.1-10">Servers MUST verify that the Plaintext Message padding consists of all zeroes before processing the
-corresponding Message.<a href="#section-4.1-10" class="pilcrow">¶</a></p>
+<p id="section-4.1-9">Servers MUST verify that the request padding consists of all zeroes before
+processing the corresponding Message.<a href="#section-4.1-9" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="response">
@@ -1222,30 +1253,53 @@ corresponding Message.<a href="#section-4.1-10" class="pilcrow">¶</a></p>
         <h3 id="name-hpke-encapsulation-of-respo">
 <a href="#section-4.2" class="section-number selfRef">4.2. </a><a href="#name-hpke-encapsulation-of-respo" class="section-name selfRef">HPKE Encapsulation of Responses</a>
         </h3>
-<p id="section-4.2-1">Given an HPKE context <code>context</code> and a response Plaintext Message <code>resp</code> sent in response to a Plaintext
-Message <code>req</code>, servers encrypt the data as follows:<a href="#section-4.2-1" class="pilcrow">¶</a></p>
+<p id="section-4.2-1">Given an HPKE context <code>context</code>, a request message <code>request</code>, and a response
+<code>response</code>, servers generate an Encapsulated Response <code>enc_response</code> as
+follows:<a href="#section-4.2-1" class="pilcrow">¶</a></p>
 <ol start="1" type="1" class="normal type-1" id="section-4.2-2">
-<li id="section-4.2-2.1">Derive a symmetric key and nonce from <code>context</code><a href="#section-4.2-2.1" class="pilcrow">¶</a>
+<li id="section-4.2-2.1">Export a secret <code>secret</code> from <code>context</code>, using the string "response" as a
+label. The length of this secret is <code>Nsk</code> - the length of the secret
+assocated with <code>context</code>.<a href="#section-4.2-2.1" class="pilcrow">¶</a>
 </li>
-          <li id="section-4.2-2.2">Encrypt <code>resp</code> with empty Key Identifier <code>emptyKeyID</code> as associated data, yielding <code>encrypted_msg</code><a href="#section-4.2-2.2" class="pilcrow">¶</a>
+          <li id="section-4.2-2.2">Extract a pseudorandom key <code>prk</code> using the <code>Extract</code> function provided by
+the KDF algorithm associated with <code>context</code>. The <code>ikm</code> input to this
+function is <code>secret</code>; the <code>salt</code> input is <code>request</code>.<a href="#section-4.2-2.2" class="pilcrow">¶</a>
+</li>
+          <li id="section-4.2-2.3">Use the <code>Expand</code> function provided by the same KDF to extract an AEAD key
+<code>key</code>, of length <code>Nk</code> - the length of the keys used by the AEAD associated
+with <code>context</code>. Generating <code>key</code> uses a label of "key".<a href="#section-4.2-2.3" class="pilcrow">¶</a>
+</li>
+          <li id="section-4.2-2.4">Use the same <code>Expand</code> function to extract a nonce <code>nonce</code> of length <code>Nn</code> -
+the length of the nonce used by the AEAD. Generating <code>nonce</code> uses a label of
+"nonce".<a href="#section-4.2-2.4" class="pilcrow">¶</a>
+</li>
+          <li id="section-4.2-2.5">Construct additional associated data <code>aad</code>, that consists of a single byte
+with a value of 0x02.<a href="#section-4.2-2.5" class="pilcrow">¶</a>
+</li>
+          <li id="section-4.2-2.6">Encrypt <code>response</code>, passing the AEAD function Seal the values of <code>key</code>,
+<code>nonce</code>, <code>aad</code>, and a <code>pt</code> input of <code>request</code>, which yields <code>enc_response</code>.<a href="#section-4.2-2.6" class="pilcrow">¶</a>
 </li>
         </ol>
 <p id="section-4.2-3">In pseudocode, this procedure is as follows:<a href="#section-4.2-3" class="pilcrow">¶</a></p>
 <div class="artwork art-text alignLeft" id="section-4.2-4">
 <pre>
-secret = context.Export("secret", 32)
-prk = Extract(req, secret)
+secret = context.Export("secret", Nsk)
+prk = Extract(request, secret)
 key = Expand(secret, "key", Nk)
 nonce = Expand(secret, "nonce", Nn)
-aad = 0x02 || emptyKeyID
-encrypted_msg = Seal(key, nonce, aad, resp)
+aad = concat(0x02, emptyKeyID)
+enc_reponse = Seal(key, nonce, aad, response)
 </pre><a href="#section-4.2-4" class="pilcrow">¶</a>
 </div>
-<p id="section-4.2-5">Extract and Expand are functions corresponding to the HPKE context's KDF algorithm, and Seal, Nk, and
-Nn correspond to the HPKE context's AEAD algorithm.<a href="#section-4.2-5" class="pilcrow">¶</a></p>
-<p id="section-4.2-6">Clients decrypt an Encapsulated Message by reversing this process. Namely, they derive the
-necessary AEAD parameters from an existing HPKE context and then decrypt (open) the Encapsulated
-Message encrypted message.<a href="#section-4.2-6" class="pilcrow">¶</a></p>
+<p id="section-4.2-5">Clients decrypt an Encapsulated Request by reversing this process. That is,
+clients follow the same process to derive values for <code>key</code>, <code>nonce</code>, and <code>aad</code>.
+The client then decrypts the Encapsulated Response using the Open function
+provided by the AEAD. Decrypting might produce an error, as shown.<a href="#section-4.2-5" class="pilcrow">¶</a></p>
+<div class="artwork art-text alignLeft" id="section-4.2-6">
+<pre>
+reponse, error = Open(key, nonce, aad, enc_response)
+</pre><a href="#section-4.2-6" class="pilcrow">¶</a>
+</div>
 </section>
 </div>
 <div id="padding">
@@ -1322,6 +1376,10 @@ as needed to hide metadata leakage through ciphertext length.<a href="#section-4
 <dt id="HPKE">[HPKE]</dt>
       <dd>
 <span class="refAuthor">Barnes, R.</span><span class="refAuthor">, Bhargavan, K.</span><span class="refAuthor">, Lipp, B.</span><span class="refAuthor">, and C. Wood</span>, <span class="refTitle">"Hybrid Public Key Encryption"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-irtf-cfrg-hpke-07</span>, <time datetime="2020-12-16" class="refDate">16 December 2020</time>, <span>&lt;<a href="http://www.ietf.org/internet-drafts/draft-irtf-cfrg-hpke-07.txt">http://www.ietf.org/internet-drafts/draft-irtf-cfrg-hpke-07.txt</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="QUIC">[QUIC]</dt>
+      <dd>
+<span class="refAuthor">Iyengar, J.</span><span class="refAuthor"> and M. Thomson</span>, <span class="refTitle">"QUIC: A UDP-Based Multiplexed and Secure Transport"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-quic-transport-34</span>, <time datetime="2021-01-14" class="refDate">14 January 2021</time>, <span>&lt;<a href="http://www.ietf.org/internet-drafts/draft-ietf-quic-transport-34.txt">http://www.ietf.org/internet-drafts/draft-ietf-quic-transport-34.txt</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC2119">[RFC2119]</dt>
       <dd>
