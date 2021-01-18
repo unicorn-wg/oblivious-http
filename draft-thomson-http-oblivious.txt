@@ -4,8 +4,9 @@
 
 HTTPBIS                                                       M. Thomson
 Internet-Draft                                                   Mozilla
-Intended status: Standards Track                         18 January 2021
-Expires: 22 July 2021
+Intended status: Standards Track                               C.A. Wood
+Expires: 22 July 2021                                         Cloudflare
+                                                         18 January 2021
 
 
                              Oblivious HTTP
@@ -81,7 +82,7 @@ Table of Contents
      8.1.  Normative References
      8.2.  Informative References
    Acknowledgments
-   Author's Address
+   Authors' Addresses
 
 1.  Introduction
 
@@ -550,7 +551,7 @@ Table of Contents
 
    [BINARY]   Thomson, M., "Binary Representation of HTTP Messages",
               Work in Progress, Internet-Draft, draft-ietf-http-binary-
-              message-latest, 19 January 2021,
+              message-latest, 18 January 2021,
               <https://tools.ietf.org/html/draft-ietf-http-binary-
               message-latest>.
 
@@ -601,9 +602,15 @@ Acknowledgments
 
    TODO: credit where credit is due.
 
-Author's Address
+Authors' Addresses
 
    Martin Thomson
    Mozilla
 
    Email: mt@lowentropy.net
+
+
+   Christopher A. Wood
+   Cloudflare
+
+   Email: caw@heapingbits.net
