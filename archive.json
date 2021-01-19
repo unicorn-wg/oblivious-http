@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2021-01-17T00:32:56.440367+00:00",
+  "timestamp": "2021-01-19T00:36:14.819337+00:00",
   "repo": "unicorn-wg/oblivious-http",
   "labels": [
     {
@@ -87,15 +87,15 @@
       "id": "MDU6SXNzdWU3ODY2MTA2MjQ=",
       "title": "y u no proxy?",
       "url": "https://github.com/unicorn-wg/oblivious-http/issues/5",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "martinthomson",
       "authorAssociation": "MEMBER",
       "assignees": [],
       "labels": [],
       "body": "We need to explain the advantages of this over making a new connection via a proxy for every request.  That is largely performance-related: TLS costs a lot more than this does, both in terms of round trips (1 extra), in terms of bytes exchanged (waaay more), and in terms of CPU cycles spent doing crypto (2x at least).",
       "createdAt": "2021-01-15T06:36:13Z",
-      "updatedAt": "2021-01-15T06:36:13Z",
-      "closedAt": null,
+      "updatedAt": "2021-01-18T21:43:07Z",
+      "closedAt": "2021-01-18T21:43:07Z",
       "comments": []
     },
     {
@@ -103,16 +103,109 @@
       "id": "MDU6SXNzdWU3ODY2MjE2NDM=",
       "title": "What trust does each entity place in other entities?",
       "url": "https://github.com/unicorn-wg/oblivious-http/issues/6",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "martinthomson",
       "authorAssociation": "MEMBER",
       "assignees": [],
       "labels": [],
       "body": "This also needs to talk about how different entities might authenticate others that are involved in order to back that trust with something more concrete.\r\n\r\nSpamming/DoS: request resources trust proxy resources not to pass on spam; same for target resources and request resources.  A request resource might want to authenticate a proxy resource so that they can limit the proxies they accept.  A target resource might do the same to request resources, but a more plausible deployment model is those two being the same entity (something that you can't have with proxy/request). \r\n\r\nInformation protection: clients trust proxy resources not to give their information to request resources.  That is, not their IP address, nor any strong indication that two requests come from the same entity.  (We have seen cases where people think this might be required for anti-abuse, but I think that ignores the spamming/DoS relationship to the detriment of user privacy.  This might be a fun discussion.)",
       "createdAt": "2021-01-15T06:41:33Z",
-      "updatedAt": "2021-01-15T06:41:33Z",
-      "closedAt": null,
+      "updatedAt": "2021-01-18T21:43:07Z",
+      "closedAt": "2021-01-18T21:43:07Z",
       "comments": []
+    },
+    {
+      "number": 8,
+      "id": "MDU6SXNzdWU3ODc4NTY3MDU=",
+      "title": "Consider nonces",
+      "url": "https://github.com/unicorn-wg/oblivious-http/issues/8",
+      "state": "CLOSED",
+      "author": "martinthomson",
+      "authorAssociation": "MEMBER",
+      "assignees": [],
+      "labels": [],
+      "body": "In our discussion of #7, @chris-wood and I explored the ways in which nonce reuse might occur.\r\n\r\nThe problem arises if the client reuses `enc`.  This leads to nonce reuse on the request for sure.  However, if the request is the same, the problem shifts to the response.  Unless the response is also identical, we get nonce reuse on the response instead.\r\n\r\nWe then discussed options for safeguarding against this.\r\n\r\nAs the client is expected to include randomness in its derivation of its key, it seems like the failing is not something that adding extra steps at the client will address.  So I don't think that adding anything to the request really helps.  \r\n\r\nSeparately, HPKE code is supposed to be stateful.  Reuse of a context should result in the sequence number increasing, leading to a nonce that the server cannot reconstruct (unless it also counts and does trial decryption, but that's two bad actors).  That should ensure that the client doesn't use the same nonce twice.  You really have to have bad randomness at the client to get into a deliberate nonce reuse scenario if you trust that the HPKE implementation is properly stateful.\r\n\r\nHowever, a response that is generated in response to a replayed request is something I am concerned about.  We know that HTTP clients routinely do, even if the request is marked POST.  So some protection here is warranted.  For this, I'm going to suggest that we change from salting based on the request to salting based on `enc || new-randomness`.  Hashing the entire message is likely to be very expensive, both in terms of cycles, but also in terms of state.  The public key should be enough to ensure the binding in the case where a client doesn't reuse the context, and the new randomness should help in case of reuse.\r\n\r\nI think that it's OK to use 128 bits of extra randomness here, but we don't have a handy constant to hang that on.  Nn is 96, Nk could be 128 or 256 depending on the AEAD.  What we really want is the block size, but that isn't a property that is exposed anywhere.",
+      "createdAt": "2021-01-18T01:57:54Z",
+      "updatedAt": "2021-01-18T23:43:12Z",
+      "closedAt": "2021-01-18T23:43:12Z",
+      "comments": [
+        {
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "body": "I think this is the right design on balance. If we were more conservative, we could include the entire client request (including `enc`), but that doesn't really hedge against the misuse scenario. I'll propose text in #9.",
+          "createdAt": "2021-01-18T15:20:52Z",
+          "updatedAt": "2021-01-18T15:20:52Z"
+        },
+        {
+          "author": "martinthomson",
+          "authorAssociation": "MEMBER",
+          "body": "Fixed in #11.",
+          "createdAt": "2021-01-18T23:43:01Z",
+          "updatedAt": "2021-01-18T23:43:01Z"
+        }
+      ]
+    },
+    {
+      "number": 12,
+      "id": "MDU6SXNzdWU3ODg1Njk0NDU=",
+      "title": "Key ID length authentication",
+      "url": "https://github.com/unicorn-wg/oblivious-http/issues/12",
+      "state": "OPEN",
+      "author": "chris-wood",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Should the key ID length be explicitly authenticated, e.g., by including it in the AAD, or should the AEAD implicitly authenticate things? Unclear!",
+      "createdAt": "2021-01-18T21:59:15Z",
+      "updatedAt": "2021-01-18T22:11:10Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "martinthomson",
+          "authorAssociation": "MEMBER",
+          "body": "Should we even bother with an AAD at all?  The best reason is that the keyID determines which key the server uses, which is information that factors into decisions.\r\n\r\n(A related question might be why doesn't HPKE take variables as input so that things like key identifiers can be integrated into the key schedule.)",
+          "createdAt": "2021-01-18T22:01:51Z",
+          "updatedAt": "2021-01-18T22:01:51Z"
+        },
+        {
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "body": "> Should we even bother with an AAD at all? The best reason is that the keyID determines which key the server uses, which is information that factors into decisions.\r\n\r\nMy take: yes. I need to think through the implications of no additional authentication at all, and in the mean time, I'd be more comfortable with simply authenticating everything possible.\r\n\r\n> (A related question might be why doesn't HPKE take variables as input so that things like key identifiers can be integrated into the key schedule.)\r\n\r\nI think it was discussed, but it makes the interface a mess. And since applications can accomplish the same thing by shoving what they want authenticated into the AAD, it was voted down.",
+          "createdAt": "2021-01-18T22:07:44Z",
+          "updatedAt": "2021-01-18T22:07:44Z"
+        },
+        {
+          "author": "martinthomson",
+          "authorAssociation": "MEMBER",
+          "body": "Yeah, you and I both know that putting stuff in the AAD isn't a real substitute for having it in the key schedule.  I completely understand how this would mess with the purity of the design, but TLS managed by wrapping its labels better (which also addresses a known problem with HKDF not being injective).",
+          "createdAt": "2021-01-18T22:11:09Z",
+          "updatedAt": "2021-01-18T22:11:09Z"
+        }
+      ]
+    },
+    {
+      "number": 13,
+      "id": "MDU6SXNzdWU3ODg1Njk2OTY=",
+      "title": "AAD for requests",
+      "url": "https://github.com/unicorn-wg/oblivious-http/issues/13",
+      "state": "CLOSED",
+      "author": "martinthomson",
+      "authorAssociation": "MEMBER",
+      "assignees": [],
+      "labels": [],
+      "body": "Right now, @chris-wood and I are debating what I think might be three options:\r\n\r\n1. No AAD\r\n2. keyID\r\n3. length-prefixed keyID\r\n\r\nThe response includes no AAD.",
+      "createdAt": "2021-01-18T21:59:56Z",
+      "updatedAt": "2021-01-18T22:00:27Z",
+      "closedAt": "2021-01-18T22:00:27Z",
+      "comments": [
+        {
+          "author": "martinthomson",
+          "authorAssociation": "MEMBER",
+          "body": "Oops,  #12.",
+          "createdAt": "2021-01-18T22:00:16Z",
+          "updatedAt": "2021-01-18T22:00:16Z"
+        }
+      ]
     }
   ],
   "pulls": [
@@ -128,7 +221,7 @@
       "labels": [],
       "body": "",
       "createdAt": "2021-01-15T01:38:01Z",
-      "updatedAt": "2021-01-15T17:15:52Z",
+      "updatedAt": "2021-01-18T22:15:16Z",
       "baseRepository": "unicorn-wg/oblivious-http",
       "baseRefName": "main",
       "baseRefOid": "501f54803ff2879722decce1041bac235bf74dcd",
@@ -170,7 +263,7 @@
       "labels": [],
       "body": "This is fully-featured, which is a little awkward.  We can probably trim this down a little once we have a better handle on the requirements.",
       "createdAt": "2021-01-15T06:01:46Z",
-      "updatedAt": "2021-01-15T06:05:46Z",
+      "updatedAt": "2021-01-18T22:03:48Z",
       "baseRepository": "unicorn-wg/oblivious-http",
       "baseRefName": "main",
       "baseRefOid": "501f54803ff2879722decce1041bac235bf74dcd",
@@ -181,7 +274,22 @@
       "mergedAt": null,
       "mergedBy": null,
       "mergeCommit": null,
-      "comments": [],
+      "comments": [
+        {
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "body": "@martinthomson is the idea here that padding might just be a separate field for each (un)known-length message?",
+          "createdAt": "2021-01-18T00:19:46Z",
+          "updatedAt": "2021-01-18T00:19:46Z"
+        },
+        {
+          "author": "martinthomson",
+          "authorAssociation": "MEMBER",
+          "body": "Not sure if you meant to ask this on #4 instead.  The idea I had for padding is that the format as described is self-delimiting.  (Actually, it was accidental, and I only realized that it worked that way after coming back and thinking about padding.)\r\n\r\nTherefore, you can just add padding at the end.  We can mandate the use of zero bytes, which works for the truncated message syntax I suggest here.",
+          "createdAt": "2021-01-18T00:39:57Z",
+          "updatedAt": "2021-01-18T00:39:57Z"
+        }
+      ],
       "reviews": []
     },
     {
@@ -189,24 +297,26 @@
       "id": "MDExOlB1bGxSZXF1ZXN0NTU1ODcwMDUw",
       "title": "Port and modify ODoH encapsulation details.",
       "url": "https://github.com/unicorn-wg/oblivious-http/pull/7",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "chris-wood",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "This is mostly a port from ODoH to start. We can modify/tweak as needed going forward.",
       "createdAt": "2021-01-15T18:21:04Z",
-      "updatedAt": "2021-01-15T19:43:28Z",
+      "updatedAt": "2021-01-18T22:15:14Z",
       "baseRepository": "unicorn-wg/oblivious-http",
       "baseRefName": "main",
       "baseRefOid": "fab065c185f6dcb9d11965556a2a71d668a4e365",
       "headRepository": "unicorn-wg/oblivious-http",
       "headRefName": "caw/first-hpke",
       "headRefOid": "008247cf1dfca4e413bc03ce33c1081e716c8055",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "closedAt": "2021-01-18T00:04:32Z",
+      "mergedAt": "2021-01-18T00:04:32Z",
+      "mergedBy": "martinthomson",
+      "mergeCommit": {
+        "oid": "8bda1a4db04a3b407e2ddfa9674d7b4a458db048"
+      },
       "comments": [],
       "reviews": [
         {
@@ -261,8 +371,890 @@
               "updatedAt": "2021-01-15T19:43:28Z"
             }
           ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTcwMTA4Mzgy",
+          "commit": {
+            "abbreviatedOid": "008247c"
+          },
+          "author": "martinthomson",
+          "authorAssociation": "MEMBER",
+          "state": "APPROVED",
+          "body": "Lots of things to follow up on here, but I'm going to merge and we can iron those out later.  We need a starting point and this is a good starting point.",
+          "createdAt": "2021-01-17T23:43:48Z",
+          "updatedAt": "2021-01-18T00:04:14Z",
+          "comments": [
+            {
+              "originalPosition": 19,
+              "body": "See #4 here. :)",
+              "createdAt": "2021-01-17T23:43:48Z",
+              "updatedAt": "2021-01-18T00:04:14Z"
+            },
+            {
+              "originalPosition": 7,
+              "body": "I'll look after that soon.",
+              "createdAt": "2021-01-17T23:44:01Z",
+              "updatedAt": "2021-01-18T00:04:14Z"
+            },
+            {
+              "originalPosition": 31,
+              "body": "```suggestion\r\n  Key Identifier (..),\r\n```\r\n\r\nI'm so glad you included a key identifier.  There wasn't one in the ODoH draft I was reading and it was bothering me.\r\n\r\nHowever, I don't think that you need to include a key identifier in responses.  The request/response thing will ensure that there is no possibility for confusion.  That means that the response can just be the output of aead.Seal.",
+              "createdAt": "2021-01-17T23:44:59Z",
+              "updatedAt": "2021-01-18T00:04:14Z"
+            },
+            {
+              "originalPosition": 53,
+              "body": "To be clear, this does not include the length field, right?",
+              "createdAt": "2021-01-17T23:46:07Z",
+              "updatedAt": "2021-01-18T00:04:14Z"
+            },
+            {
+              "originalPosition": 32,
+              "body": "I think that we can drop the length prefix for the encrypted blob.",
+              "createdAt": "2021-01-17T23:48:21Z",
+              "updatedAt": "2021-01-18T00:04:14Z"
+            },
+            {
+              "originalPosition": 57,
+              "body": "I think that you are missing `enc` here.  Isn't the message:\r\n\r\n```\r\nkeyID.length || keyID || enc || encrypted_msg\r\n```\r\n\r\nReading the -07 HPKE draft, it doesn't include `enc` in the output of `context.Seal`.  Should it?",
+              "createdAt": "2021-01-17T23:49:04Z",
+              "updatedAt": "2021-01-18T00:04:14Z"
+            },
+            {
+              "originalPosition": 65,
+              "body": "The AAD  is `0x1 || keyID`.",
+              "createdAt": "2021-01-17T23:52:44Z",
+              "updatedAt": "2021-01-18T00:04:14Z"
+            },
+            {
+              "originalPosition": 45,
+              "body": "This needs to mention the string \"request\".",
+              "createdAt": "2021-01-17T23:54:03Z",
+              "updatedAt": "2021-01-18T00:04:14Z"
+            },
+            {
+              "originalPosition": 54,
+              "body": "```suggestion\r\nct = context.Seal(aad, msg)\r\nencrypted_msg = enc || ct\r\n```",
+              "createdAt": "2021-01-17T23:54:48Z",
+              "updatedAt": "2021-01-18T00:04:14Z"
+            },
+            {
+              "originalPosition": 46,
+              "body": "If you want to match the pseudocode, add a step 2:\r\n\r\n```suggestion\r\n2. Construct additional associated data, `aad`, by prepending a single byte with a value 0x01 to the key identifier. The key identifier length is not included in the AAD.\r\n3. Encrypt (seal) `msg` with `aad` as associated data using `context`, yielding ciphertext `ct`\r\n```",
+              "createdAt": "2021-01-17T23:56:22Z",
+              "updatedAt": "2021-01-18T00:04:14Z"
+            },
+            {
+              "originalPosition": 83,
+              "body": "This step needs more substance.  The pseudocode is far more complete.",
+              "createdAt": "2021-01-17T23:59:15Z",
+              "updatedAt": "2021-01-18T00:04:14Z"
+            },
+            {
+              "originalPosition": 84,
+              "body": "Not sure about using an empty key identifier.  The construction of the context does not include the key identifier, so we aren't binding the response to the entire request in any way.  Including the key ID as AAD might do the job.  We don't have to send it.",
+              "createdAt": "2021-01-18T00:00:53Z",
+              "updatedAt": "2021-01-18T00:04:14Z"
+            },
+            {
+              "originalPosition": 94,
+              "body": "```suggestion\r\nkey = context.Export(\"response key\", Nk)\r\nnonce = context.Export(\"response nonce\", Nn)\r\naad = ???\r\nencrypted_msg = Seal(key, nonce, aad, resp)\r\n```\r\n\r\nMy preference would be to export two values for this.",
+              "createdAt": "2021-01-18T00:02:12Z",
+              "updatedAt": "2021-01-18T00:04:14Z"
+            },
+            {
+              "originalPosition": 106,
+              "body": "I think that we can defer padding to the binary message structure, ultimately.  See #4.",
+              "createdAt": "2021-01-18T00:03:17Z",
+              "updatedAt": "2021-01-18T00:04:14Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTcwMTExMTUz",
+          "commit": {
+            "abbreviatedOid": "008247c"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-01-18T00:10:09Z",
+          "updatedAt": "2021-01-18T00:10:09Z",
+          "comments": [
+            {
+              "originalPosition": 94,
+              "body": "We considered this for ODoH too, but this removes binding between the response encryption key material and the request. So, in theory, I think it would be possible for an application to mistakenly send the same `enc` to the server, forcing it to derive the same key and nonce, and possibly reuse them for encrypting the response. I think we should bake key/nonce re-use into the encapsulation mechanism, if possible.",
+              "createdAt": "2021-01-18T00:10:09Z",
+              "updatedAt": "2021-01-18T00:10:35Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTcwMTExNDg1",
+          "commit": {
+            "abbreviatedOid": "008247c"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-01-18T00:13:38Z",
+          "updatedAt": "2021-01-18T00:13:38Z",
+          "comments": [
+            {
+              "originalPosition": 57,
+              "body": "Yeah, I was going for brevity in the textual descriptions, but we make it more complete to match the pseudocode. \r\n\r\n> Reading the -07 HPKE draft, it doesn't include enc in the output of context.Seal. Should it?\r\n\r\nI don't think so, since you might want to use the same context for multiple seals but don't want to send `enc` alongside each ciphertext.",
+              "createdAt": "2021-01-18T00:13:38Z",
+              "updatedAt": "2021-01-18T00:13:38Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTcwMTExNTYy",
+          "commit": {
+            "abbreviatedOid": "008247c"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-01-18T00:14:19Z",
+          "updatedAt": "2021-01-18T00:14:20Z",
+          "comments": [
+            {
+              "originalPosition": 32,
+              "body": "Would the length just be inferred as \"rest of message\"? (If we're confident that it's always unambiguous, I'm fine omitting it)",
+              "createdAt": "2021-01-18T00:14:19Z",
+              "updatedAt": "2021-01-18T00:14:20Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTcwMTExNTk5",
+          "commit": {
+            "abbreviatedOid": "008247c"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-01-18T00:14:43Z",
+          "updatedAt": "2021-01-18T00:14:43Z",
+          "comments": [
+            {
+              "originalPosition": 53,
+              "body": "The intention was for it to include the length and value --`keyID` is a Key Identifier message, which includes the length. ",
+              "createdAt": "2021-01-18T00:14:43Z",
+              "updatedAt": "2021-01-18T00:14:53Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTcwMTExODY0",
+          "commit": {
+            "abbreviatedOid": "008247c"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-01-18T00:16:55Z",
+          "updatedAt": "2021-01-18T00:16:55Z",
+          "comments": [
+            {
+              "originalPosition": 31,
+              "body": "Admittedly it's a bit of YAGNI, so I'm fine dropping it, but there were prior discussions about the response using something other than symmetric encryption, and the key ID \"would help\" there. (No concrete use case now, so let's just drop it.)",
+              "createdAt": "2021-01-18T00:16:55Z",
+              "updatedAt": "2021-01-18T00:16:55Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTcwMTExODcz",
+          "commit": {
+            "abbreviatedOid": "008247c"
+          },
+          "author": "martinthomson",
+          "authorAssociation": "MEMBER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-01-18T00:16:59Z",
+          "updatedAt": "2021-01-18T00:16:59Z",
+          "comments": [
+            {
+              "originalPosition": 94,
+              "body": "Oh, I missed the fact that you are including the entire request (?) in the key schedule.  That seems like something that is worth documenting.  I missed it completely.\r\n\r\nHowever, it might be enough to include `enc`, so that you don't have to remember the entire message.",
+              "createdAt": "2021-01-18T00:16:59Z",
+              "updatedAt": "2021-01-18T00:16:59Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTcwMTExOTEx",
+          "commit": {
+            "abbreviatedOid": "008247c"
+          },
+          "author": "martinthomson",
+          "authorAssociation": "MEMBER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-01-18T00:17:20Z",
+          "updatedAt": "2021-01-18T00:17:21Z",
+          "comments": [
+            {
+              "originalPosition": 32,
+              "body": "Right, rest of message should do.",
+              "createdAt": "2021-01-18T00:17:20Z",
+              "updatedAt": "2021-01-18T00:17:21Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTcwMTEyNjAw",
+          "commit": {
+            "abbreviatedOid": "008247c"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-01-18T00:23:20Z",
+          "updatedAt": "2021-01-18T00:23:20Z",
+          "comments": [
+            {
+              "originalPosition": 94,
+              "body": "Even `enc` might not be enough, since a client could mistakenly re-use `enc` for more than one request, leading to the nonce/key reuse issue, I think.",
+              "createdAt": "2021-01-18T00:23:20Z",
+              "updatedAt": "2021-01-18T00:23:20Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTcwMTE0MzE0",
+          "commit": {
+            "abbreviatedOid": "008247c"
+          },
+          "author": "martinthomson",
+          "authorAssociation": "MEMBER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-01-18T00:36:34Z",
+          "updatedAt": "2021-01-18T00:36:35Z",
+          "comments": [
+            {
+              "originalPosition": 94,
+              "body": "At that point you have nonce reuse for the request, so any protection you have for the response is far less valuable.",
+              "createdAt": "2021-01-18T00:36:35Z",
+              "updatedAt": "2021-01-18T00:36:35Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTcwMTIxNDEy",
+          "commit": {
+            "abbreviatedOid": "008247c"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-01-18T01:21:01Z",
+          "updatedAt": "2021-01-18T01:21:02Z",
+          "comments": [
+            {
+              "originalPosition": 94,
+              "body": "Hmm, true, though only if the request contents are different, right? Either way, if enc is reused across requests, it seems:\r\n\r\n1. If the request is different, then we have reuse on the request\r\n2. If the request is the same, and the response is different, then we have reuse on the response. \r\n3. If the request and responses are the same, then no reuse\r\n\r\nUnless I'm missing something, (1) seems something we may have to just acknowledge. I don't see a way to prevent it. One might try to include a nonce in the `context` derivation, but if the client reuses `enc`, then it might just reuse that nonce. (ODoH avoided this since the requests always had some entropy in them, and should therefore be different with high probability.)\r\n\r\nSo if we want to focus on (2) and (3), where the requests are the same, then it seems (2) should be the assumed case. (Relying on content to never change seems silly.) And the only way to seemingly prevent that is for the server to contribute randomness to the key derivation. \r\n\r\nGiven that, I see a number of options:\r\n\r\n1. Include request in the key derivation: this doesn't address case (2) above.\r\n2. Include server nonce in the key derivation: this addresses (2), but makes the server entirely responsible for preventing nonce reuse. (Do we trust their randomness?)\r\n3. Include both request and a server nonce in key derivation: this addresses (2), and hedges against bad randomness\r\n\r\nWhat do you think?",
+              "createdAt": "2021-01-18T01:21:02Z",
+              "updatedAt": "2021-01-18T01:21:02Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTcwMTI1NzQ0",
+          "commit": {
+            "abbreviatedOid": "008247c"
+          },
+          "author": "martinthomson",
+          "authorAssociation": "MEMBER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-01-18T01:44:13Z",
+          "updatedAt": "2021-01-18T01:44:13Z",
+          "comments": [
+            {
+              "originalPosition": 94,
+              "body": "I think that there is no really good answer here.  Given 0-RTT, the risk of request replay seems like we might want to have some sort of nonce.  Having a nonce in both places makes some sense.  Let's open an issue on this rather than continue here though.",
+              "createdAt": "2021-01-18T01:44:13Z",
+              "updatedAt": "2021-01-18T01:44:13Z"
+            }
+          ]
         }
       ]
+    },
+    {
+      "number": 9,
+      "id": "MDExOlB1bGxSZXF1ZXN0NTU2NDY3Mzc3",
+      "title": "Do some basic cleanup for encapsulation",
+      "url": "https://github.com/unicorn-wg/oblivious-http/pull/9",
+      "state": "MERGED",
+      "author": "martinthomson",
+      "authorAssociation": "MEMBER",
+      "assignees": [],
+      "labels": [],
+      "body": "This just expands the text and tries to be explicit about everything.\r\n\r\nThe one change I've included here is a change from 32 to Nsk for the\r\nexported secret.  I think that's in line with the HPKE intent.\r\nConstants make me nervous.",
+      "createdAt": "2021-01-18T02:24:29Z",
+      "updatedAt": "2021-01-18T22:15:14Z",
+      "baseRepository": "unicorn-wg/oblivious-http",
+      "baseRefName": "main",
+      "baseRefOid": "8bda1a4db04a3b407e2ddfa9674d7b4a458db048",
+      "headRepository": "unicorn-wg/oblivious-http",
+      "headRefName": "cleanup-encapsulation",
+      "headRefOid": "9b18c9243821a9e5f6b1804316e140f7d7ee3fd0",
+      "closedAt": "2021-01-18T15:23:57Z",
+      "mergedAt": "2021-01-18T15:23:57Z",
+      "mergedBy": "chris-wood",
+      "mergeCommit": {
+        "oid": "fd90f306ae8d62cd9a4803bc3837ed40772c36e2"
+      },
+      "comments": [
+        {
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "body": "I'm going to merge, and then apply my suggestions and the nonce change in a followup PR.",
+          "createdAt": "2021-01-18T15:23:53Z",
+          "updatedAt": "2021-01-18T15:23:53Z"
+        }
+      ],
+      "reviews": [
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTcwNTc1MTUw",
+          "commit": {
+            "abbreviatedOid": "9b18c92"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2021-01-18T15:10:08Z",
+          "updatedAt": "2021-01-18T15:23:05Z",
+          "comments": [
+            {
+              "originalPosition": 74,
+              "body": "Hmm, I think the keyID as sent on the wire, which includes the length, should be the AAD. \r\n\r\n```suggestion\r\n   with a value of 0x01 to the key identifier. The key identifier length is\r\n   included in the AAD.\r\n```",
+              "createdAt": "2021-01-18T15:10:08Z",
+              "updatedAt": "2021-01-18T15:23:05Z"
+            },
+            {
+              "originalPosition": 83,
+              "body": "```suggestion\r\n   `enc` and `ct`, yielding an Encapsulated Request `enc_request`. Note that `enc` is of \r\n    fixed-length, so there is no ambiguity in parsing `enc` and `ct`.\r\n```",
+              "createdAt": "2021-01-18T15:12:16Z",
+              "updatedAt": "2021-01-18T15:23:05Z"
+            },
+            {
+              "originalPosition": 93,
+              "body": "Where is `vencode` defined?",
+              "createdAt": "2021-01-18T15:12:39Z",
+              "updatedAt": "2021-01-18T15:23:05Z"
+            },
+            {
+              "originalPosition": 93,
+              "body": "```suggestion\r\nkeyID_length = vencode(len(keyID)\r\naad = concat(0x01, keyID_length, keyID)\r\nct = context.Seal(aad, request)\r\nenc_request = concat(keyID_length, keyID, enc, ct)\r\n```",
+              "createdAt": "2021-01-18T15:14:17Z",
+              "updatedAt": "2021-01-18T15:23:05Z"
+            },
+            {
+              "originalPosition": 102,
+              "body": "```suggestion\r\n   private key, `skR`, corresponding to `keyID`. If no such key exists, the server MUST return\r\n   an error with HTTP status code 401.\r\n```",
+              "createdAt": "2021-01-18T15:15:47Z",
+              "updatedAt": "2021-01-18T15:23:05Z"
+            },
+            {
+              "originalPosition": 114,
+              "body": "```suggestion\r\n   with a value of 0x01 to the key identifier, which includes its length.\r\n```",
+              "createdAt": "2021-01-18T15:16:43Z",
+              "updatedAt": "2021-01-18T15:23:05Z"
+            },
+            {
+              "originalPosition": 117,
+              "body": "```suggestion\r\n   on failure. If decryption fails, the server MUST return an error with HTTP status code 400.\r\n```",
+              "createdAt": "2021-01-18T15:17:20Z",
+              "updatedAt": "2021-01-18T15:23:06Z"
+            },
+            {
+              "originalPosition": 126,
+              "body": "```suggestion\r\naad = concat(0x01, vencode(len(keyID), keyID)\r\n```",
+              "createdAt": "2021-01-18T15:17:59Z",
+              "updatedAt": "2021-01-18T15:23:06Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "number": 10,
+      "id": "MDExOlB1bGxSZXF1ZXN0NTU2NDg5NDcx",
+      "title": "Add a bunch of words",
+      "url": "https://github.com/unicorn-wg/oblivious-http/pull/10",
+      "state": "MERGED",
+      "author": "martinthomson",
+      "authorAssociation": "MEMBER",
+      "assignees": [],
+      "labels": [],
+      "body": "A first cut at the intro and the text describing how different entities\r\nmight think about each other.\r\n\r\nAfter all this, I'm running short on stuff that might go in security\r\nconsiderations.  Maybe we should move this new text there so that the\r\nsecurity people can find what they need under a familiar heading.",
+      "createdAt": "2021-01-18T03:50:19Z",
+      "updatedAt": "2021-01-18T22:15:13Z",
+      "baseRepository": "unicorn-wg/oblivious-http",
+      "baseRefName": "main",
+      "baseRefOid": "8bda1a4db04a3b407e2ddfa9674d7b4a458db048",
+      "headRepository": "unicorn-wg/oblivious-http",
+      "headRefName": "words",
+      "headRefOid": "909d6c5d20da1d247a3cd75882816d583e1aec73",
+      "closedAt": "2021-01-18T21:43:07Z",
+      "mergedAt": "2021-01-18T21:43:07Z",
+      "mergedBy": "martinthomson",
+      "mergeCommit": {
+        "oid": "33d57777b41a2bff8be5f4e86e0ae503c3b1d2e1"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTcwNjAyOTEx",
+          "commit": {
+            "abbreviatedOid": "58decd7"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "This looks good! The security analysis we did for ODoH can be modified and moved over here, in the security considerations, after this change lands. (That change can go into the different attacks that are possible for malicious or HbC proxies or targets.)\r\n\r\nFeel free to merge when ready.",
+          "createdAt": "2021-01-18T15:42:20Z",
+          "updatedAt": "2021-01-18T15:59:32Z",
+          "comments": [
+            {
+              "originalPosition": 41,
+              "body": "```suggestion\r\nis significant. Preventing request linkability requires that each request\r\nuse a completely new TLS connection to the server. At a minimum,\r\n```",
+              "createdAt": "2021-01-18T15:42:20Z",
+              "updatedAt": "2021-01-18T21:42:48Z"
+            },
+            {
+              "originalPosition": 120,
+              "body": "Since contexts aren't re-used, I don't think we need to say this.\r\n\r\n```suggestion\r\nto the proxy. \r\n```\r\n",
+              "createdAt": "2021-01-18T15:44:54Z",
+              "updatedAt": "2021-01-18T21:42:48Z"
+            },
+            {
+              "originalPosition": 133,
+              "body": "```suggestion\r\nrequest resource, and forwards responses from the oblivious request resource\r\nback to clients. The proxy MUST forward response status codes without\r\nmodification.\r\n```",
+              "createdAt": "2021-01-18T15:48:05Z",
+              "updatedAt": "2021-01-18T21:42:48Z"
+            },
+            {
+              "originalPosition": 171,
+              "body": "Noting transport-layer since it can't modify the binary messages.\r\n\r\n```suggestion\r\nA proxy can use transport-layer padding to reduce the effectiveness of\r\ntraffic analysis.\r\n```",
+              "createdAt": "2021-01-18T15:53:20Z",
+              "updatedAt": "2021-01-18T21:42:48Z"
+            },
+            {
+              "originalPosition": 177,
+              "body": "I'm not sure we should include this. Clients can't really verify that proxies apply traffic analysis mitigations, so I'm not sure clients would meaningfully take this into account when choosing a proxy.\r\n\r\n```suggestion\r\n```",
+              "createdAt": "2021-01-18T15:54:25Z",
+              "updatedAt": "2021-01-18T21:42:48Z"
+            },
+            {
+              "originalPosition": 188,
+              "body": "Is this enough? What if the response is leaked not via size but via response time? (Victim makes a request whose response is cached, and then attacker sends the same request and tries to observe cache hit/miss.) \r\n\r\n(I really don't love the timing delay stuff, but it seems better to mention the possible risk than not.)\r\n\r\n```suggestion\r\nServers should account for traffic analysis based on response size or generation time.\r\nTechniques such as padding or timing delays can help protect against such attacks;\r\nsee {{ta}}.\r\n```",
+              "createdAt": "2021-01-18T15:57:51Z",
+              "updatedAt": "2021-01-18T21:42:48Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTcwNjE4MDQx",
+          "commit": {
+            "abbreviatedOid": "58decd7"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2021-01-18T15:59:42Z",
+          "updatedAt": "2021-01-18T15:59:42Z",
+          "comments": []
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTcwNzg5NDI3",
+          "commit": {
+            "abbreviatedOid": "58decd7"
+          },
+          "author": "martinthomson",
+          "authorAssociation": "MEMBER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-01-18T21:40:33Z",
+          "updatedAt": "2021-01-18T21:42:53Z",
+          "comments": [
+            {
+              "originalPosition": 120,
+              "body": "I was thinking that this was something we could say because it explains that reuse of a context doesn't necessarily lead to this problem.",
+              "createdAt": "2021-01-18T21:40:34Z",
+              "updatedAt": "2021-01-18T21:42:53Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "number": 11,
+      "id": "MDExOlB1bGxSZXF1ZXN0NTU2ODkyMTE0",
+      "title": "Encapsulate the server response with a nonce.",
+      "url": "https://github.com/unicorn-wg/oblivious-http/pull/11",
+      "state": "MERGED",
+      "author": "chris-wood",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Makes some of my suggestions from #9, and addresses #8 in the process.\r\n\r\nFor context, I consider the `keyID` variable to be the wire-encoded (length prefixed) thing, and I tried to clarify that here. I don't feel strongly about the way that's written, but I do think it's important that everything sent on the wire is authenticated, including the keyID length.",
+      "createdAt": "2021-01-18T15:40:38Z",
+      "updatedAt": "2021-01-18T22:15:12Z",
+      "baseRepository": "unicorn-wg/oblivious-http",
+      "baseRefName": "main",
+      "baseRefOid": "33d57777b41a2bff8be5f4e86e0ae503c3b1d2e1",
+      "headRepository": "unicorn-wg/oblivious-http",
+      "headRefName": "caw/nonces",
+      "headRefOid": "a21cda7591a70ffc101b0694077fbdaf507f94bf",
+      "closedAt": "2021-01-18T22:02:51Z",
+      "mergedAt": "2021-01-18T22:02:51Z",
+      "mergedBy": "martinthomson",
+      "mergeCommit": {
+        "oid": "5c44c6dc243fe06314bbcc2be62a06e205a844b4"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTcwNzg2MjAw",
+          "commit": {
+            "abbreviatedOid": "e5a1bde"
+          },
+          "author": "martinthomson",
+          "authorAssociation": "MEMBER",
+          "state": "COMMENTED",
+          "body": "The addition of the nonce is good.\r\n\r\nNote sure about the length prefix on `keyID` and equally unsure about Nsk -> Nk.",
+          "createdAt": "2021-01-18T21:30:58Z",
+          "updatedAt": "2021-01-18T21:38:52Z",
+          "comments": [
+            {
+              "originalPosition": 26,
+              "body": "So I'm not so sure about this one.  One problem is that the varint encoding is only injective, not bijective.  That means that you can varint encode the length differently for encoding and the AAD if you aren't careful to also keep the length of the length.  That breaks things if implemented as described.\r\n\r\nMy understanding was that an AEAD was required to authenticate the length of the AAD in addition to its content.  GCM does: `S = GHASH_H (A || 0^v || C || 0^u || [len(A)]_64 || [len(C)]_64).`  Can't we rely on that?",
+              "createdAt": "2021-01-18T21:30:58Z",
+              "updatedAt": "2021-01-18T22:01:08Z"
+            },
+            {
+              "originalPosition": 45,
+              "body": "I'm OK with this, but it loses the length-encoding thing (and the lines don't match the numbered list any more).",
+              "createdAt": "2021-01-18T21:32:22Z",
+              "updatedAt": "2021-01-18T22:01:08Z"
+            },
+            {
+              "originalPosition": 56,
+              "body": "I'd like to keep the HTTP-layer stuff to its own section.\r\n\r\n```suggestion\r\n   private key, `skR`, corresponding to `keyID`. If no key exists, the \r\n   server returns an error.\r\n```",
+              "createdAt": "2021-01-18T21:33:24Z",
+              "updatedAt": "2021-01-18T22:01:08Z"
+            },
+            {
+              "originalPosition": 87,
+              "body": "I don't think that this is right.  Can you explain your reasoning?",
+              "createdAt": "2021-01-18T21:34:10Z",
+              "updatedAt": "2021-01-18T22:01:08Z"
+            },
+            {
+              "originalPosition": 90,
+              "body": "I think that we need a separate step to generate the nonce here.",
+              "createdAt": "2021-01-18T21:34:57Z",
+              "updatedAt": "2021-01-18T22:01:08Z"
+            },
+            {
+              "originalPosition": 106,
+              "body": "You need to say here that the AAD is an empty string.",
+              "createdAt": "2021-01-18T21:37:39Z",
+              "updatedAt": "2021-01-18T22:01:08Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTcwNzg5MzM1",
+          "commit": {
+            "abbreviatedOid": "b13d8d4"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-01-18T21:40:18Z",
+          "updatedAt": "2021-01-18T21:40:19Z",
+          "comments": [
+            {
+              "originalPosition": 26,
+              "body": "Maybe? But including the length is cheap, so why *not* do it?",
+              "createdAt": "2021-01-18T21:40:19Z",
+              "updatedAt": "2021-01-18T22:01:08Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTcwNzg5NDg1",
+          "commit": {
+            "abbreviatedOid": "b13d8d4"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-01-18T21:40:41Z",
+          "updatedAt": "2021-01-18T21:40:42Z",
+          "comments": [
+            {
+              "originalPosition": 56,
+              "body": "That's fine -- separate issue?",
+              "createdAt": "2021-01-18T21:40:41Z",
+              "updatedAt": "2021-01-18T22:01:08Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTcwNzkwNDEz",
+          "commit": {
+            "abbreviatedOid": "b13d8d4"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-01-18T21:43:05Z",
+          "updatedAt": "2021-01-18T21:43:06Z",
+          "comments": [
+            {
+              "originalPosition": 87,
+              "body": "Sure: Nsk is the size of the KEM shared secret, not the AEAD encryption key. IIUC there's no difference between extracting the necessary amount and then stretching it (as we do here) or extracting something much larger and stretching.",
+              "createdAt": "2021-01-18T21:43:06Z",
+              "updatedAt": "2021-01-18T22:01:08Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTcwNzkzNTMy",
+          "commit": {
+            "abbreviatedOid": "2c2fcf3"
+          },
+          "author": "martinthomson",
+          "authorAssociation": "MEMBER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-01-18T21:52:09Z",
+          "updatedAt": "2021-01-18T21:52:09Z",
+          "comments": [
+            {
+              "originalPosition": 87,
+              "body": "Oh, right.  I considered that, but didn't want to use that as encapsulation can make the value much larger than we might need.  X25519 is ok (32 bytes), but a P-256 share is larger, if only so that it can distinguish between compress and uncompressed.  Nsk might be larger in the sense that it contains wasted bits, but at least it is representative of the entropy level we are looking to maintain.",
+              "createdAt": "2021-01-18T21:52:09Z",
+              "updatedAt": "2021-01-18T22:01:08Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTcwNzkzNjQ3",
+          "commit": {
+            "abbreviatedOid": "2c2fcf3"
+          },
+          "author": "martinthomson",
+          "authorAssociation": "MEMBER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-01-18T21:52:33Z",
+          "updatedAt": "2021-01-18T21:52:33Z",
+          "comments": [
+            {
+              "originalPosition": 26,
+              "body": "I just explained why: it makes it difficult to implement.",
+              "createdAt": "2021-01-18T21:52:33Z",
+              "updatedAt": "2021-01-18T22:01:08Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTcwNzk0MDc1",
+          "commit": {
+            "abbreviatedOid": "2c2fcf3"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-01-18T21:53:50Z",
+          "updatedAt": "2021-01-18T21:53:50Z",
+          "comments": [
+            {
+              "originalPosition": 87,
+              "body": "My point is that the entropy we need is max(|key|, |nonce|), and Nk is exactly that for all AEADs I know of.",
+              "createdAt": "2021-01-18T21:53:50Z",
+              "updatedAt": "2021-01-18T22:01:08Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTcwNzk0ODI4",
+          "commit": {
+            "abbreviatedOid": "2c2fcf3"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-01-18T21:56:06Z",
+          "updatedAt": "2021-01-18T21:56:07Z",
+          "comments": [
+            {
+              "originalPosition": 26,
+              "body": "Yeah, I hear you, I'm just worried about what might happen if you don't authenticate the length explicitly. (I don't see any immediate problem, but I'd prefer we just explicitly authenticate every bit sent on the wire. I'm fine moving this to a separate issue.)",
+              "createdAt": "2021-01-18T21:56:06Z",
+              "updatedAt": "2021-01-18T22:01:08Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTcwNzk1MTIz",
+          "commit": {
+            "abbreviatedOid": "2c2fcf3"
+          },
+          "author": "martinthomson",
+          "authorAssociation": "MEMBER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-01-18T21:56:52Z",
+          "updatedAt": "2021-01-18T21:56:52Z",
+          "comments": [
+            {
+              "originalPosition": 87,
+              "body": "OK, fair enough.  In TLS we never reduced the entropy of a secret below that of the KDF, which this would do.  \r\n\r\nAnyway, could we say `max(Nk, Nn)` instead?",
+              "createdAt": "2021-01-18T21:56:52Z",
+              "updatedAt": "2021-01-18T22:01:08Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTcwNzk1OTUy",
+          "commit": {
+            "abbreviatedOid": "e92b4f7"
+          },
+          "author": "martinthomson",
+          "authorAssociation": "MEMBER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-01-18T21:59:00Z",
+          "updatedAt": "2021-01-18T21:59:01Z",
+          "comments": [
+            {
+              "originalPosition": 26,
+              "body": "If this were input to key schedule, sure.  But I'm not even sure we need to include the keyID in AAD at all.  It's convenient, so sure, but it isn't *necessary*.",
+              "createdAt": "2021-01-18T21:59:01Z",
+              "updatedAt": "2021-01-18T22:01:08Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTcwNzk2MDYy",
+          "commit": {
+            "abbreviatedOid": "e92b4f7"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-01-18T21:59:22Z",
+          "updatedAt": "2021-01-18T21:59:22Z",
+          "comments": [
+            {
+              "originalPosition": 26,
+              "body": "Reverted -- we can discussed separately in #12.",
+              "createdAt": "2021-01-18T21:59:22Z",
+              "updatedAt": "2021-01-18T22:01:08Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTcwNzk2Njg4",
+          "commit": {
+            "abbreviatedOid": "a21cda7"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-01-18T22:01:11Z",
+          "updatedAt": "2021-01-18T22:01:11Z",
+          "comments": [
+            {
+              "originalPosition": 87,
+              "body": "Yep, done.",
+              "createdAt": "2021-01-18T22:01:11Z",
+              "updatedAt": "2021-01-18T22:01:12Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "number": 14,
+      "id": "MDExOlB1bGxSZXF1ZXN0NTU3MDU4OTMy",
+      "title": "Add Chris as author",
+      "url": "https://github.com/unicorn-wg/oblivious-http/pull/14",
+      "state": "MERGED",
+      "author": "martinthomson",
+      "authorAssociation": "MEMBER",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2021-01-18T22:06:04Z",
+      "updatedAt": "2021-01-18T22:14:45Z",
+      "baseRepository": "unicorn-wg/oblivious-http",
+      "baseRefName": "main",
+      "baseRefOid": "5c44c6dc243fe06314bbcc2be62a06e205a844b4",
+      "headRepository": "unicorn-wg/oblivious-http",
+      "headRefName": "mt/caw",
+      "headRefOid": "702c781abb8d79066cd1f2403a62e82146b6b1c3",
+      "closedAt": "2021-01-18T22:08:10Z",
+      "mergedAt": "2021-01-18T22:08:10Z",
+      "mergedBy": "chris-wood",
+      "mergeCommit": {
+        "oid": "825f3f77549b69f62a3f5661c0b8b2d1e9151101"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 15,
+      "id": "MDExOlB1bGxSZXF1ZXN0NTU3MDk1NjY2",
+      "title": "Define some HTTP usage",
+      "url": "https://github.com/unicorn-wg/oblivious-http/pull/15",
+      "state": "OPEN",
+      "author": "martinthomson",
+      "authorAssociation": "MEMBER",
+      "assignees": [],
+      "labels": [],
+      "body": "This is more or less implied already, but it is better to write it down.\r\n\r\nI've added stubs for some content types as well.",
+      "createdAt": "2021-01-19T00:25:51Z",
+      "updatedAt": "2021-01-19T00:25:51Z",
+      "baseRepository": "unicorn-wg/oblivious-http",
+      "baseRefName": "main",
+      "baseRefOid": "825f3f77549b69f62a3f5661c0b8b2d1e9151101",
+      "headRepository": "unicorn-wg/oblivious-http",
+      "headRefName": "http-usage",
+      "headRefOid": "ad66a048c3573824b1990b281980c7900e9b7ff0",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": []
     }
   ]
 }
