@@ -5,8 +5,8 @@
 HTTPBIS                                                       M. Thomson
 Internet-Draft                                                   Mozilla
 Intended status: Standards Track                               C.A. Wood
-Expires: 22 July 2021                                         Cloudflare
-                                                         18 January 2021
+Expires: 24 July 2021                                         Cloudflare
+                                                         20 January 2021
 
 
                              Oblivious HTTP
@@ -45,7 +45,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 22 July 2021.
+   This Internet-Draft will expire on 24 July 2021.
 
 Copyright Notice
 
@@ -395,11 +395,12 @@ Table of Contents
    Clients decrypt an Encapsulated Request by reversing this process.
    That is, they first parse "enc_response" into "response_nonce" and
    "ct".  They then follow the same process to derive values for
-   "aead_key" and "aead_nonce".  Finally, the client decrypts "ct" using
-   the Open function provided by the AEAD.  Decrypting might produce an
-   error, as shown.
+   "aead_key" and "aead_nonce".
 
-   reponse, error = Open(key, nonce, aad, enc_response)
+   The client uses these values to decrypt "ct" using the Open function
+   provided by the AEAD.  Decrypting might produce an error, as follows:
+
+   reponse, error = Open(aead_key, aead_nonce, "", ct)
 
 4.3.  Padding
 
@@ -551,7 +552,7 @@ Table of Contents
 
    [BINARY]   Thomson, M., "Binary Representation of HTTP Messages",
               Work in Progress, Internet-Draft, draft-ietf-http-binary-
-              message-latest, 18 January 2021,
+              message-latest, 20 January 2021,
               <https://tools.ietf.org/html/draft-ietf-http-binary-
               message-latest>.
 
