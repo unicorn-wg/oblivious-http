@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2021-01-19T00:36:14.819337+00:00",
+  "timestamp": "2021-01-21T00:37:15.746092+00:00",
   "repo": "unicorn-wg/oblivious-http",
   "labels": [
     {
@@ -204,6 +204,58 @@
           "body": "Oops,  #12.",
           "createdAt": "2021-01-18T22:00:16Z",
           "updatedAt": "2021-01-18T22:00:16Z"
+        }
+      ]
+    },
+    {
+      "number": 16,
+      "id": "MDU6SXNzdWU3ODg4OTAxMDM=",
+      "title": "Format for server key information",
+      "url": "https://github.com/unicorn-wg/oblivious-http/issues/16",
+      "state": "OPEN",
+      "author": "martinthomson",
+      "authorAssociation": "MEMBER",
+      "assignees": [],
+      "labels": [],
+      "body": "Right now we just use words for this, but we might want to define a format that includes keyID, KEM, KDF, AEAD, and pk for the server. A media type for this might be good. Given the general applicability of this, it might want to be a separate document.",
+      "createdAt": "2021-01-19T10:14:24Z",
+      "updatedAt": "2021-01-21T00:33:07Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "ekr",
+          "authorAssociation": "NONE",
+          "body": "I would suggest we steal either the MLS or the ECH format.\n\nOn Tue, Jan 19, 2021 at 2:14 AM Martin Thomson <notifications@github.com>\nwrote:\n\n> Right now we just use words for this, but we might want to define a format\n> that includes keyID, KEM, KDF, AEAD, and pk for the server. A media type\n> for this might be good. Given the general applicability of this, it might\n> want to be a separate document.\n>\n> \u2014\n> You are receiving this because you are subscribed to this thread.\n> Reply to this email directly, view it on GitHub\n> <https://github.com/unicorn-wg/oblivious-http/issues/16>, or unsubscribe\n> <https://github.com/notifications/unsubscribe-auth/AAIPLIKWUAMCATTJF2WJ4S3S2VLRBANCNFSM4WIRJ2YA>\n> .\n>\n",
+          "createdAt": "2021-01-19T13:29:51Z",
+          "updatedAt": "2021-01-19T13:29:51Z"
+        },
+        {
+          "author": "martinthomson",
+          "authorAssociation": "MEMBER",
+          "body": "That seems ideal.  I was more thinking about how we might represent this information as a media type or in a header field.  Right now, we're assuming configuration rather than discovery, but for things like key rotation, it could be helpful to include a way to provide updated keys.\r\n\r\nOne way this might help to provide a way for an oblivious request resource to indicate some of the keys that can be used to talk to it.",
+          "createdAt": "2021-01-19T21:44:58Z",
+          "updatedAt": "2021-01-19T21:44:58Z"
+        },
+        {
+          "author": "martinthomson",
+          "authorAssociation": "MEMBER",
+          "body": "I looked at the ECH format and it wasn't suitable.  It doesn't include a key identifier (it uses that hashing thing for identification) and it relies on TLS signaling the KDF and AEAD that was chosen.  It also includes stuff we don't need.\r\n\r\nThe MLS KeyPackage is even more divergent from our needs.  MLS remaps the KEM, KDF, and AEAD identifiers and includes a bunch of other stuff we don't need.\r\n\r\nWhat I've implemented, which can easily change is this:\r\n\r\n```\r\nConfig {\r\n  Key ID Length (i),\r\n  Key ID (..),\r\n  KEM (16),\r\n  KDF (16),\r\n  AEAD (16),\r\n  Public Key (..), # remainder\r\n}\r\n```\r\n\r\nHowever, I think that it makes sense to have a format that wraps multiple keys, say:\r\n\r\n```\r\nPrefixed Config {\r\n  Config Length (i),\r\n  Config (..),\r\n}\r\nOblivious Request Resource Config {\r\n  PrefixedConfig (..) ...,\r\n}\r\n```\r\n\r\nThis would allow an oblivious request resource to advertise multiple keys.\r\n\r\nDrawbacks:\r\n\r\n* This is not space efficient: if the same key supports multiple configurations, then this will require that the key be repeated multiple times, and with a different key identifier for each.  But I'm going to suggest that gzip can solve that problem for us.\r\n\r\n* There is no way to annotate individual keys.  This might complicate the addition of per-key expiration times.  My initial view is that once replacement keys are available, you don't need to advertise other keys, even if you still accept requests for some time.\r\n\r\nAll told, this is starting to smell like a substantial enough piece to warrant a separate document.",
+          "createdAt": "2021-01-21T00:15:47Z",
+          "updatedAt": "2021-01-21T00:15:47Z"
+        },
+        {
+          "author": "ekr",
+          "authorAssociation": "NONE",
+          "body": "Hmm... I'm not sure I agree with this analysis. This seems to me that it's\nisomorphic to the ECH situation, you're just making a different design\ntradeoff about where to carry the KDF and AEAD, for instance. What stops\nyou from using the hashing thing and carrying the KDF and AEAD in this\nbrand new format?\n\n\nOn Wed, Jan 20, 2021 at 4:16 PM Martin Thomson <notifications@github.com>\nwrote:\n\n> I looked at the ECH format and it wasn't suitable. It doesn't include a\n> key identifier (it uses that hashing thing for identification) and it\n> relies on TLS signaling the KDF and AEAD that was chosen. It also includes\n> stuff we don't need.\n>\n> The MLS KeyPackage is even more divergent from our needs. MLS remaps the\n> KEM, KDF, and AEAD identifiers and includes a bunch of other stuff we don't\n> need.\n>\n> What I've implemented, which can easily change is this:\n>\n> Config {\n>   Key ID Length (i),\n>   Key ID (..),\n>   KEM (16),\n>   KDF (16),\n>   AEAD (16),\n>   Public Key (..), # remainder\n> }\n>\n> However, I think that it makes sense to have a format that wraps multiple\n> keys, say:\n>\n> Prefixed Config {\n>   Config Length (i),\n>   Config (..),\n> }\n> Oblivious Request Resource Config {\n>   PrefixedConfig (..) ...,\n> }\n>\n> This would allow an oblivious request resource to advertise multiple keys.\n>\n> Drawbacks:\n>\n>    -\n>\n>    This is not space efficient: if the same key supports multiple\n>    configurations, then this will require that the key be repeated multiple\n>    times, and with a different key identifier for each. But I'm going to\n>    suggest that gzip can solve that problem for us.\n>    -\n>\n>    There is no way to annotate individual keys. This might complicate the\n>    addition of per-key expiration times. My initial view is that once\n>    replacement keys are available, you don't need to advertise other keys,\n>    even if you still accept requests for some time.\n>\n> All told, this is starting to smell like a substantial enough piece to\n> warrant a separate document.\n>\n> \u2014\n> You are receiving this because you commented.\n> Reply to this email directly, view it on GitHub\n> <https://github.com/unicorn-wg/oblivious-http/issues/16#issuecomment-764059399>,\n> or unsubscribe\n> <https://github.com/notifications/unsubscribe-auth/AAIPLIL25D37MHIJ254FSHLS25W4FANCNFSM4WIRJ2YA>\n> .\n>\n",
+          "createdAt": "2021-01-21T00:27:17Z",
+          "updatedAt": "2021-01-21T00:27:17Z"
+        },
+        {
+          "author": "martinthomson",
+          "authorAssociation": "MEMBER",
+          "body": "OK, I'm going to try not to react here with how abhorrent the hashing thing is, but I think that it exists primarily to avoid carrying information in the ECH context.\r\n\r\nWe could carry certainly carry KDF and AEAD identifiers separate to the key identifier.  That's a choice that would allow us to reuse the part of the ECH configuration that repeats that piece.  And have multiple combinations of those for the same key identifier.  I don't care so much about that piece, though in practice you can get that by packing those fields into the key identifier.\r\n\r\nThe pieces we really don't want are the public name (which means nothing in this context) and extensions.  This is not something that needs extending arbitrarily.",
+          "createdAt": "2021-01-21T00:33:07Z",
+          "updatedAt": "2021-01-21T00:33:07Z"
         }
       ]
     }
@@ -1255,6 +1307,137 @@
       "mergeCommit": null,
       "comments": [],
       "reviews": []
+    },
+    {
+      "number": 17,
+      "id": "MDExOlB1bGxSZXF1ZXN0NTU4MDg1NTgw",
+      "title": "Make the label match the text",
+      "url": "https://github.com/unicorn-wg/oblivious-http/pull/17",
+      "state": "MERGED",
+      "author": "martinthomson",
+      "authorAssociation": "MEMBER",
+      "assignees": [],
+      "labels": [],
+      "body": "I think that \"response\" for the exporter is better than \"secret\".\r\nSymmetry.",
+      "createdAt": "2021-01-20T09:17:12Z",
+      "updatedAt": "2021-01-20T21:37:37Z",
+      "baseRepository": "unicorn-wg/oblivious-http",
+      "baseRefName": "main",
+      "baseRefOid": "825f3f77549b69f62a3f5661c0b8b2d1e9151101",
+      "headRepository": "unicorn-wg/oblivious-http",
+      "headRefName": "request-label",
+      "headRefOid": "962643586678f84e58a14c62349126f5f71cd6da",
+      "closedAt": "2021-01-20T21:37:36Z",
+      "mergedAt": "2021-01-20T21:37:36Z",
+      "mergedBy": "martinthomson",
+      "mergeCommit": {
+        "oid": "bceadaa805192029131e5cdd5a43dfd3d34f8cd8"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTcyMTk3MTA0",
+          "commit": {
+            "abbreviatedOid": "9626435"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-01-20T13:02:41Z",
+          "updatedAt": "2021-01-20T13:02:45Z",
+          "comments": [
+            {
+              "originalPosition": 5,
+              "body": "For HPKE we received a lot of feedback that it was most descriptive when the label matched the variable name, so how about:\r\n\r\n```suggestion\r\nresponse_secret = context.Export(\"response secret\", Nk)\r\n```\r\n\r\nOr something to that effect?",
+              "createdAt": "2021-01-20T13:02:41Z",
+              "updatedAt": "2021-01-20T13:02:45Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTcyNjY4NTAz",
+          "commit": {
+            "abbreviatedOid": "9626435"
+          },
+          "author": "martinthomson",
+          "authorAssociation": "MEMBER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-01-20T21:33:51Z",
+          "updatedAt": "2021-01-20T21:33:52Z",
+          "comments": [
+            {
+              "originalPosition": 5,
+              "body": "I'm happy with the simple symmetry of using \"request\" to construct a request and \"response\" to construct a response.  Qualifying with \" secret\" implies that there are other things we might need for responses.\r\n\r\nThis is a simple enough process to follow that we probably don't need to be more explicit.",
+              "createdAt": "2021-01-20T21:33:51Z",
+              "updatedAt": "2021-01-20T21:33:52Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTcyNjY5NDM5",
+          "commit": {
+            "abbreviatedOid": "9626435"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-01-20T21:35:14Z",
+          "updatedAt": "2021-01-20T21:35:14Z",
+          "comments": [
+            {
+              "originalPosition": 5,
+              "body": "\ud83d\udc4d I definitely don't feel strongly about this, other than that this label should (I think) be \"response\" since it's used to generate response encryption keys. ",
+              "createdAt": "2021-01-20T21:35:14Z",
+              "updatedAt": "2021-01-20T21:35:14Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "number": 18,
+      "id": "MDExOlB1bGxSZXF1ZXN0NTU4MTY1NjA5",
+      "title": "Fix Open variables",
+      "url": "https://github.com/unicorn-wg/oblivious-http/pull/18",
+      "state": "MERGED",
+      "author": "martinthomson",
+      "authorAssociation": "MEMBER",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2021-01-20T11:20:29Z",
+      "updatedAt": "2021-01-20T13:00:46Z",
+      "baseRepository": "unicorn-wg/oblivious-http",
+      "baseRefName": "main",
+      "baseRefOid": "825f3f77549b69f62a3f5661c0b8b2d1e9151101",
+      "headRepository": "unicorn-wg/oblivious-http",
+      "headRefName": "response-ad",
+      "headRefOid": "38d114d928a951579db6d3de6598c9bbc65a4fa9",
+      "closedAt": "2021-01-20T13:00:45Z",
+      "mergedAt": "2021-01-20T13:00:45Z",
+      "mergedBy": "chris-wood",
+      "mergeCommit": {
+        "oid": "293db36eaee895289d1f4d6fe5a741cfb89992e7"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTcyMTk1Mzk0",
+          "commit": {
+            "abbreviatedOid": "38d114d"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2021-01-20T13:00:41Z",
+          "updatedAt": "2021-01-20T13:00:41Z",
+          "comments": []
+        }
+      ]
     }
   ]
 }
