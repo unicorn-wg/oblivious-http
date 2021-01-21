@@ -4,8 +4,8 @@
 
 HTTPBIS                                                       M. Thomson
 Internet-Draft                                                   Mozilla
-Intended status: Standards Track                         15 January 2021
-Expires: 19 July 2021
+Intended status: Standards Track                         21 January 2021
+Expires: 25 July 2021
 
 
                              Oblivious HTTP
@@ -44,7 +44,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 19 July 2021.
+   This Internet-Draft will expire on 25 July 2021.
 
 Copyright Notice
 
