@@ -277,6 +277,9 @@ Table of Contents
    of key derivation function (KDF) and authenticated encryption with
    associated data (AEAD) in this decision.
 
+   Evolution of the key configuration format is supported through the
+   definition of new formats that are identified by new media types.
+
 4.1.  Key Configuration Encoding
 
    A single key configuration consists of a key identifier, a public
