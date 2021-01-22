@@ -4,8 +4,8 @@
 
 HTTPBIS                                                       M. Thomson
 Internet-Draft                                                   Mozilla
-Intended status: Standards Track                         19 January 2021
-Expires: 23 July 2021
+Intended status: Standards Track                         22 January 2021
+Expires: 26 July 2021
 
 
                  Binary Representation of HTTP Messages
@@ -41,7 +41,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 23 July 2021.
+   This Internet-Draft will expire on 26 July 2021.
 
 Copyright Notice
 

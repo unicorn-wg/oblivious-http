@@ -5,8 +5,8 @@
 HTTPBIS                                                       M. Thomson
 Internet-Draft                                                   Mozilla
 Intended status: Standards Track                               C.A. Wood
-Expires: 23 July 2021                                         Cloudflare
-                                                         19 January 2021
+Expires: 26 July 2021                                         Cloudflare
+                                                         22 January 2021
 
 
                              Oblivious HTTP
@@ -45,7 +45,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 23 July 2021.
+   This Internet-Draft will expire on 26 July 2021.
 
 Copyright Notice
 
@@ -420,11 +420,11 @@ Table of Contents
    an encapsulated request.  This encapsulated request is included as
    the content of a POST request to the oblivious proxy resource.  This
    request MUST only contain those fields necessary to carry the
-   encapsulated request: a method of POST, a target URI of the URI of
-   the oblivious proxy resource, a header field containing the content
-   type (see (Section 6), and the encapsulated request as the request
-   content.  Clients MAY include fields that do not reveal information
-   about the content of the request, such as Alt-Used [ALT-SVC].
+   encapsulated request: a method of POST, a target URI of the oblivious
+   proxy resource, a header field containing the content type (see
+   (Section 6), and the encapsulated request as the request content.
+   Clients MAY include fields that do not reveal information about the
+   content of the request, such as Alt-Used [ALT-SVC].
 
    The oblivious proxy resource interacts with the oblivious request
    resource by constructing a request using the same restrictions as the
@@ -721,7 +721,7 @@ Table of Contents
 
    [BINARY]   Thomson, M., "Binary Representation of HTTP Messages",
               Work in Progress, Internet-Draft, draft-ietf-http-binary-
-              message-latest, 19 January 2021,
+              message-latest, 22 January 2021,
               <https://tools.ietf.org/html/draft-ietf-http-binary-
               message-latest>.
 
