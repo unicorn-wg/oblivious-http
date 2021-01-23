@@ -5,8 +5,8 @@
 HTTPBIS                                                       M. Thomson
 Internet-Draft                                                   Mozilla
 Intended status: Standards Track                               C.A. Wood
-Expires: 26 July 2021                                         Cloudflare
-                                                         22 January 2021
+Expires: 27 July 2021                                         Cloudflare
+                                                         23 January 2021
 
 
                              Oblivious HTTP
@@ -45,7 +45,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 26 July 2021.
+   This Internet-Draft will expire on 27 July 2021.
 
 Copyright Notice
 
@@ -66,21 +66,29 @@ Table of Contents
    1.  Introduction
    2.  Conventions and Definitions
    3.  Overview
-   4.  HPKE Encapsulation
-     4.1.  HPKE Encapsulation of Requests
-     4.2.  HPKE Encapsulation of Responses
-     4.3.  Padding
-   5.  Responsibility of Roles
-     5.1.  Client
-     5.2.  Proxy Responsibilities
-       5.2.1.  Denial of Service
-       5.2.2.  Linkability Through Traffic Analysis
-     5.3.  Server Responsibilities
-   6.  Security Considerations
-   7.  IANA Considerations
-   8.  References
-     8.1.  Normative References
-     8.2.  Informative References
+   4.  Key Configuration
+     4.1.  Key Configuration Encoding
+     4.2.  Key Configuration Media Type
+   5.  HPKE Encapsulation
+     5.1.  HPKE Encapsulation of Requests
+     5.2.  HPKE Encapsulation of Responses
+     5.3.  Padding
+   6.  HTTP Usage
+     6.1.  Informational Responses
+     6.2.  Errors
+   7.  Media Types
+     7.1.  message/ohttp-req Media Type
+     7.2.  message/ohttp-res Media Type
+   8.  Security Considerations
+     8.1.  Client
+     8.2.  Proxy Responsibilities
+       8.2.1.  Denial of Service
+       8.2.2.  Linkability Through Traffic Analysis
+     8.3.  Server Responsibilities
+   9.  IANA Considerations
+   10. References
+     10.1.  Normative References
+     10.2.  Informative References
    Acknowledgments
    Authors' Addresses
 
@@ -123,7 +131,7 @@ Table of Contents
    Though this scheme requires that servers and proxies explicitly
    support it, this design represents a performance improvement over
    options that perform just one request in each connection.  With
-   limited trust placed in the proxy (see Section 5), clients are
+   limited trust placed in the proxy (see Section 8), clients are
    assured that requests are not uniquely attributed to them or linked
    to other requests.
 
@@ -136,10 +144,10 @@ Table of Contents
    capitals, as shown here.
 
    Encapsulated Request:  An HTTP request that is encapsulated in an
-      HPKE-encrypted message; see Section 4.1.
+      HPKE-encrypted message; see Section 5.1.
 
    Encapsulated Response:  An HTTP response that is encapsulated in an
-      HPKE-encrypted message; see Section 4.2.
+      HPKE-encrypted message; see Section 5.2.
 
    Oblivious Proxy Resource:  An intermediary that forwards requests and
       responses between clients and a single oblivious request resource.
@@ -215,7 +223,7 @@ Table of Contents
 
    2.   The client encodes the HTTP request in a binary HTTP message and
         then encapsulates that message using HPKE and the process from
-        Section 4.1.
+        Section 5.1.
 
    3.   The client sends a POST request to the oblivious proxy resource
         with the encapsulated request as the content of that message.
@@ -234,7 +242,7 @@ Table of Contents
         HTTP response.
 
    8.   The oblivious request resource encapsulates the HTTP response
-        following the process in Section 4.2 and sends this in response
+        following the process in Section 5.2 and sends this in response
         to the request from the oblivious proxy resource.
 
    9.   The oblivious proxy resource forwards this response to the
@@ -243,7 +251,114 @@ Table of Contents
    10.  The client removes the encapsulation to obtain the response to
         the original request.
 
-4.  HPKE Encapsulation
+4.  Key Configuration
+
+   A client needs to acquire information about the key configuration of
+   the oblivious request resource in order to send encapsulated
+   requests.
+
+   In order to ensure that clients do not encapsulate messages that
+   other entities can intercept, the key configuration MUST be
+   authenticated and have integrity protection.  One way to ensure
+   integrity for key configuration is for the oblivious request resource
+   to serve content to the client directly, using HTTPS and the
+   "application/ohttp-keys" media type; see Section 4.2.
+
+   Specifying a format for expressing the information a client needs to
+   construct an encapsulated request ensures that different client
+   implementations can be configured in the same way.  This also enables
+   advertising key configurations in a consistent format.
+
+   A client might have multiple key configurations to select from when
+   encapsulating a request.  Clients are responsible for selecting a
+   preferred key configuration from those it supports.  Clients need to
+   consider both the key encapsulation method (KEM) and the combinations
+   of key derivation function (KDF) and authenticated encryption with
+   associated data (AEAD) in this decision.
+
+   Evolution of the key configuration format is supported through the
+   definition of new formats that are identified by new media types.
+
+4.1.  Key Configuration Encoding
+
+   A single key configuration consists of a key identifier, a public
+   key, an identifier for the KEM that the public key uses, and a set
+   HPKE symmetric algorithms.  Each symmetric algorithm consists of an
+   identifier for a KDF and an identifier for an AEAD.
+
+   Figure 2 shows a single key configuration, KeyConfig, that is
+   expressed using the TLS syntax; see Section 3 of [TLS].
+
+   opaque HpkePublicKey<1..2^16-1>;
+   uint16 HpkeKemId;
+   uint16 HpkeKdfId;
+   uint16 HpkeAeadId;
+
+   struct {
+     HpkeKdfId kdf_id;
+     HpkeAeadId aead_id;
+   } HpkeSymmetricAlgorithms;
+
+   struct {
+     uint8 key_id;
+     HpkePublicKey public_key;
+     HpkeKemId kem_id;
+     HpkeSymmetricAlgorithms cipher_suites<4..2^16-4>;
+   } KeyConfig;
+
+                    Figure 2: A Single Key Configuration
+
+   The types HpkeKemId, HpkeKdfId, and HpkeAeadId identify a KEM, KDF,
+   and AEAD respectively.  The definitions for these identifiers and the
+   semantics of the algorithms they identify can be found in [HPKE].
+
+4.2.  Key Configuration Media Type
+
+   The "application/ohttp-keys" format is a media type that identifies a
+   serialized collection of key configurations.  The content of this
+   media type comprises one or more key configuration encodings (see
+   Section 4.1) that are concatenated.
+
+   Type name:  application
+
+   Subtype name:  ohttp-keys
+
+   Required parameters:  N/A
+
+   Optional parameters:  None
+
+   Encoding considerations:  only "8bit" or "binary" is permitted
+
+   Security considerations:  see Section 8
+
+   Interoperability considerations:  N/A
+
+   Published specification:  this specification
+
+   Applications that use this media type:  N/A
+
+   Fragment identifier considerations:  N/A
+
+   Additional information:  Magic number(s):  N/A
+
+                            Deprecated alias names for this type:  N/A
+
+                            File extension(s):  N/A
+
+                            Macintosh file type code(s):  N/A
+
+   Person and email address to contact for further information:  see Aut
+      hors' Addresses section
+
+   Intended usage:  COMMON
+
+   Restrictions on usage:  N/A
+
+   Author:  see Authors' Addresses section
+
+   Change controller:  IESG
+
+5.  HPKE Encapsulation
 
    HTTP message encapsulation uses HPKE for request and response
    encryption.  An encapsulated HTTP message includes the following
@@ -266,7 +381,7 @@ Table of Contents
    identifier and a HPKE-protected request message.  HPKE protection
    includes an encapsulated KEM shared secret (or "enc"), plus the AEAD-
    protected request message.  An Encapsulated Request is shown in
-   Figure 2.  Section 4.1 describes the process for constructing and
+   Figure 3.  Section 5.1 describes the process for constructing and
    processing an Encapsulated Request.
 
    Encapsulated Request {
@@ -275,10 +390,10 @@ Table of Contents
      AEAD-Protected Request (..),
    }
 
-                       Figure 2: Encapsulated Request
+                       Figure 3: Encapsulated Request
 
    Responses are bound to responses and so consist only of AEAD-
-   protected content.  Section 4.2 describes the process for
+   protected content.  Section 5.2 describes the process for
    constructing and processing an Encapsulated Response.
 
    Encapsulated Response {
@@ -286,12 +401,12 @@ Table of Contents
      AEAD-Protected Response (..),
    }
 
-                      Figure 3: Encapsulated Response
+                      Figure 4: Encapsulated Response
 
    The size of the Nonce field in an Encapsulated Response corresponds
    to the size of an AEAD key for the corresponding HPKE ciphersuite.
 
-4.1.  HPKE Encapsulation of Requests
+5.1.  HPKE Encapsulation of Requests
 
    Clients encapsulate a request "request" using values from a key
    configuration:
@@ -369,7 +484,7 @@ Table of Contents
    Servers MUST verify that the request padding consists of all zeroes
    before processing the corresponding Message.
 
-4.2.  HPKE Encapsulation of Responses
+5.2.  HPKE Encapsulation of Responses
 
    Given an HPKE context "context", a request message "request", and a
    response "response", servers generate an Encapsulated Response
@@ -425,13 +540,178 @@ Table of Contents
 
    reponse, error = Open(aead_key, aead_nonce, "", ct)
 
-4.3.  Padding
+5.3.  Padding
 
    Plaintext Messages support arbitrary length padding.  Clients and
    servers MAY pad HTTP messages as needed to hide metadata leakage
    through ciphertext length.
 
-5.  Responsibility of Roles
+6.  HTTP Usage
+
+   A client interacts with the oblivious proxy resource by constructing
+   an encapsulated request.  This encapsulated request is included as
+   the content of a POST request to the oblivious proxy resource.  This
+   request MUST only contain those fields necessary to carry the
+   encapsulated request: a method of POST, a target URI of the oblivious
+   proxy resource, a header field containing the content type (see
+   (Section 7), and the encapsulated request as the request content.
+   Clients MAY include fields that do not reveal information about the
+   content of the request, such as Alt-Used [ALT-SVC], or information
+   that it trusts the oblivious proxy resource to remove, such as fields
+   that are listed in the Connection header field.
+
+   The oblivious proxy resource interacts with the oblivious request
+   resource by constructing a request using the same restrictions as the
+   client request, except that the target URI is the oblivious request
+   resource.  The content of this request is copied from the client.
+   The oblivious proxy resource MUST NOT add information about the
+   client to this request.
+
+   When a response is received from the oblivious request resource, the
+   oblivious proxy resource forwards the response according to the rules
+   of an HTTP proxy; see Section 7.6 of [HTTP].
+
+   An oblivious request resource, if it receives any response from the
+   oblivious target resource, sends a single 200 response containing the
+   encapsulated response.  Like the request from the client, this
+   response MUST only contain those fields necessary to carry the
+   encapsulated response: a 200 status code, a header field indicating
+   the content type, and the encapsulated response as the response
+   content.  As with requests, additional fields MAY be used to convey
+   information that does not reveal information about the encapsulated
+   response.
+
+   An oblivious request resource acts as a gateway for requests to the
+   oblivious target resource (see Section 7.6 of [HTTP]).  The one
+   exception is that any information it might forward in a response MUST
+   be encapsulated, unless it is responding to errors it detects before
+   removing encapsulation of the request; see Section 6.2.
+
+6.1.  Informational Responses
+
+   This encapsulation does not permit progressive processing of
+   responses.  Though the binary HTTP response format does support the
+   inclusion of informational (1xx) status codes, the AEAD encapsulation
+   cannot be removed until the entire message is received.
+
+   In particular, the Expect header field with 100-continue (see
+   Section 10.1.1 of [HTTP]) cannot be used.  Clients MUST NOT construct
+   a request that includes a 100-continue expectation; the oblivious
+   request resource MUST generate an error if a 100-continue expectation
+   is received.
+
+6.2.  Errors
+
+   A server that receives an invalid message for any reason MUST
+   generate an HTTP response with a 4xx status code.
+
+   Errors detected by the oblivious proxy resource and errors detected
+   by the oblivious request resource before removing protection
+   (including being unable to remove encapsulation for any reason)
+   result in the status code being sent without protection in response
+   to the POST request made to that resource.
+
+   Errors detected by the oblivious request resource after successfully
+   removing encapsulation and errors detected by the oblivious target
+   resource MUST be sent in an encapsulated response.
+
+7.  Media Types
+
+   Media types are used to identify encapsulated requests and responses.
+
+   Evolution of the format of encapsulated requests and responses is
+   supported through the definition of new formats that are identified
+   by new media types.
+
+7.1.  message/ohttp-req Media Type
+
+   The "message/ohttp-req" identifies an encapsulated binary HTTP
+   request.  This is a binary format that is defined in Section 5.1.
+
+   Type name:  message
+
+   Subtype name:  ohttp-req
+
+   Required parameters:  N/A
+
+   Optional parameters:  None
+
+   Encoding considerations:  only "8bit" or "binary" is permitted
+
+   Security considerations:  see Section 8
+
+   Interoperability considerations:  N/A
+
+   Published specification:  this specification
+
+   Applications that use this media type:  N/A
+
+   Fragment identifier considerations:  N/A
+
+   Additional information:  Magic number(s):  N/A
+
+                            Deprecated alias names for this type:  N/A
+
+                            File extension(s):  N/A
+
+                            Macintosh file type code(s):  N/A
+
+   Person and email address to contact for further information:  see Aut
+      hors' Addresses section
+
+   Intended usage:  COMMON
+
+   Restrictions on usage:  N/A
+
+   Author:  see Authors' Addresses section
+
+   Change controller:  IESG
+
+7.2.  message/ohttp-res Media Type
+
+   The "message/ohttp-res" identifies an encapsulated binary HTTP
+   response.  This is a binary format that is defined in Section 5.2.
+
+   Type name:  message
+
+   Subtype name:  ohttp-res
+
+   Required parameters:  N/A
+
+   Optional parameters:  None
+
+   Encoding considerations:  only "8bit" or "binary" is permitted
+
+   Security considerations:  see Section 8
+
+   Interoperability considerations:  N/A
+
+   Published specification:  this specification
+
+   Applications that use this media type:  N/A
+
+   Fragment identifier considerations:  N/A
+
+   Additional information:  Magic number(s):  N/A
+
+                            Deprecated alias names for this type:  N/A
+
+                            File extension(s):  N/A
+
+                            Macintosh file type code(s):  N/A
+
+   Person and email address to contact for further information:  see Aut
+      hors' Addresses section
+
+   Intended usage:  COMMON
+
+   Restrictions on usage:  N/A
+
+   Author:  see Authors' Addresses section
+
+   Change controller:  IESG
+
+8.  Security Considerations
 
    In this design, a client wishes to make a request of a server that is
    authoritative for the oblivious target resource.  The client wishes
@@ -466,10 +746,15 @@ Table of Contents
    oblivious target resource simplifies the interactions between those
    resources without affecting client privacy.
 
-5.1.  Client
+8.1.  Client
 
-   Clients have the fewest direct responsibilities, though clients do
-   need to ensure that they do not undermine the process.
+   Clients MUST ensure that the key configuration they select for
+   generating encapsulated requests is integrity protected and
+   authenticated so that it can be attributed to the oblivious request
+   resource; see Section 4.
+
+   Clients MUST NOT include identifying information in the request that
+   is encapsulated.
 
    Clients cannot carry connection-level state between requests as they
    only establish direct connections to the proxy responsible for the
@@ -481,33 +766,50 @@ Table of Contents
    include all information learned from requests, which could include
    the identity of resources.
 
-   Clients also need to ensure that they correctly generate a new HPKE
-   context for every request, using a good source of entropy ([RANDOM]).
-   Key reuse not only risks linkability, but it could expose request and
+   Clients MUST generate a new HPKE context for every request, using a
+   good source of entropy ([RANDOM]) for generating keys.  Key reuse not
+   only risks requests being linked, reuse could expose request and
    response contents to the proxy.
 
-   Clients constructing the request that is to be encapsulated need to
-   avoid including identifying information.  Similarly, the request that
-   is sent to the oblivious request resource, though this request can
-   contain only minimal information as it only needs to include a method
-   and the oblivious request resource URL.
+   The request the client sends to the oblivious proxy resource only
+   requires minimal information; see Section 6.  The request that
+   carries the encapsulated request and is sent to the oblivious proxy
+   resource MUST NOT include identifying information unless the client
+   ensures that this information is removed by the proxy.  A client MAY
+   include information only for the oblivious proxy resource in header
+   fields identified by the Connection header field if it trusts the
+   proxy to remove these as required by Section 7.6.1 of [HTTP].  The
+   client needs to trust that the proxy does not replicate the source
+   addressing information in the request it forwards.
 
-5.2.  Proxy Responsibilities
+   Clients rely on the oblivious proxy resource to forward encapsulated
+   requests and responses.  However, the proxy can only refuse to
+   forward messages, it cannot inspect or modify the contents of
+   encapsulated requests or responses.
+
+8.2.  Proxy Responsibilities
 
    The proxy that serves the oblivious proxy resource has a very simple
-   function to perform.  It forwards messages received at this resource
-   to the oblivious request resource, and forwards responses from the
-   oblivious request resource back to clients.  The proxy MUST forward
-   response status codes without modification.
+   function to perform.  For each request it receives, it makes a
+   request of the oblivious request resource that includes the same
+   content.  When it receives a response, it sends a response to the
+   client that includes the content of the response from the oblivious
+   request resource.  When generating a request, the proxy MUST follow
+   the forwarding rules in Section 7.6 of [HTTP].
 
-   The proxy MUST NOT add information about the client identity when
+   A proxy can also generate responses, though it assumed to not be able
+   to examine the content of a request (other than to observe the choice
+   of key identifier, KDF, and AEAD), so it is also assumed that it
+   cannot generate an encapsulated response.
+
+   A proxy MUST NOT add information about the client identity when
    forwarding requests.  This includes the Via field, the Forwarded
    field [FORWARDED], and any similar information.
 
-5.2.1.  Denial of Service
+8.2.1.  Denial of Service
 
    As there are privacy benefits from having a large rate of requests
-   forwarded by the same proxy (see Section 5.2.2), servers that operate
+   forwarded by the same proxy (see Section 8.2.2), servers that operate
    the oblivious request resource might need an arrangement with
    proxies.  This arrangement might be necessary to prevent having the
    large volume of requests being classified as an attack by the server.
@@ -523,7 +825,7 @@ Table of Contents
    higher request rate might choose to authenticate the proxy to enable
    the higher rate.
 
-5.2.2.  Linkability Through Traffic Analysis
+8.2.2.  Linkability Through Traffic Analysis
 
    As the time at which encapsulated request or response messages are
    sent can reveal information to a network observer.  Though messages
@@ -543,7 +845,7 @@ Table of Contents
    A proxy that forwards large volumes of exchanges can provide better
    privacy by providing larger sets of messages that need to be matched.
 
-5.3.  Server Responsibilities
+8.3.  Server Responsibilities
 
    A server that operates both oblivious request and oblivious target
    resources is responsible for removing request encapsulation,
@@ -552,26 +854,38 @@ Table of Contents
 
    Servers should account for traffic analysis based on response size or
    generation time.  Techniques such as padding or timing delays can
-   help protect against such attacks; see Section 5.2.2.
+   help protect against such attacks; see Section 8.2.2.
 
    If separate entities provide the oblivious request resource and
    oblivious target resource, these entities might need an arrangement
    similar to that between server and proxy for managing denial of
-   service; see Section 5.2.1.  It is also necessary to provide
+   service; see Section 8.2.1.  It is also necessary to provide
    confidentiality protection for the unprotected requests and
-   responses, plus protections for traffic analysis; see Section 5.2.2.
+   responses, plus protections for traffic analysis; see Section 8.2.2.
 
-6.  Security Considerations
+   An oblivious request resource needs to have a plan for replacing
+   keys.  This might include regular replacement of keys, which can be
+   assigned new key identifiers.  If an oblivious request resource
+   receives a request that contains a key identifier that it does not
+   understand or that corresponds to a key that has been replaced, the
+   server can respond with an HTTP 422 (Unprocessable Content) status
+   code.
 
-   Words...
+   A server can also use a 422 status code if the server has a key that
+   corresponds to the key identifier, but the encapsulated request
+   cannot be successfully decrypted using the key.
 
-7.  IANA Considerations
+9.  IANA Considerations
 
-   TODO: Define a media type or types here.
+   Please update the "Media Types" registry at
+   https://www.iana.org/assignments/media-types
+   (https://www.iana.org/assignments/media-types) with the registration
+   information in Section 7 for the media types "message/ohttp-req",
+   "message/ohttp-res", and "application/ohttp-keys".
 
-8.  References
+10.  References
 
-8.1.  Normative References
+10.1.  Normative References
 
    [BINARY]   Thomson, M., "Binary Representation of HTTP Messages",
               Work in Progress, Internet-Draft, draft-ietf-http-binary-
@@ -584,6 +898,12 @@ Table of Contents
               draft-irtf-cfrg-hpke-07, 16 December 2020,
               <http://www.ietf.org/internet-drafts/draft-irtf-cfrg-hpke-
               07.txt>.
+
+   [HTTP]     Fielding, R., Nottingham, M., and J. Reschke, "HTTP
+              Semantics", Work in Progress, Internet-Draft, draft-ietf-
+              httpbis-semantics-14, 12 January 2021,
+              <http://www.ietf.org/internet-drafts/draft-ietf-httpbis-
+              semantics-14.txt>.
 
    [QUIC]     Iyengar, J. and M. Thomson, "QUIC: A UDP-Based Multiplexed
               and Secure Transport", Work in Progress, Internet-Draft,
@@ -600,7 +920,15 @@ Table of Contents
               2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
               May 2017, <https://www.rfc-editor.org/info/rfc8174>.
 
-8.2.  Informative References
+   [TLS]      Rescorla, E., "The Transport Layer Security (TLS) Protocol
+              Version 1.3", RFC 8446, DOI 10.17487/RFC8446, August 2018,
+              <https://www.rfc-editor.org/info/rfc8446>.
+
+10.2.  Informative References
+
+   [ALT-SVC]  Nottingham, M., McManus, P., and J. Reschke, "HTTP
+              Alternative Services", RFC 7838, DOI 10.17487/RFC7838,
+              April 2016, <https://www.rfc-editor.org/info/rfc7838>.
 
    [COOKIES]  Barth, A., "HTTP State Management Mechanism", RFC 6265,
               DOI 10.17487/RFC6265, April 2011,
@@ -617,6 +945,12 @@ Table of Contents
               RFC 7239, DOI 10.17487/RFC7239, June 2014,
               <https://www.rfc-editor.org/info/rfc7239>.
 
+   [ODOH]     Kinnear, E., McManus, P., Pauly, T., and C. Wood,
+              "Oblivious DNS Over HTTPS", Work in Progress, Internet-
+              Draft, draft-pauly-dprive-oblivious-doh-03, 2 December
+              2020, <http://www.ietf.org/internet-drafts/draft-pauly-
+              dprive-oblivious-doh-03.txt>.
+
    [RANDOM]   Eastlake 3rd, D., Schiller, J., and S. Crocker,
               "Randomness Requirements for Security", BCP 106, RFC 4086,
               DOI 10.17487/RFC4086, June 2005,
@@ -624,7 +958,8 @@ Table of Contents
 
 Acknowledgments
 
-   TODO: credit where credit is due.
+   This design is based on a design for oblivious DoH, described in
+   [ODOH].  Eric Rescorla helped unify the structure of the key format.
 
 Authors' Addresses
 
