@@ -4,8 +4,8 @@
 
 HTTPBIS                                                       M. Thomson
 Internet-Draft                                                   Mozilla
-Intended status: Standards Track                         22 January 2021
-Expires: 26 July 2021
+Intended status: Standards Track                         23 January 2021
+Expires: 27 July 2021
 
 
                  Binary Representation of HTTP Messages
@@ -41,7 +41,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 26 July 2021.
+   This Internet-Draft will expire on 27 July 2021.
 
 Copyright Notice
 
@@ -88,8 +88,8 @@ Table of Contents
    This document defines a simple format for representing an HTTP
    message ([HTTP]), either request or response.  This allows for the
    encoding of HTTP messages that can be conveyed outside of an HTTP
-   protocol.  This enables the application of transformations to entire
-   messages, including the application of encryption and authentication.
+   protocol.  This enables the transformation of entire messages,
+   including the application of authenticated encryption.
 
    This format is informed by the framing structure of HTTP/2 ([H2]) and
    HTTP/3 ([H3]).  In comparison, this format simpler by virtue of not
@@ -107,7 +107,7 @@ Table of Contents
       message components; and
 
    *  an indefinite-length encoding enables efficient generation of
-      messages where lengths are not known when starting an encoding.
+      messages where lengths are not known when encoding starts.
 
 2.  Conventions and Definitions
 
@@ -117,9 +117,8 @@ Table of Contents
    BCP 14 [RFC2119] [RFC8174] when, and only when, they appear in all
    capitals, as shown here.
 
-   This document uses terminology from HTTP ([HTTP]).
-
-   This document uses notation from QUIC ([QUIC]).
+   This document uses terminology from HTTP ([HTTP]) and notation from
+   QUIC ([QUIC]).
 
 3.  Format
 
@@ -277,7 +276,7 @@ Table of Contents
    the order listed.
 
    The rules in Section 8.1.2.3 of [H2] for constructing pseudo-header
-   fields apply to the construction of these values.  However, where tge
+   fields apply to the construction of these values.  However, where the
    ":authority" pseudo-header field might be omitted in HTTP/2, a zero-
    length value is encoded instead.
 
