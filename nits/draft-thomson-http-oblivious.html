@@ -1503,14 +1503,14 @@ size of an AEAD key for the corresponding HPKE ciphersuite.<a href="#section-5-9
 key <code>enc</code>.<a href="#section-5.1-4.1" class="pilcrow">¶</a>
 </li>
           <li id="section-5.1-4.2">Construct associated data, <code>aad</code>, by concatenating the values of <code>keyID</code>,
-<code>kdfID</code>, and <code>aeadID</code>, as 8-, 16- and 16-bit integers respectively,
-each in network byte order.<a href="#section-5.1-4.2" class="pilcrow">¶</a>
+<code>kdfID</code>, and <code>aeadID</code>, as 8-, 16- and 16-bit integers respectively, each in
+network byte order.<a href="#section-5.1-4.2" class="pilcrow">¶</a>
 </li>
           <li id="section-5.1-4.3">Encrypt (seal) <code>request</code> with <code>aad</code> as associated data using <code>context</code>,
 yielding ciphertext <code>ct</code>.<a href="#section-5.1-4.3" class="pilcrow">¶</a>
 </li>
-          <li id="section-5.1-4.4">Concatenate the values of <code>aad</code>, <code>enc</code>, and <code>ct</code>, yielding
-an Encapsulated Request <code>enc_request</code>.<a href="#section-5.1-4.4" class="pilcrow">¶</a>
+          <li id="section-5.1-4.4">Concatenate the values of <code>aad</code>, <code>enc</code>, and <code>ct</code>, yielding an Encapsulated
+Request <code>enc_request</code>.<a href="#section-5.1-4.4" class="pilcrow">¶</a>
 </li>
         </ol>
 <p id="section-5.1-5">Note that <code>enc</code> is of fixed-length, so there is no ambiguity in parsing this
