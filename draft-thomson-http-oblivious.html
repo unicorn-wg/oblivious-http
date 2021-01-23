@@ -43,7 +43,21 @@ html {
   --link-color: #2a6496;
   --highlight-color: #f9f9f9;
   --line-color: #eee;
+  --pilcrow-weak: #ddd;
+  --pilcrow-strong: #bbb;
   --small-font-size: 14.5px;
+}
+@media (prefers-color-scheme: dark) {
+html {
+  --background-color: #121212;
+  --text-color: #f0f0f0;
+  --title-color: #fff;
+  --link-color: #4da4f0;
+  --highlight-color: #282828;
+  --line-color: #444;
+  --pilcrow-weak: #444;
+  --pilcrow-strong: #666;
+}
 }
 body {
   max-width: 600px;
@@ -334,14 +348,14 @@ a.pilcrow {
   opacity: 0.2;
   user-select: none;
 }
-a.pilcrow[href] { color: #ddd; }
+a.pilcrow[href] { color: var(--pilcrow-weak); }
 a.pilcrow[href]:hover { text-decoration: none; }
-@media screen {
+@media not print {
   :hover > a.pilcrow {
     opacity: 1;
   }
   a.pilcrow[href]:hover {
-    color: #bbb;
+    color: var(--pilcrow-strong);
     background-color: transparent;
   }
 }
@@ -1854,6 +1868,15 @@ target resource, these entities might need an arrangement similar to that
 between server and proxy for managing denial of service; see <a href="#dos" class="xref">Section 7.2.1</a>. It is
 also necessary to provide confidentiality protection for the unprotected
 requests and responses, plus protections for traffic analysis; see <a href="#ta" class="xref">Section 7.2.2</a>.<a href="#section-7.3-3" class="pilcrow">¶</a></p>
+<p id="section-7.3-4">An oblivious request resource needs to have a plan for replacing keys. This
+might include regular replacement of keys, which can be assigned new key
+identifiers. If an oblivious request resource receives a request that contains
+a key identifier that it does not understand or that corresponds to a key that
+has been replaced, the server can respond with an HTTP 422 (Unprocessable
+Content) status code.<a href="#section-7.3-4" class="pilcrow">¶</a></p>
+<p id="section-7.3-5">A server can also use a 422 status code if the server has a key that
+corresponds to the key identifier, but the encapsulated request cannot be
+successfully decrypted using the key.<a href="#section-7.3-5" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
