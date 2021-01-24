@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2021-01-21T00:37:15.746092+00:00",
+  "timestamp": "2021-01-24T00:33:20.703467+00:00",
   "repo": "unicorn-wg/oblivious-http",
   "labels": [
     {
@@ -55,15 +55,15 @@
       "id": "MDU6SXNzdWU3ODY1NDIwMjQ=",
       "title": "Informational status codes",
       "url": "https://github.com/unicorn-wg/oblivious-http/issues/2",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "martinthomson",
       "authorAssociation": "MEMBER",
       "assignees": [],
       "labels": [],
       "body": "We aren't really able to carry informational status codes using this form of encapsulation.\r\n\r\nSure, we could encode an informational status as a new message, but we don't have anywhere to include it, except as the content of a response, along with the final status code.  That might not be helpful if you consider things like 100-continue.\r\n\r\nMy recommendation is to make this limitation clear and prohibit the use of 100-continue.\r\n",
       "createdAt": "2021-01-15T05:13:15Z",
-      "updatedAt": "2021-01-15T05:13:15Z",
-      "closedAt": null,
+      "updatedAt": "2021-01-22T02:35:34Z",
+      "closedAt": "2021-01-22T02:35:34Z",
       "comments": []
     },
     {
@@ -150,15 +150,15 @@
       "id": "MDU6SXNzdWU3ODg1Njk0NDU=",
       "title": "Key ID length authentication",
       "url": "https://github.com/unicorn-wg/oblivious-http/issues/12",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "chris-wood",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "Should the key ID length be explicitly authenticated, e.g., by including it in the AAD, or should the AEAD implicitly authenticate things? Unclear!",
       "createdAt": "2021-01-18T21:59:15Z",
-      "updatedAt": "2021-01-18T22:11:10Z",
-      "closedAt": null,
+      "updatedAt": "2021-01-23T01:55:40Z",
+      "closedAt": "2021-01-23T01:55:40Z",
       "comments": [
         {
           "author": "martinthomson",
@@ -180,6 +180,13 @@
           "body": "Yeah, you and I both know that putting stuff in the AAD isn't a real substitute for having it in the key schedule.  I completely understand how this would mess with the purity of the design, but TLS managed by wrapping its labels better (which also addresses a known problem with HKDF not being injective).",
           "createdAt": "2021-01-18T22:11:09Z",
           "updatedAt": "2021-01-18T22:11:09Z"
+        },
+        {
+          "author": "martinthomson",
+          "authorAssociation": "MEMBER",
+          "body": "Fixed by virtue of making the key ID fixed length in #22.",
+          "createdAt": "2021-01-22T03:45:06Z",
+          "updatedAt": "2021-01-22T03:45:06Z"
         }
       ]
     },
@@ -219,7 +226,7 @@
       "labels": [],
       "body": "Right now we just use words for this, but we might want to define a format that includes keyID, KEM, KDF, AEAD, and pk for the server. A media type for this might be good. Given the general applicability of this, it might want to be a separate document.",
       "createdAt": "2021-01-19T10:14:24Z",
-      "updatedAt": "2021-01-21T00:33:07Z",
+      "updatedAt": "2021-01-23T02:03:49Z",
       "closedAt": null,
       "comments": [
         {
@@ -256,8 +263,173 @@
           "body": "OK, I'm going to try not to react here with how abhorrent the hashing thing is, but I think that it exists primarily to avoid carrying information in the ECH context.\r\n\r\nWe could carry certainly carry KDF and AEAD identifiers separate to the key identifier.  That's a choice that would allow us to reuse the part of the ECH configuration that repeats that piece.  And have multiple combinations of those for the same key identifier.  I don't care so much about that piece, though in practice you can get that by packing those fields into the key identifier.\r\n\r\nThe pieces we really don't want are the public name (which means nothing in this context) and extensions.  This is not something that needs extending arbitrarily.",
           "createdAt": "2021-01-21T00:33:07Z",
           "updatedAt": "2021-01-21T00:33:07Z"
+        },
+        {
+          "author": "ekr",
+          "authorAssociation": "NONE",
+          "body": "On Wed, Jan 20, 2021 at 4:33 PM Martin Thomson <notifications@github.com>\r\nwrote:\r\n\r\n> OK, I'm going to try not to react here with how abhorrent the hashing\r\n> thing is, but I think that it exists primarily to avoid carrying\r\n> information in the ECH context.\r\n>\r\n> We could carry certainly carry KDF and AEAD identifiers separate to the\r\n> key identifier. That's a choice that would allow us to reuse the part of\r\n> the ECH configuration that repeats that piece. And have multiple\r\n> combinations of those for the same key identifier. I don't care so much\r\n> about that piece, though in practice you can get that by packing those\r\n> fields into the key identifier.\r\n>\r\nMy point is that the design considerations are no different here than for\r\nECH. As far as I can tell, this simply reflects a different aesthetic\r\npreference. That's fine, but I think consistency of design is useful and\r\nimportant, and so to the extent to which it's just aesthetics we should\r\ncome down to one conclusion and then impose it on both. If that means\r\nchanging ECH, then so be it.\r\n\r\n> The pieces we really don't want are the public name (which means nothing in\r\n> this context)\r\n\r\nI agree with this.\r\n\r\n> and extensions. This is not something that needs extending arbitrarily.\r\n\r\nI don't agree with this. My experience is that more or less whenever we\r\nmake the decision not to leave ourselves extension points we find that we\r\nregret this. In that vein, it's worth noting that we can address the public\r\nname issue by making public name an extension, thus harmonizing the formats\r\nand avoiding the clutter here.\r\n",
+          "createdAt": "2021-01-21T00:38:17Z",
+          "updatedAt": "2021-01-21T00:39:20Z"
+        },
+        {
+          "author": "martinthomson",
+          "authorAssociation": "MEMBER",
+          "body": "I value reuse, but not to that extent.  Not when it means a format that has extensions, where in one context extension A is mandatory, but in another context extension B is mandatory instead.  And all the mess that comes with extension processing to boot.",
+          "createdAt": "2021-01-21T00:42:45Z",
+          "updatedAt": "2021-01-21T00:42:45Z"
+        },
+        {
+          "author": "martinthomson",
+          "authorAssociation": "MEMBER",
+          "body": "Oh, and this point:\r\n\r\n> My experience is that more or less whenever we make the decision not to leave ourselves extension points we find that we regret this. \r\n\r\nI would expect to be able to use a different extension point at the next layer up.  That is, define a new media type or whatever.",
+          "createdAt": "2021-01-21T00:45:08Z",
+          "updatedAt": "2021-01-21T00:45:08Z"
+        },
+        {
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "body": "For what it's worth, I would like for ECH and OHTTP to share the same shape of configuration, modulo the unnecessary bits (public name). @martinthomson, can you elaborate on why the client-computed Key ID is, well, abhorrent? :-) ",
+          "createdAt": "2021-01-21T16:59:33Z",
+          "updatedAt": "2021-01-21T16:59:33Z"
+        },
+        {
+          "author": "ekr",
+          "authorAssociation": "NONE",
+          "body": "While I don't agree with MT about extensions, perhaps we could factor out\nthe common pieces into a component that could be used by both ECH and OHTTP\ncould use -- and maybe even MLS.\n\nOn Thu, Jan 21, 2021 at 8:59 AM Christopher Wood <notifications@github.com>\nwrote:\n\n> For what it's worth, I would like for ECH and OHTTP to share the same\n> shape of configuration, modulo the unnecessary bits (public name).\n> @martinthomson <https://github.com/martinthomson>, can you elaborate on\n> why the client-computed Key ID is, well, abhorrent? :-)\n>\n> \u2014\n> You are receiving this because you commented.\n> Reply to this email directly, view it on GitHub\n> <https://github.com/unicorn-wg/oblivious-http/issues/16#issuecomment-764792760>,\n> or unsubscribe\n> <https://github.com/notifications/unsubscribe-auth/AAIPLIO53S22RAQSMK4SYRDS3BMQLANCNFSM4WIRJ2YA>\n> .\n>\n",
+          "createdAt": "2021-01-21T17:12:58Z",
+          "updatedAt": "2021-01-21T17:12:58Z"
+        },
+        {
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "body": "So, a server-chosen key ID does seem attractive, for a number of reasons:\r\n\r\n- Deployment-specific flexibility in the ID -> key mapping\r\n- Avoids hash computation (and algorithm choice) on clients\r\n\r\nHowever, for the sake of exploration, let's say a server wants to publish two configs -- one for AES and another for ChaCha. Clients would obtain this set of of configs... somehow... and make a choice between the two based on their preferences (do they support AES intrinsics?). Let's say an attacker stripped the config with AES from the response to client, forcing it to use ChaCha. The client's Key ID signal does not indicate to the server that the chosen key was made from an incomplete view of the keys. Is this a problem? Perhaps not for AEAD algorithms we care about, but what about in a future world where one key carries a PQ KEM public key and another carries a classical KEM public key? \r\n\r\nIf we think KEM key selection is a problem, then it seems there are a couple ways to address this:\r\n\r\n1. Have clients signal to servers their view of the config set (as is done in ECH with the config_id being computed as a hash of the ECHConfig)\r\n2. Ensure attackers can't interfere with client view of configs\r\n\r\nIf OHTTP configs are published in DNS (I'm not necessarily advocating for this), then (1) seems preferable. If OHTTP configs are fetched directly from the request resource, then perhaps (2) applies?\r\n\r\nI guess the representation of the key ID depends on the threat model, which isn't surprising. :-)\r\n\r\n@ekr, what do you think?",
+          "createdAt": "2021-01-21T17:59:31Z",
+          "updatedAt": "2021-01-21T17:59:45Z"
+        },
+        {
+          "author": "ekr",
+          "authorAssociation": "NONE",
+          "body": "I spent some time looking back at the history of ECH. It turns out that I originally had a key id and then Kazuho proposed removing it, mostly on the grounds that it was easier to manage with a unique value. It seems like the situation is basically the same here for O-HTTP as for ECH, so we should converge on a common answer whatever that is.\r\n\r\nhttps://github.com/tlswg/draft-ietf-tls-esni/pull/43\r\n\r\nWRT the question of negotiation, ISTM that that's a function of folding the entire configuration into the transcript, and so obviously another identifier is needed if you want to refer to a specific component in the configuration, whether that's a key or a config instance or whatever.\r\n\r\n",
+          "createdAt": "2021-01-21T21:48:39Z",
+          "updatedAt": "2021-01-21T21:48:39Z"
+        },
+        {
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "body": "> WRT the question of negotiation, ISTM that that's a function of folding the entire configuration into the transcript, and so obviously another identifier is needed if you want to refer to a specific component in the configuration, whether that's a key or a config instance or whatever.\r\n\r\nTo clarify, are you suggesting possibly folding the entire config set into the transcript and then identifying one specific config in that set (via key id)? ",
+          "createdAt": "2021-01-21T21:54:20Z",
+          "updatedAt": "2021-01-21T21:54:20Z"
+        },
+        {
+          "author": "ekr",
+          "authorAssociation": "NONE",
+          "body": "If you're concerned about downgrade, I think it's the only way. Though of\ncourse at that point the client has already sent the information, so the\nvalue is limited.\n\nOn Thu, Jan 21, 2021 at 1:54 PM Christopher Wood <notifications@github.com>\nwrote:\n\n> WRT the question of negotiation, ISTM that that's a function of folding\n> the entire configuration into the transcript, and so obviously another\n> identifier is needed if you want to refer to a specific component in the\n> configuration, whether that's a key or a config instance or whatever.\n>\n> To clarify, are you suggesting possibly folding the entire config set into\n> the transcript and then identifying one specific config in that set (via\n> key id)?\n>\n> \u2014\n> You are receiving this because you were mentioned.\n> Reply to this email directly, view it on GitHub\n> <https://github.com/unicorn-wg/oblivious-http/issues/16#issuecomment-764965967>,\n> or unsubscribe\n> <https://github.com/notifications/unsubscribe-auth/AAIPLIO7HC7LXZ25IM3NJQ3S3CPBVANCNFSM4WIRJ2YA>\n> .\n>\n",
+          "createdAt": "2021-01-21T22:20:08Z",
+          "updatedAt": "2021-01-21T22:20:08Z"
+        },
+        {
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Yeah, that's a good point. So perhaps there's not much we can do about downgrade other than ensure integrity for the config set?",
+          "createdAt": "2021-01-21T22:22:40Z",
+          "updatedAt": "2021-01-21T22:22:40Z"
+        },
+        {
+          "author": "martinthomson",
+          "authorAssociation": "MEMBER",
+          "body": "Documented the agreed format in #24.  We've still open questions about the extent to which this and ECH can be harmonized, so I'll open a separate issue to ensure that happens.",
+          "createdAt": "2021-01-23T02:03:48Z",
+          "updatedAt": "2021-01-23T02:03:48Z"
         }
       ]
+    },
+    {
+      "number": 19,
+      "id": "MDU6SXNzdWU3OTA2MDcxMzM=",
+      "title": "Discovery",
+      "url": "https://github.com/unicorn-wg/oblivious-http/issues/19",
+      "state": "OPEN",
+      "author": "martinthomson",
+      "authorAssociation": "MEMBER",
+      "assignees": [],
+      "labels": [],
+      "body": "This probably covers a bunch of things, so I'll start with a few things that might want to be discovered automatically:\r\n\r\n1. Clients might want to ask the oblivious proxy resource which oblivious request resource it forwards to.\r\n2. Clients might want to learn about which oblivious target resources a particular oblivious request resource is willing to forward to.\r\n3. Clients might want to learn automatically about the public keys the oblivious request resource has (along with key identifiers, see #16).\r\n4. Clients might want to ask about the oblivious proxy resources that forward to a particular oblivious request resource.  This is a little tricky, because clients will need to exercise discretion in selecting from this set.  This also risks exposing the existence of DoS exemption agreements between the oblivious request resource server and the oblivious proxy resource server.\r\n5. Clients might want to ask the oblivious target resource for an oblivious request resource (or by extension oblivious proxy resource) that it can use to reach that resource.\r\n\r\nIf you look at this as link relations, this is two forward links, a key configuration, and two backward links.  Defining link relation types for this might be a way to address this.  Assuming that we also define a media type for a key configuration format, that is.\r\n",
+      "createdAt": "2021-01-21T01:45:10Z",
+      "updatedAt": "2021-01-21T01:45:10Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 20,
+      "id": "MDU6SXNzdWU3OTA2MDk1NTI=",
+      "title": "Multiple KDF/AEAD tuples",
+      "url": "https://github.com/unicorn-wg/oblivious-http/issues/20",
+      "state": "CLOSED",
+      "author": "martinthomson",
+      "authorAssociation": "MEMBER",
+      "assignees": [],
+      "labels": [],
+      "body": "Splitting this from #16.\r\n\r\nIt seems likely that a single KEM key will support multiple KDF or AEAD options (NSS will soon support 3 of the former, and 2 of the latter, maybe 3 of each).  Having a configuration that includes a single set of (KEM, key, and key identifier) with a list of KDF+AEAD pairs, akin to ECH, would make it easier to support that sort of deployment.  Without that, key identifiers need to carry information about the KDF and AEAD.\r\n\r\nTo support this, the format needs to be adjusted to carry the KDF and AEAD identifier.  In doing so, we probably want to encode the choice of KDF and AEAD in the key schedule or AAD accordingly.",
+      "createdAt": "2021-01-21T01:50:19Z",
+      "updatedAt": "2021-01-23T01:55:40Z",
+      "closedAt": "2021-01-23T01:55:40Z",
+      "comments": []
+    },
+    {
+      "number": 21,
+      "id": "MDU6SXNzdWU3OTE1NjI4ODc=",
+      "title": "Document key configuration format",
+      "url": "https://github.com/unicorn-wg/oblivious-http/issues/21",
+      "state": "CLOSED",
+      "author": "martinthomson",
+      "authorAssociation": "MEMBER",
+      "assignees": [],
+      "labels": [],
+      "body": "And document the requirements for this format (namely that it be authenticated and attributed to the oblivious request resource).",
+      "createdAt": "2021-01-21T23:19:21Z",
+      "updatedAt": "2021-01-23T01:46:47Z",
+      "closedAt": "2021-01-23T01:46:47Z",
+      "comments": []
+    },
+    {
+      "number": 23,
+      "id": "MDU6SXNzdWU3OTE2NDM4MTg=",
+      "title": "Indicating that the key wasn't known",
+      "url": "https://github.com/unicorn-wg/oblivious-http/issues/23",
+      "state": "CLOSED",
+      "author": "martinthomson",
+      "authorAssociation": "MEMBER",
+      "assignees": [],
+      "labels": [],
+      "body": "If the key identifier isn't known to the oblivious request resource, or the message can't be decrypted, it probably wants to send a clear signal.  The signal is definitely not encapsulated at that point, so clients have limited options available to them.\r\n\r\nAs a first-order suggestion, a 4xx status code generally indicates to the client that it might want to review the information it used.  However, more specific error codes might help in specific cases that we deem important or common.  Top of the list: when the identified key has been decommissioned.",
+      "createdAt": "2021-01-22T02:25:01Z",
+      "updatedAt": "2021-01-23T01:46:24Z",
+      "closedAt": "2021-01-23T01:46:24Z",
+      "comments": [
+        {
+          "author": "martinthomson",
+          "authorAssociation": "MEMBER",
+          "body": "How does [422 (Unprocessable Content)](https://httpwg.org/http-core/draft-ietf-httpbis-semantics-latest.html#status.422) sound in terms of saying \"the content was unusable\".  We could go further and recommend the use of [RFC 7807](https://tools.ietf.org/html/rfc7807) if you think more detail is needed.",
+          "createdAt": "2021-01-22T03:44:27Z",
+          "updatedAt": "2021-01-22T03:44:27Z"
+        }
+      ]
+    },
+    {
+      "number": 27,
+      "id": "MDU6SXNzdWU3OTI0MDg5OTU=",
+      "title": "Ensure key configuration matches ECH",
+      "url": "https://github.com/unicorn-wg/oblivious-http/issues/27",
+      "state": "OPEN",
+      "author": "martinthomson",
+      "authorAssociation": "MEMBER",
+      "assignees": [],
+      "labels": [],
+      "body": "We are proposing alignment, but we need to make sure that happens.",
+      "createdAt": "2021-01-23T02:04:17Z",
+      "updatedAt": "2021-01-23T02:04:17Z",
+      "closedAt": null,
+      "comments": []
     }
   ],
   "pulls": [
@@ -308,24 +480,26 @@
       "id": "MDExOlB1bGxSZXF1ZXN0NTU1NDI2NTA2",
       "title": "Message format",
       "url": "https://github.com/unicorn-wg/oblivious-http/pull/3",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "martinthomson",
       "authorAssociation": "MEMBER",
       "assignees": [],
       "labels": [],
       "body": "This is fully-featured, which is a little awkward.  We can probably trim this down a little once we have a better handle on the requirements.",
       "createdAt": "2021-01-15T06:01:46Z",
-      "updatedAt": "2021-01-18T22:03:48Z",
+      "updatedAt": "2021-01-23T01:50:20Z",
       "baseRepository": "unicorn-wg/oblivious-http",
       "baseRefName": "main",
-      "baseRefOid": "501f54803ff2879722decce1041bac235bf74dcd",
+      "baseRefOid": "095341dc8acf1af51f423957ccb3cb6e45f40c8c",
       "headRepository": "unicorn-wg/oblivious-http",
       "headRefName": "message-format",
-      "headRefOid": "2cdb3b95fa377b8fa212181fc2813f006e0297a5",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "headRefOid": "96004ecd61b917a5a36b0c9444afb3ec754b1218",
+      "closedAt": "2021-01-23T01:50:19Z",
+      "mergedAt": "2021-01-23T01:50:19Z",
+      "mergedBy": "martinthomson",
+      "mergeCommit": {
+        "oid": "6e86e49665a5d42364180ffde2c83919d4201e50"
+      },
       "comments": [
         {
           "author": "chris-wood",
@@ -342,7 +516,156 @@
           "updatedAt": "2021-01-18T00:39:57Z"
         }
       ],
-      "reviews": []
+      "reviews": [
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTczNTA2NDIz",
+          "commit": {
+            "abbreviatedOid": "2cdb3b9"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "Initial pass complete. I think I grok this, but I need to implement it to make sure. (Feel free to merge anyhow.)",
+          "createdAt": "2021-01-21T16:25:17Z",
+          "updatedAt": "2021-01-21T16:43:38Z",
+          "comments": [
+            {
+              "originalPosition": 9,
+              "body": "```suggestion\r\nincluding the application of authenticated encryption.\r\n```\r\n\r\n... to not encourage folks to authenticate without encrypting. :) ",
+              "createdAt": "2021-01-21T16:25:17Z",
+              "updatedAt": "2021-01-23T01:49:09Z"
+            },
+            {
+              "originalPosition": 25,
+              "body": "```suggestion\r\nThis document uses terminology from HTTP ({{!HTTP}}) and notation from QUIC ({{!QUIC=I-D.ietf-quic-transport}}).\r\n```",
+              "createdAt": "2021-01-21T16:26:28Z",
+              "updatedAt": "2021-01-23T01:49:09Z"
+            },
+            {
+              "originalPosition": 221,
+              "body": "```suggestion\r\nthe final status code is encoded.\r\n```",
+              "createdAt": "2021-01-21T16:40:39Z",
+              "updatedAt": "2021-01-23T01:49:09Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTc0NzA2NTE2",
+          "commit": {
+            "abbreviatedOid": "7e9bc64"
+          },
+          "author": "tfpauly",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2021-01-23T00:18:13Z",
+          "updatedAt": "2021-01-23T00:32:00Z",
+          "comments": [
+            {
+              "originalPosition": 8,
+              "body": "```suggestion\r\nprotocol. This enables the transformation of entire messages,\r\n```",
+              "createdAt": "2021-01-23T00:18:13Z",
+              "updatedAt": "2021-01-23T01:49:09Z"
+            },
+            {
+              "originalPosition": 27,
+              "body": "```suggestion\r\n  lengths are not known when encoding starts.\r\n```",
+              "createdAt": "2021-01-23T00:19:11Z",
+              "updatedAt": "2021-01-23T01:49:09Z"
+            },
+            {
+              "originalPosition": 72,
+              "body": "What's the meaning of the extra `...` on this line? That it is optional?",
+              "createdAt": "2021-01-23T00:22:41Z",
+              "updatedAt": "2021-01-23T01:49:09Z"
+            },
+            {
+              "originalPosition": 194,
+              "body": "```suggestion\r\napply to the construction of these values. However, where the `:authority`\r\n```",
+              "createdAt": "2021-01-23T00:28:01Z",
+              "updatedAt": "2021-01-23T01:49:09Z"
+            },
+            {
+              "originalPosition": 195,
+              "body": "I like this solution \ud83d\udc4d ",
+              "createdAt": "2021-01-23T00:28:19Z",
+              "updatedAt": "2021-01-23T01:49:09Z"
+            },
+            {
+              "originalPosition": 268,
+              "body": "Do we see a way forward to have a binary encoding of structured fields? While we don't need to specify that here, it'd be nice to leave it open.",
+              "createdAt": "2021-01-23T00:31:15Z",
+              "updatedAt": "2021-01-23T01:49:09Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTc0NzA5ODY0",
+          "commit": {
+            "abbreviatedOid": "7e9bc64"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-01-23T00:33:03Z",
+          "updatedAt": "2021-01-23T00:33:03Z",
+          "comments": [
+            {
+              "originalPosition": 72,
+              "body": "It means the field is repeated one or more times (I stumbled across this myself).",
+              "createdAt": "2021-01-23T00:33:03Z",
+              "updatedAt": "2021-01-23T01:49:09Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTc0NzEwMDg5",
+          "commit": {
+            "abbreviatedOid": "7e9bc64"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-01-23T00:34:04Z",
+          "updatedAt": "2021-01-23T00:34:04Z",
+          "comments": [
+            {
+              "originalPosition": 268,
+              "body": "Does anything need to change to accommodate them here? I figured they'd just be values with a different encoding.",
+              "createdAt": "2021-01-23T00:34:04Z",
+              "updatedAt": "2021-01-23T01:49:09Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTc0NzIyMjc0",
+          "commit": {
+            "abbreviatedOid": "7e9bc64"
+          },
+          "author": "martinthomson",
+          "authorAssociation": "MEMBER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-01-23T01:48:01Z",
+          "updatedAt": "2021-01-23T01:49:17Z",
+          "comments": [
+            {
+              "originalPosition": 72,
+              "body": "zero or more, yeah.",
+              "createdAt": "2021-01-23T01:48:01Z",
+              "updatedAt": "2021-01-23T01:49:17Z"
+            },
+            {
+              "originalPosition": 268,
+              "body": "A new format is what I was thinking, or maybe use the next bit in the framing indicator.  The latter has some risks though.",
+              "createdAt": "2021-01-23T01:48:36Z",
+              "updatedAt": "2021-01-23T01:49:17Z"
+            }
+          ]
+        }
+      ]
     },
     {
       "number": 7,
@@ -1287,26 +1610,107 @@
       "id": "MDExOlB1bGxSZXF1ZXN0NTU3MDk1NjY2",
       "title": "Define some HTTP usage",
       "url": "https://github.com/unicorn-wg/oblivious-http/pull/15",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "martinthomson",
       "authorAssociation": "MEMBER",
       "assignees": [],
       "labels": [],
       "body": "This is more or less implied already, but it is better to write it down.\r\n\r\nI've added stubs for some content types as well.",
       "createdAt": "2021-01-19T00:25:51Z",
-      "updatedAt": "2021-01-19T00:25:51Z",
+      "updatedAt": "2021-01-22T02:35:35Z",
       "baseRepository": "unicorn-wg/oblivious-http",
       "baseRefName": "main",
       "baseRefOid": "825f3f77549b69f62a3f5661c0b8b2d1e9151101",
       "headRepository": "unicorn-wg/oblivious-http",
       "headRefName": "http-usage",
-      "headRefOid": "ad66a048c3573824b1990b281980c7900e9b7ff0",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "headRefOid": "e645418316a3e4e6b80d520f8db125e8d171c704",
+      "closedAt": "2021-01-22T02:35:34Z",
+      "mergedAt": "2021-01-22T02:35:34Z",
+      "mergedBy": "martinthomson",
+      "mergeCommit": {
+        "oid": "9abd4d3696e88c8b866bac2868d2fae5882b8be7"
+      },
       "comments": [],
-      "reviews": []
+      "reviews": [
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTczNDkyMTYw",
+          "commit": {
+            "abbreviatedOid": "ad66a04"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2021-01-21T16:11:18Z",
+          "updatedAt": "2021-01-21T16:23:13Z",
+          "comments": [
+            {
+              "originalPosition": 19,
+              "body": "```suggestion\r\ntarget URI of the oblivious proxy resource, a header field containing\r\n```",
+              "createdAt": "2021-01-21T16:11:18Z",
+              "updatedAt": "2021-01-22T02:25:49Z"
+            },
+            {
+              "originalPosition": 19,
+              "body": "Shouldn't the client also indicate the oblivious request resource URI (in a header or elsewhere)? If not, how does the proxy know where to forward the message?",
+              "createdAt": "2021-01-21T16:14:29Z",
+              "updatedAt": "2021-01-22T02:25:49Z"
+            },
+            {
+              "originalPosition": 71,
+              "body": "```suggestion\r\nwithout protection in response to the POST request made to that resource.\r\nOblivious request resources MUST use distinct status codes to distinguish \r\nHPKE key mismatch from other errors, such as decapsulation failure. This is\r\nneeded to inform clients of stale or otherwise incorrect HPKE keying material.\r\n```",
+              "createdAt": "2021-01-21T16:22:21Z",
+              "updatedAt": "2021-01-22T02:25:49Z"
+            },
+            {
+              "originalPosition": 71,
+              "body": "Feel free to include this in some other way, but I think it's important to note. Without a clear \"your key is out of date\" signal, clients don't know if and when they should fetch a fresh set of keys for encapsulation.",
+              "createdAt": "2021-01-21T16:22:57Z",
+              "updatedAt": "2021-01-22T02:25:49Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTczNTI2OTE4",
+          "commit": {
+            "abbreviatedOid": "ad66a04"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-01-21T16:45:41Z",
+          "updatedAt": "2021-01-21T16:45:41Z",
+          "comments": [
+            {
+              "originalPosition": 19,
+              "body": "Oh, I see in #19 that it's assumed the proxy forwards to a fixed request resource, rather than letting the client choose (source routing style). Perhaps that can be the default if the request resource is omitted, allowing clients to control the path if desired? (That has security and policy implications though...)",
+              "createdAt": "2021-01-21T16:45:41Z",
+              "updatedAt": "2021-01-22T02:25:49Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTczOTA0ODI5",
+          "commit": {
+            "abbreviatedOid": "ad66a04"
+          },
+          "author": "martinthomson",
+          "authorAssociation": "MEMBER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-01-22T02:21:48Z",
+          "updatedAt": "2021-01-22T02:21:48Z",
+          "comments": [
+            {
+              "originalPosition": 71,
+              "body": "Let's open an issue for this.  I think we want to recommend a status code for this, but it is possible that there isn't something easy we can use here (other than to maybe suggest that clients re-fetch key configuration when they get a non-encapsulated error response).",
+              "createdAt": "2021-01-22T02:21:48Z",
+              "updatedAt": "2021-01-22T02:25:49Z"
+            }
+          ]
+        }
+      ]
     },
     {
       "number": 17,
@@ -1438,6 +1842,292 @@
           "comments": []
         }
       ]
+    },
+    {
+      "number": 22,
+      "id": "MDExOlB1bGxSZXF1ZXN0NTU5NjQwNzQz",
+      "title": "Add KDF and AEAD identifiers to the message",
+      "url": "https://github.com/unicorn-wg/oblivious-http/pull/22",
+      "state": "MERGED",
+      "author": "martinthomson",
+      "authorAssociation": "MEMBER",
+      "assignees": [],
+      "labels": [],
+      "body": "Switches to an 8-bit key identifier here as well.\r\n\r\nThis format now doesn't need varints.  Yay.\r\n\r\nImplemented this in my ohttp library and it's fine.\r\n\r\nCloses #20.",
+      "createdAt": "2021-01-22T01:18:07Z",
+      "updatedAt": "2021-01-23T01:55:42Z",
+      "baseRepository": "unicorn-wg/oblivious-http",
+      "baseRefName": "main",
+      "baseRefOid": "6e86e49665a5d42364180ffde2c83919d4201e50",
+      "headRepository": "unicorn-wg/oblivious-http",
+      "headRefName": "add-kdf-aead",
+      "headRefOid": "dd3b77809971a5730fffc18bc4c89159d8420c6a",
+      "closedAt": "2021-01-23T01:55:41Z",
+      "mergedAt": "2021-01-23T01:55:40Z",
+      "mergedBy": "chris-wood",
+      "mergeCommit": {
+        "oid": "400ed6fdba6f27232e00bf435c4cad3bbd259ece"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTc0NzIzMTAy",
+          "commit": {
+            "abbreviatedOid": "dd3b778"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2021-01-23T01:55:29Z",
+          "updatedAt": "2021-01-23T01:55:29Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 24,
+      "id": "MDExOlB1bGxSZXF1ZXN0NTU5Njg1Mjk0",
+      "title": "Define key configuration format",
+      "url": "https://github.com/unicorn-wg/oblivious-http/pull/24",
+      "state": "MERGED",
+      "author": "martinthomson",
+      "authorAssociation": "MEMBER",
+      "assignees": [],
+      "labels": [],
+      "body": "I've also taken the time to review the text in the (now) security\r\nconsiderations and expand on some of the responsibilities.  Including\r\nthe one where the client needs to authenticate key configurations.\r\n\r\nCloses #21.",
+      "createdAt": "2021-01-22T03:22:36Z",
+      "updatedAt": "2021-01-23T01:46:48Z",
+      "baseRepository": "unicorn-wg/oblivious-http",
+      "baseRefName": "main",
+      "baseRefOid": "9abd4d3696e88c8b866bac2868d2fae5882b8be7",
+      "headRepository": "unicorn-wg/oblivious-http",
+      "headRefName": "key-format",
+      "headRefOid": "9ad182455ef81ecb456e49a23977e9d8ec07af26",
+      "closedAt": "2021-01-23T01:46:47Z",
+      "mergedAt": "2021-01-23T01:46:47Z",
+      "mergedBy": "martinthomson",
+      "mergeCommit": {
+        "oid": "99d4436dcf590a6bede7c644813fb291a95086fa"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTc0NzEwMjYx",
+          "commit": {
+            "abbreviatedOid": "9ad1824"
+          },
+          "author": "tfpauly",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2021-01-23T00:34:45Z",
+          "updatedAt": "2021-01-23T00:34:45Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 25,
+      "id": "MDExOlB1bGxSZXF1ZXN0NTU5NzM3NDg3",
+      "title": "Add acknowledgments",
+      "url": "https://github.com/unicorn-wg/oblivious-http/pull/25",
+      "state": "MERGED",
+      "author": "martinthomson",
+      "authorAssociation": "MEMBER",
+      "assignees": [],
+      "labels": [],
+      "body": "Ack individuals here instead of citing?",
+      "createdAt": "2021-01-22T06:08:44Z",
+      "updatedAt": "2021-01-23T01:23:59Z",
+      "baseRepository": "unicorn-wg/oblivious-http",
+      "baseRefName": "main",
+      "baseRefOid": "9abd4d3696e88c8b866bac2868d2fae5882b8be7",
+      "headRepository": "unicorn-wg/oblivious-http",
+      "headRefName": "ack-a-little",
+      "headRefOid": "aa27a190ad0063fc69c27019146279fe0a2a091a",
+      "closedAt": "2021-01-23T01:23:58Z",
+      "mergedAt": "2021-01-23T01:23:58Z",
+      "mergedBy": "martinthomson",
+      "mergeCommit": {
+        "oid": "5a9b703e95bf33c1312c127011368d5d59e2b0ca"
+      },
+      "comments": [
+        {
+          "author": "tfpauly",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Eh, the citing seems good.",
+          "createdAt": "2021-01-23T00:35:21Z",
+          "updatedAt": "2021-01-23T00:35:21Z"
+        }
+      ],
+      "reviews": [
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTc0NzEwMzM4",
+          "commit": {
+            "abbreviatedOid": "aa27a19"
+          },
+          "author": "tfpauly",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2021-01-23T00:35:05Z",
+          "updatedAt": "2021-01-23T00:35:05Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 26,
+      "id": "MDExOlB1bGxSZXF1ZXN0NTU5NzQwMDA0",
+      "title": "Use 422 for a key ID mismatch",
+      "url": "https://github.com/unicorn-wg/oblivious-http/pull/26",
+      "state": "MERGED",
+      "author": "martinthomson",
+      "authorAssociation": "MEMBER",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2021-01-22T06:14:57Z",
+      "updatedAt": "2021-01-23T01:46:25Z",
+      "baseRepository": "unicorn-wg/oblivious-http",
+      "baseRefName": "main",
+      "baseRefOid": "9abd4d3696e88c8b866bac2868d2fae5882b8be7",
+      "headRepository": "unicorn-wg/oblivious-http",
+      "headRefName": "bad-content",
+      "headRefOid": "d3994b90c867e33a510c2086ac9010f5e5366ede",
+      "closedAt": "2021-01-23T01:46:24Z",
+      "mergedAt": "2021-01-23T01:46:24Z",
+      "mergedBy": "martinthomson",
+      "mergeCommit": {
+        "oid": "47b9df5175a9e0da142455e20bb08773cc2af7c3"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTc0NzEwNTQ5",
+          "commit": {
+            "abbreviatedOid": "d3994b9"
+          },
+          "author": "tfpauly",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2021-01-23T00:36:04Z",
+          "updatedAt": "2021-01-23T00:36:04Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 28,
+      "id": "MDExOlB1bGxSZXF1ZXN0NTYwMzAzMDY5",
+      "title": "Response of known length is 1",
+      "url": "https://github.com/unicorn-wg/oblivious-http/pull/28",
+      "state": "MERGED",
+      "author": "martinthomson",
+      "authorAssociation": "MEMBER",
+      "assignees": [],
+      "labels": [],
+      "body": "My implementation was wrong",
+      "createdAt": "2021-01-23T02:40:25Z",
+      "updatedAt": "2021-01-23T02:44:40Z",
+      "baseRepository": "unicorn-wg/oblivious-http",
+      "baseRefName": "main",
+      "baseRefOid": "400ed6fdba6f27232e00bf435c4cad3bbd259ece",
+      "headRepository": "unicorn-wg/oblivious-http",
+      "headRefName": "response-is-1",
+      "headRefOid": "b7ac9838c37c099771b74f1324e54c5a69d28edd",
+      "closedAt": "2021-01-23T02:44:39Z",
+      "mergedAt": "2021-01-23T02:44:39Z",
+      "mergedBy": "chris-wood",
+      "mergeCommit": {
+        "oid": "f91751d3476fda528ea2b623786a924624d715f4"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTc0NzI3OTcy",
+          "commit": {
+            "abbreviatedOid": "b7ac983"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2021-01-23T02:44:35Z",
+          "updatedAt": "2021-01-23T02:44:35Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 29,
+      "id": "MDExOlB1bGxSZXF1ZXN0NTYwMzAzODUx",
+      "title": "Clearer about interim responses",
+      "url": "https://github.com/unicorn-wg/oblivious-http/pull/29",
+      "state": "MERGED",
+      "author": "martinthomson",
+      "authorAssociation": "MEMBER",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2021-01-23T02:47:19Z",
+      "updatedAt": "2021-01-23T02:48:25Z",
+      "baseRepository": "unicorn-wg/oblivious-http",
+      "baseRefName": "main",
+      "baseRefOid": "f91751d3476fda528ea2b623786a924624d715f4",
+      "headRepository": "unicorn-wg/oblivious-http",
+      "headRefName": "interim-response",
+      "headRefOid": "0cd9012015ec000fb306f07835cbffb16ba4865b",
+      "closedAt": "2021-01-23T02:48:24Z",
+      "mergedAt": "2021-01-23T02:48:24Z",
+      "mergedBy": "chris-wood",
+      "mergeCommit": {
+        "oid": "4cee554a659e7dc01aa0c62403306264a3471f16"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTc0NzI4Mjc0",
+          "commit": {
+            "abbreviatedOid": "0cd9012"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2021-01-23T02:48:20Z",
+          "updatedAt": "2021-01-23T02:48:20Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 30,
+      "id": "MDExOlB1bGxSZXF1ZXN0NTYwNDM3Mzg5",
+      "title": "Various nits found during implementation.",
+      "url": "https://github.com/unicorn-wg/oblivious-http/pull/30",
+      "state": "OPEN",
+      "author": "chris-wood",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "One question we might want to ask (even though I think we have the right answer already) is: should `kemID` be included in AAD?\r\n\r\nI also removed the padding text, since we moved that to the bhttp spec.",
+      "createdAt": "2021-01-23T15:17:51Z",
+      "updatedAt": "2021-01-23T15:18:44Z",
+      "baseRepository": "unicorn-wg/oblivious-http",
+      "baseRefName": "main",
+      "baseRefOid": "4cee554a659e7dc01aa0c62403306264a3471f16",
+      "headRepository": "unicorn-wg/oblivious-http",
+      "headRefName": "caw/nits",
+      "headRefOid": "471df736482c6d6003a471a5008434af23a5645e",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": []
     }
   ]
 }
