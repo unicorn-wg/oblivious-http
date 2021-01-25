@@ -5,8 +5,8 @@
 HTTPBIS                                                       M. Thomson
 Internet-Draft                                                   Mozilla
 Intended status: Standards Track                               C.A. Wood
-Expires: 28 July 2021                                         Cloudflare
-                                                         24 January 2021
+Expires: 29 July 2021                                         Cloudflare
+                                                         25 January 2021
 
 
                              Oblivious HTTP
@@ -45,7 +45,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 28 July 2021.
+   This Internet-Draft will expire on 29 July 2021.
 
 Copyright Notice
 
@@ -300,8 +300,8 @@ Table of Contents
 
    struct {
      uint8 key_id;
-     HpkePublicKey public_key;
      HpkeKemId kem_id;
+     HpkePublicKey public_key;
      HpkeSymmetricAlgorithms cipher_suites<4..2^16-4>;
    } KeyConfig;
 
@@ -883,7 +883,7 @@ Table of Contents
 
    [BINARY]   Thomson, M., "Binary Representation of HTTP Messages",
               Work in Progress, Internet-Draft, draft-ietf-http-binary-
-              message-latest, 24 January 2021,
+              message-latest, 25 January 2021,
               <https://tools.ietf.org/html/draft-ietf-http-binary-
               message-latest>.
 
