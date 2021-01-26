@@ -4,8 +4,9 @@
 
 HTTPBIS                                                       M. Thomson
 Internet-Draft                                                   Mozilla
-Intended status: Standards Track                         25 January 2021
-Expires: 29 July 2021
+Intended status: Standards Track                               C.A. Wood
+Expires: 30 July 2021                                         Cloudflare
+                                                         26 January 2021
 
 
                  Binary Representation of HTTP Messages
@@ -41,7 +42,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 29 July 2021.
+   This Internet-Draft will expire on 30 July 2021.
 
 Copyright Notice
 
@@ -81,7 +82,7 @@ Table of Contents
      9.1.  Normative References
      9.2.  Informative References
    Acknowledgments
-   Author's Address
+   Authors' Addresses
 
 1.  Introduction
 
@@ -699,9 +700,15 @@ Acknowledgments
 
    TODO: credit where credit is due.
 
-Author's Address
+Authors' Addresses
 
    Martin Thomson
    Mozilla
 
    Email: mt@lowentropy.net
+
+
+   Christopher A. Wood
+   Cloudflare
+
+   Email: caw@heapingbits.net

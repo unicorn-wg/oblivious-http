@@ -5,8 +5,8 @@
 HTTPBIS                                                       M. Thomson
 Internet-Draft                                                   Mozilla
 Intended status: Standards Track                               C.A. Wood
-Expires: 29 July 2021                                         Cloudflare
-                                                         25 January 2021
+Expires: 30 July 2021                                         Cloudflare
+                                                         26 January 2021
 
 
                              Oblivious HTTP
@@ -45,7 +45,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 29 July 2021.
+   This Internet-Draft will expire on 30 July 2021.
 
 Copyright Notice
 
@@ -883,7 +883,7 @@ Table of Contents
 
    [BINARY]   Thomson, M., "Binary Representation of HTTP Messages",
               Work in Progress, Internet-Draft, draft-ietf-http-binary-
-              message-latest, 25 January 2021,
+              message-latest, 27 January 2021,
               <https://tools.ietf.org/html/draft-ietf-http-binary-
               message-latest>.
 
@@ -941,9 +941,9 @@ Table of Contents
 
    [ODOH]     Kinnear, E., McManus, P., Pauly, T., and C. Wood,
               "Oblivious DNS Over HTTPS", Work in Progress, Internet-
-              Draft, draft-pauly-dprive-oblivious-doh-03, 2 December
-              2020, <http://www.ietf.org/internet-drafts/draft-pauly-
-              dprive-oblivious-doh-03.txt>.
+              Draft, draft-pauly-dprive-oblivious-doh-04, 26 January
+              2021, <http://www.ietf.org/internet-drafts/draft-pauly-
+              dprive-oblivious-doh-04.txt>.
 
    [RANDOM]   Eastlake 3rd, D., Schiller, J., and S. Crocker,
               "Randomness Requirements for Security", BCP 106, RFC 4086,
