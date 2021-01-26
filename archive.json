@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2021-01-24T00:33:20.703467+00:00",
+  "timestamp": "2021-01-26T00:09:59.515343+00:00",
   "repo": "unicorn-wg/oblivious-http",
   "labels": [
     {
@@ -428,6 +428,38 @@
       "body": "We are proposing alignment, but we need to make sure that happens.",
       "createdAt": "2021-01-23T02:04:17Z",
       "updatedAt": "2021-01-23T02:04:17Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 31,
+      "id": "MDU6SXNzdWU3OTM3ODgzMDA=",
+      "title": "The length of the public key is fixed",
+      "url": "https://github.com/unicorn-wg/oblivious-http/issues/31",
+      "state": "OPEN",
+      "author": "martinthomson",
+      "authorAssociation": "MEMBER",
+      "assignees": [],
+      "labels": [],
+      "body": "We currently length-prefix it, but we don't *have* to.  Think about this a little.",
+      "createdAt": "2021-01-25T23:00:15Z",
+      "updatedAt": "2021-01-25T23:00:15Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 32,
+      "id": "MDU6SXNzdWU3OTM3OTc3ODU=",
+      "title": "Include KEMID in Encapsulated Request",
+      "url": "https://github.com/unicorn-wg/oblivious-http/issues/32",
+      "state": "OPEN",
+      "author": "chris-wood",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Currently, an encapsulated request carries a key ID which maps to a KEM key that determines the size of the encapsulated public key in a request. This means that code parsing a request needs to know the ID -> KEM mapping in order to parse things correctly, which is somewhat annoying. I propose we add KEMID to the request so that this mapping isn't needed to just parse the message. As a bonus, that would also fold in the KEMID explicitly into the AAD alongside the KDFID and AEADID. ",
+      "createdAt": "2021-01-25T23:21:13Z",
+      "updatedAt": "2021-01-25T23:21:13Z",
       "closedAt": null,
       "comments": []
     }
@@ -2108,26 +2140,111 @@
       "id": "MDExOlB1bGxSZXF1ZXN0NTYwNDM3Mzg5",
       "title": "Various nits found during implementation.",
       "url": "https://github.com/unicorn-wg/oblivious-http/pull/30",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "chris-wood",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "One question we might want to ask (even though I think we have the right answer already) is: should `kemID` be included in AAD?\r\n\r\nI also removed the padding text, since we moved that to the bhttp spec.",
       "createdAt": "2021-01-23T15:17:51Z",
-      "updatedAt": "2021-01-23T15:18:44Z",
+      "updatedAt": "2021-01-24T13:34:29Z",
       "baseRepository": "unicorn-wg/oblivious-http",
       "baseRefName": "main",
       "baseRefOid": "4cee554a659e7dc01aa0c62403306264a3471f16",
       "headRepository": "unicorn-wg/oblivious-http",
       "headRefName": "caw/nits",
       "headRefOid": "471df736482c6d6003a471a5008434af23a5645e",
+      "closedAt": "2021-01-24T05:00:09Z",
+      "mergedAt": "2021-01-24T05:00:08Z",
+      "mergedBy": "martinthomson",
+      "mergeCommit": {
+        "oid": "b3ececa30ef580f98b0e1921121f715166db71a9"
+      },
+      "comments": [
+        {
+          "author": "martinthomson",
+          "authorAssociation": "MEMBER",
+          "body": "It's a reasonable question, but I think we can safely assume that a single key can't be used with multiple KEMs.",
+          "createdAt": "2021-01-24T05:00:40Z",
+          "updatedAt": "2021-01-24T05:00:40Z"
+        },
+        {
+          "author": "ekr",
+          "authorAssociation": "NONE",
+          "body": "In principle it might be possible, but I think we should prohibit it.\n\nOn Sat, Jan 23, 2021 at 9:00 PM Martin Thomson <notifications@github.com>\nwrote:\n\n> It's a reasonable question, but I think we can safely assume that a single\n> key can't be used with multiple KEMs.\n>\n> \u2014\n> You are receiving this because you are subscribed to this thread.\n> Reply to this email directly, view it on GitHub\n> <https://github.com/unicorn-wg/oblivious-http/pull/30#issuecomment-766291713>,\n> or unsubscribe\n> <https://github.com/notifications/unsubscribe-auth/AAIPLIINCPE657SG4TP5VWTS3OSQHANCNFSM4WPYC6YQ>\n> .\n>\n",
+          "createdAt": "2021-01-24T13:34:29Z",
+          "updatedAt": "2021-01-24T13:34:29Z"
+        }
+      ],
+      "reviews": []
+    },
+    {
+      "number": 33,
+      "id": "MDExOlB1bGxSZXF1ZXN0NTYxNDI2MjQx",
+      "title": "Add self as author.",
+      "url": "https://github.com/unicorn-wg/oblivious-http/pull/33",
+      "state": "OPEN",
+      "author": "chris-wood",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2021-01-25T23:25:30Z",
+      "updatedAt": "2021-01-25T23:25:30Z",
+      "baseRepository": "unicorn-wg/oblivious-http",
+      "baseRefName": "main",
+      "baseRefOid": "b3ececa30ef580f98b0e1921121f715166db71a9",
+      "headRepository": "unicorn-wg/oblivious-http",
+      "headRefName": "caw/add-chris",
+      "headRefOid": "86db80fb3d1f827aee809d30532a7f867752305d",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
       "mergeCommit": null,
       "comments": [],
       "reviews": []
+    },
+    {
+      "number": 34,
+      "id": "MDExOlB1bGxSZXF1ZXN0NTYxNDI3NjAz",
+      "title": "Put the KEM ID before the key",
+      "url": "https://github.com/unicorn-wg/oblivious-http/pull/34",
+      "state": "MERGED",
+      "author": "martinthomson",
+      "authorAssociation": "MEMBER",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2021-01-25T23:29:11Z",
+      "updatedAt": "2021-01-25T23:30:22Z",
+      "baseRepository": "unicorn-wg/oblivious-http",
+      "baseRefName": "main",
+      "baseRefOid": "b3ececa30ef580f98b0e1921121f715166db71a9",
+      "headRepository": "unicorn-wg/oblivious-http",
+      "headRefName": "reorder-key-format",
+      "headRefOid": "206e5daffab3a703f2c2d02e16e222be97804338",
+      "closedAt": "2021-01-25T23:30:21Z",
+      "mergedAt": "2021-01-25T23:30:21Z",
+      "mergedBy": "chris-wood",
+      "mergeCommit": {
+        "oid": "0d3c186cd51a2be63787becc0a1027ff5d04abab"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTc1ODkyODY3",
+          "commit": {
+            "abbreviatedOid": "206e5da"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2021-01-25T23:29:51Z",
+          "updatedAt": "2021-01-25T23:29:51Z",
+          "comments": []
+        }
+      ]
     }
   ]
 }
