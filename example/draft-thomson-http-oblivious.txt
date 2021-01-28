@@ -5,8 +5,8 @@
 HTTPBIS                                                       M. Thomson
 Internet-Draft                                                   Mozilla
 Intended status: Standards Track                               C.A. Wood
-Expires: 31 July 2021                                         Cloudflare
-                                                         27 January 2021
+Expires: 1 August 2021                                        Cloudflare
+                                                         28 January 2021
 
 
                              Oblivious HTTP
@@ -45,7 +45,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 31 July 2021.
+   This Internet-Draft will expire on 1 August 2021.
 
 Copyright Notice
 
@@ -884,7 +884,7 @@ Table of Contents
 
    [BINARY]   Thomson, M., "Binary Representation of HTTP Messages",
               Work in Progress, Internet-Draft, draft-ietf-http-binary-
-              message-latest, 27 January 2021,
+              message-latest, 28 January 2021,
               <https://tools.ietf.org/html/draft-ietf-http-binary-
               message-latest>.
 
@@ -964,8 +964,8 @@ Appendix A.  Complete Example of a Request and Response
    to show the cryptographic operations.
 
    The oblivious request resource generates a key pair.  In this example
-   the server chooses the DHKEM(X25519, HKDF-SHA256) and generates an
-   X25519 key pair [X25519].  The X25519 secret key is:
+   the server chooses DHKEM(X25519, HKDF-SHA256) and generates an X25519
+   key pair [X25519].  The X25519 secret key is:
 
    15ce887006e079dcc7d67e73e5c13e31a55083f816eca9ebcf523b90ea2ab7b0
 
@@ -983,8 +983,9 @@ Appendix A.  Complete Example of a Request and Response
    00034745540568747470730b6578616d706c652e636f6d012f
 
    The client then reads the oblivious request resource key
-   configuration, selects a pair of KDF and AEAD and generates an X25519
-   key pair:
+   configuration and selects a mutually supported KDF and AEAD.  In this
+   example, the client selects HKDF-SHA256 and AES-128-GCM.  The client
+   then generates an X25519 key pair:
 
    3b04f76e7ea1313484dd73c343adb94c23671f98cb66fc7ecc6127f38e1d4431
 
@@ -1030,7 +1031,7 @@ Appendix A.  Complete Example of a Request and Response
    861c67eefd91906068ee3208a9102274
 
    The key derivation for the encapsulated response uses both the
-   encapsulated KEM key from the request and a randomly selected value.
+   encapsulated KEM key from the request and a randomly selected nonce.
    This produces a salt of:
 
    a7e0dffe93bc9ed807b51588f10669cd2f09ceb7f6a71153658275993eb88276
@@ -1052,8 +1053,8 @@ Appendix A.  Complete Example of a Request and Response
 
    ba2d3637b5f041cc15ef73b2
 
-   The AEAD Seal function is then used to encrypted the response, which
-   is added to the randomized nonce value to produce the encapsulated
+   The AEAD Seal function is then used to encrypt the response, which is
+   added to the randomized nonce value to produce the encapsulated
    response:
 
    55645b6626d6e8b1163d739c6cd3d94ac7e0cfd48adf8057517241ee220d20bc
@@ -1073,7 +1074,7 @@ Appendix A.  Complete Example of a Request and Response
    resource which might change as little as the Date header.  The client
    is then able to use the HPKE context it created and the nonce from
    the encapsulated response to construct the AEAD key and nonce and
-   extract the response.
+   decrypt the response.
 
 Acknowledgments
 
