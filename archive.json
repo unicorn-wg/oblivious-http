@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2021-01-26T00:09:59.515343+00:00",
+  "timestamp": "2021-01-28T00:09:34.892527+00:00",
   "repo": "unicorn-wg/oblivious-http",
   "labels": [
     {
@@ -71,16 +71,24 @@
       "id": "MDU6SXNzdWU3ODY1OTg2NDU=",
       "title": "Padding",
       "url": "https://github.com/unicorn-wg/oblivious-http/issues/4",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "martinthomson",
       "authorAssociation": "MEMBER",
       "assignees": [],
       "labels": [],
       "body": "The format I've sketched out for binary messages can be padded with zeros without needing a separate padding field.  That's probably a feature worth mentioning in both drafts.",
       "createdAt": "2021-01-15T06:27:26Z",
-      "updatedAt": "2021-01-15T06:27:26Z",
-      "closedAt": null,
-      "comments": []
+      "updatedAt": "2021-01-27T05:05:35Z",
+      "closedAt": "2021-01-27T05:05:35Z",
+      "comments": [
+        {
+          "author": "martinthomson",
+          "authorAssociation": "MEMBER",
+          "body": "Padding is in the binary HTTP draft now.",
+          "createdAt": "2021-01-27T05:05:35Z",
+          "updatedAt": "2021-01-27T05:05:35Z"
+        }
+      ]
     },
     {
       "number": 5,
@@ -219,15 +227,15 @@
       "id": "MDU6SXNzdWU3ODg4OTAxMDM=",
       "title": "Format for server key information",
       "url": "https://github.com/unicorn-wg/oblivious-http/issues/16",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "martinthomson",
       "authorAssociation": "MEMBER",
       "assignees": [],
       "labels": [],
       "body": "Right now we just use words for this, but we might want to define a format that includes keyID, KEM, KDF, AEAD, and pk for the server. A media type for this might be good. Given the general applicability of this, it might want to be a separate document.",
       "createdAt": "2021-01-19T10:14:24Z",
-      "updatedAt": "2021-01-23T02:03:49Z",
-      "closedAt": null,
+      "updatedAt": "2021-01-27T05:05:03Z",
+      "closedAt": "2021-01-27T05:05:03Z",
       "comments": [
         {
           "author": "ekr",
@@ -340,6 +348,13 @@
           "body": "Documented the agreed format in #24.  We've still open questions about the extent to which this and ECH can be harmonized, so I'll open a separate issue to ensure that happens.",
           "createdAt": "2021-01-23T02:03:48Z",
           "updatedAt": "2021-01-23T02:03:48Z"
+        },
+        {
+          "author": "martinthomson",
+          "authorAssociation": "MEMBER",
+          "body": "Let's leave #27 as where we can track key format changes.",
+          "createdAt": "2021-01-27T05:05:03Z",
+          "updatedAt": "2021-01-27T05:05:03Z"
         }
       ]
     },
@@ -2183,24 +2198,26 @@
       "id": "MDExOlB1bGxSZXF1ZXN0NTYxNDI2MjQx",
       "title": "Add self as author.",
       "url": "https://github.com/unicorn-wg/oblivious-http/pull/33",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "chris-wood",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "",
       "createdAt": "2021-01-25T23:25:30Z",
-      "updatedAt": "2021-01-25T23:25:30Z",
+      "updatedAt": "2021-01-26T21:50:41Z",
       "baseRepository": "unicorn-wg/oblivious-http",
       "baseRefName": "main",
       "baseRefOid": "b3ececa30ef580f98b0e1921121f715166db71a9",
       "headRepository": "unicorn-wg/oblivious-http",
       "headRefName": "caw/add-chris",
       "headRefOid": "86db80fb3d1f827aee809d30532a7f867752305d",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "closedAt": "2021-01-26T21:50:40Z",
+      "mergedAt": "2021-01-26T21:50:40Z",
+      "mergedBy": "martinthomson",
+      "mergeCommit": {
+        "oid": "9fcec3db5343f9f01f9d2c8ccf0802444dc928e1"
+      },
       "comments": [],
       "reviews": []
     },
@@ -2243,6 +2260,103 @@
           "createdAt": "2021-01-25T23:29:51Z",
           "updatedAt": "2021-01-25T23:29:51Z",
           "comments": []
+        }
+      ]
+    },
+    {
+      "number": 35,
+      "id": "MDExOlB1bGxSZXF1ZXN0NTYyMjMwOTky",
+      "title": "Add an example",
+      "url": "https://github.com/unicorn-wg/oblivious-http/pull/35",
+      "state": "OPEN",
+      "author": "martinthomson",
+      "authorAssociation": "MEMBER",
+      "assignees": [],
+      "labels": [],
+      "body": "You don't need to validate this; I'm fairly confident after our interop yesterday.  I'm more interested in getting the words right and whether the intermediate values are enough.",
+      "createdAt": "2021-01-27T05:01:23Z",
+      "updatedAt": "2021-01-27T13:37:28Z",
+      "baseRepository": "unicorn-wg/oblivious-http",
+      "baseRefName": "main",
+      "baseRefOid": "9fcec3db5343f9f01f9d2c8ccf0802444dc928e1",
+      "headRepository": "unicorn-wg/oblivious-http",
+      "headRefName": "example",
+      "headRefOid": "aef7141dc5b6b5ec416cd875a792fc2263d5817d",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": [
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTc3MzI4MDQ5",
+          "commit": {
+            "abbreviatedOid": "aef7141"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2021-01-27T13:22:41Z",
+          "updatedAt": "2021-01-27T13:32:07Z",
+          "comments": [
+            {
+              "originalPosition": 17,
+              "body": "```suggestion\r\nchooses DHKEM(X25519, HKDF-SHA256) and generates an X25519 key pair\r\n```",
+              "createdAt": "2021-01-27T13:22:41Z",
+              "updatedAt": "2021-01-27T13:32:07Z"
+            },
+            {
+              "originalPosition": 39,
+              "body": "```suggestion\r\nThe client then reads the oblivious request resource key configuration and selects a mutually supported KDF and AEAD. In this example, the client selects HKDF-SHA256 and AES-128-GCM. The client then generates an X25519 key pair:\r\n```",
+              "createdAt": "2021-01-27T13:26:46Z",
+              "updatedAt": "2021-01-27T13:32:07Z"
+            },
+            {
+              "originalPosition": 96,
+              "body": "```suggestion\r\nkey from the request and a randomly selected nonce. This produces a salt of:\r\n```",
+              "createdAt": "2021-01-27T13:28:08Z",
+              "updatedAt": "2021-01-27T13:32:07Z"
+            },
+            {
+              "originalPosition": 96,
+              "body": "(for consistency with the terminology used in the main text)",
+              "createdAt": "2021-01-27T13:28:24Z",
+              "updatedAt": "2021-01-27T13:32:07Z"
+            },
+            {
+              "originalPosition": 124,
+              "body": "```suggestion\r\nThe AEAD Seal function is then used to encrypt the response, which is added\r\n```",
+              "createdAt": "2021-01-27T13:31:23Z",
+              "updatedAt": "2021-01-27T13:32:07Z"
+            },
+            {
+              "originalPosition": 147,
+              "body": "```suggestion\r\nconstruct the AEAD key and nonce and decrypt the response.\r\n```",
+              "createdAt": "2021-01-27T13:32:03Z",
+              "updatedAt": "2021-01-27T13:32:07Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTc3MzQxMzQx",
+          "commit": {
+            "abbreviatedOid": "aef7141"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-01-27T13:37:27Z",
+          "updatedAt": "2021-01-27T13:37:28Z",
+          "comments": [
+            {
+              "originalPosition": 39,
+              "body": "I'm not really sure how I feel about this particular part, since it exposes HPKE internals. Maybe we could rewrite this to something like so:\r\n\r\n```\r\nThe client then generates an HPKE context using the server's public key, yielding an encapsulated \r\nkey:\r\n\r\n<X25519 public key>\r\n\r\nWith the corresponding private key:\r\n\r\n<X25519 private key>\r\n```",
+              "createdAt": "2021-01-27T13:37:27Z",
+              "updatedAt": "2021-01-27T13:37:28Z"
+            }
+          ]
         }
       ]
     }
