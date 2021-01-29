@@ -5,8 +5,8 @@
 HTTPBIS                                                       M. Thomson
 Internet-Draft                                                   Mozilla
 Intended status: Standards Track                               C.A. Wood
-Expires: 1 August 2021                                        Cloudflare
-                                                         28 January 2021
+Expires: 2 August 2021                                        Cloudflare
+                                                         29 January 2021
 
 
                  Binary Representation of HTTP Messages
@@ -42,7 +42,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 1 August 2021.
+   This Internet-Draft will expire on 2 August 2021.
 
 Copyright Notice
 
@@ -390,8 +390,8 @@ Table of Contents
 
    The content of messages is a sequence of bytes of any length.  Though
    a known-length message has a limit, this limit is large enough that
-   it is unlikely to be a practical limitation.  There is there is no
-   limit to an indeterminate length message.
+   it is unlikely to be a practical limitation.  There is no limit to
+   the size of content in an indeterminate length message.
 
    Omitting content by truncating a message is only possible if the
    content is zero-length.
@@ -417,7 +417,7 @@ Table of Contents
    "message/http".
 
    Valid HTTP/1.1 messages require lines terminated with CRLF (the two
-   bytes 0x0a and 0x0d).  For simplicity and consistenct, the content of
+   bytes 0x0a and 0x0d).  For simplicity and consistency, the content of
    these examples is limited to text, which also uses CRLF for line
    endings.
 
