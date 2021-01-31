@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2021-01-28T00:09:34.892527+00:00",
+  "timestamp": "2021-01-31T00:08:18.297292+00:00",
   "repo": "unicorn-wg/oblivious-http",
   "labels": [
     {
@@ -2268,24 +2268,26 @@
       "id": "MDExOlB1bGxSZXF1ZXN0NTYyMjMwOTky",
       "title": "Add an example",
       "url": "https://github.com/unicorn-wg/oblivious-http/pull/35",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "martinthomson",
       "authorAssociation": "MEMBER",
       "assignees": [],
       "labels": [],
       "body": "You don't need to validate this; I'm fairly confident after our interop yesterday.  I'm more interested in getting the words right and whether the intermediate values are enough.",
       "createdAt": "2021-01-27T05:01:23Z",
-      "updatedAt": "2021-01-27T13:37:28Z",
+      "updatedAt": "2021-01-28T00:31:26Z",
       "baseRepository": "unicorn-wg/oblivious-http",
       "baseRefName": "main",
       "baseRefOid": "9fcec3db5343f9f01f9d2c8ccf0802444dc928e1",
       "headRepository": "unicorn-wg/oblivious-http",
       "headRefName": "example",
-      "headRefOid": "aef7141dc5b6b5ec416cd875a792fc2263d5817d",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "headRefOid": "133d24d3f0568cc77f542cf48124e081ab346b11",
+      "closedAt": "2021-01-28T00:31:25Z",
+      "mergedAt": "2021-01-28T00:31:25Z",
+      "mergedBy": "martinthomson",
+      "mergeCommit": {
+        "oid": "f05690d1f13cf5e622f061d95b77fcd128b3860f"
+      },
       "comments": [],
       "reviews": [
         {
@@ -2304,37 +2306,37 @@
               "originalPosition": 17,
               "body": "```suggestion\r\nchooses DHKEM(X25519, HKDF-SHA256) and generates an X25519 key pair\r\n```",
               "createdAt": "2021-01-27T13:22:41Z",
-              "updatedAt": "2021-01-27T13:32:07Z"
+              "updatedAt": "2021-01-28T00:30:56Z"
             },
             {
               "originalPosition": 39,
               "body": "```suggestion\r\nThe client then reads the oblivious request resource key configuration and selects a mutually supported KDF and AEAD. In this example, the client selects HKDF-SHA256 and AES-128-GCM. The client then generates an X25519 key pair:\r\n```",
               "createdAt": "2021-01-27T13:26:46Z",
-              "updatedAt": "2021-01-27T13:32:07Z"
+              "updatedAt": "2021-01-28T00:30:56Z"
             },
             {
               "originalPosition": 96,
               "body": "```suggestion\r\nkey from the request and a randomly selected nonce. This produces a salt of:\r\n```",
               "createdAt": "2021-01-27T13:28:08Z",
-              "updatedAt": "2021-01-27T13:32:07Z"
+              "updatedAt": "2021-01-28T00:30:56Z"
             },
             {
               "originalPosition": 96,
               "body": "(for consistency with the terminology used in the main text)",
               "createdAt": "2021-01-27T13:28:24Z",
-              "updatedAt": "2021-01-27T13:32:07Z"
+              "updatedAt": "2021-01-28T00:30:56Z"
             },
             {
               "originalPosition": 124,
               "body": "```suggestion\r\nThe AEAD Seal function is then used to encrypt the response, which is added\r\n```",
               "createdAt": "2021-01-27T13:31:23Z",
-              "updatedAt": "2021-01-27T13:32:07Z"
+              "updatedAt": "2021-01-28T00:30:56Z"
             },
             {
               "originalPosition": 147,
               "body": "```suggestion\r\nconstruct the AEAD key and nonce and decrypt the response.\r\n```",
               "createdAt": "2021-01-27T13:32:03Z",
-              "updatedAt": "2021-01-27T13:32:07Z"
+              "updatedAt": "2021-01-28T00:30:56Z"
             }
           ]
         },
@@ -2354,9 +2356,113 @@
               "originalPosition": 39,
               "body": "I'm not really sure how I feel about this particular part, since it exposes HPKE internals. Maybe we could rewrite this to something like so:\r\n\r\n```\r\nThe client then generates an HPKE context using the server's public key, yielding an encapsulated \r\nkey:\r\n\r\n<X25519 public key>\r\n\r\nWith the corresponding private key:\r\n\r\n<X25519 private key>\r\n```",
               "createdAt": "2021-01-27T13:37:27Z",
-              "updatedAt": "2021-01-27T13:37:28Z"
+              "updatedAt": "2021-01-28T00:30:56Z"
             }
           ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTc3ODkxNzU3",
+          "commit": {
+            "abbreviatedOid": "aef7141"
+          },
+          "author": "martinthomson",
+          "authorAssociation": "MEMBER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-01-28T00:30:34Z",
+          "updatedAt": "2021-01-28T00:30:59Z",
+          "comments": [
+            {
+              "originalPosition": 39,
+              "body": "Agree. Will fix.",
+              "createdAt": "2021-01-28T00:30:34Z",
+              "updatedAt": "2021-01-28T00:30:59Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "number": 36,
+      "id": "MDExOlB1bGxSZXF1ZXN0NTYzMDgzMzQw",
+      "title": "A little clearer on the abstract",
+      "url": "https://github.com/unicorn-wg/oblivious-http/pull/36",
+      "state": "MERGED",
+      "author": "martinthomson",
+      "authorAssociation": "MEMBER",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2021-01-28T08:41:53Z",
+      "updatedAt": "2021-01-29T15:18:04Z",
+      "baseRepository": "unicorn-wg/oblivious-http",
+      "baseRefName": "main",
+      "baseRefOid": "1b51b8805b47efa87214060570bd29ddf1d0ddff",
+      "headRepository": "unicorn-wg/oblivious-http",
+      "headRefName": "abstract-the-server",
+      "headRefOid": "33a422595a590c4387d8e1143164b9c5f17e10a9",
+      "closedAt": "2021-01-29T15:18:03Z",
+      "mergedAt": "2021-01-29T15:18:03Z",
+      "mergedBy": "chris-wood",
+      "mergeCommit": {
+        "oid": "c66017fae70ca8b50176488a5e66f7b032798add"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTc5MzUxODkw",
+          "commit": {
+            "abbreviatedOid": "33a4225"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2021-01-29T15:17:58Z",
+          "updatedAt": "2021-01-29T15:17:58Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 37,
+      "id": "MDExOlB1bGxSZXF1ZXN0NTYzMDg2NTI5",
+      "title": "There is there is",
+      "url": "https://github.com/unicorn-wg/oblivious-http/pull/37",
+      "state": "MERGED",
+      "author": "martinthomson",
+      "authorAssociation": "MEMBER",
+      "assignees": [],
+      "labels": [],
+      "body": "Stupid grammar stuff in the published version.",
+      "createdAt": "2021-01-28T08:47:26Z",
+      "updatedAt": "2021-01-29T15:17:29Z",
+      "baseRepository": "unicorn-wg/oblivious-http",
+      "baseRefName": "main",
+      "baseRefOid": "1b51b8805b47efa87214060570bd29ddf1d0ddff",
+      "headRepository": "unicorn-wg/oblivious-http",
+      "headRefName": "there-is-there-is",
+      "headRefOid": "930fb7b3d279dedffc43650aec42035a68f63252",
+      "closedAt": "2021-01-29T15:17:29Z",
+      "mergedAt": "2021-01-29T15:17:28Z",
+      "mergedBy": "chris-wood",
+      "mergeCommit": {
+        "oid": "34f7e4c2f380ae715a9c6223ceb425f1bfeaaee9"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTc5MzUxMTYx",
+          "commit": {
+            "abbreviatedOid": "930fb7b"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2021-01-29T15:17:17Z",
+          "updatedAt": "2021-01-29T15:17:17Z",
+          "comments": []
         }
       ]
     }
