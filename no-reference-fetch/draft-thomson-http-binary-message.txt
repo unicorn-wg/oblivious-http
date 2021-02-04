@@ -638,30 +638,63 @@ Table of Contents
 
 9.1.  Normative References
 
-   [H2]       "*** BROKEN REFERENCE ***".
+   [H2]       Belshe, M., Peon, R., and M. Thomson, Ed., "Hypertext
+              Transfer Protocol Version 2 (HTTP/2)", RFC 7540,
+              DOI 10.17487/RFC7540, May 2015,
+              <https://www.rfc-editor.org/info/rfc7540>.
 
-   [HTTP]     "*** BROKEN REFERENCE ***".
+   [HTTP]     Fielding, R., Nottingham, M., and J. Reschke, "HTTP
+              Semantics", Work in Progress, Internet-Draft, draft-ietf-
+              httpbis-semantics-14, 12 January 2021,
+              <http://www.ietf.org/internet-drafts/draft-ietf-httpbis-
+              semantics-14.txt>.
 
    [MESSAGING]
-              "*** BROKEN REFERENCE ***".
+              Fielding, R., Nottingham, M., and J. Reschke, "HTTP/1.1",
+              Work in Progress, Internet-Draft, draft-ietf-httpbis-
+              messaging-14, 12 January 2021, <http://www.ietf.org/
+              internet-drafts/draft-ietf-httpbis-messaging-14.txt>.
 
-   [QUIC]     "*** BROKEN REFERENCE ***".
+   [QUIC]     Iyengar, J. and M. Thomson, "QUIC: A UDP-Based Multiplexed
+              and Secure Transport", Work in Progress, Internet-Draft,
+              draft-ietf-quic-transport-34, 14 January 2021,
+              <http://www.ietf.org/internet-drafts/draft-ietf-quic-
+              transport-34.txt>.
 
-   [RFC2119]  "*** BROKEN REFERENCE ***".
+   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119,
+              DOI 10.17487/RFC2119, March 1997,
+              <https://www.rfc-editor.org/info/rfc2119>.
 
-   [RFC8174]  "*** BROKEN REFERENCE ***".
+   [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
+              2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
+              May 2017, <https://www.rfc-editor.org/info/rfc8174>.
 
 9.2.  Informative References
 
-   [H3]       "*** BROKEN REFERENCE ***".
+   [H3]       Bishop, M., "Hypertext Transfer Protocol Version 3
+              (HTTP/3)", Work in Progress, Internet-Draft, draft-ietf-
+              quic-http-33, 15 December 2020, <http://www.ietf.org/
+              internet-drafts/draft-ietf-quic-http-33.txt>.
 
-   [HPACK]    "*** BROKEN REFERENCE ***".
+   [HPACK]    Peon, R. and H. Ruellan, "HPACK: Header Compression for
+              HTTP/2", RFC 7541, DOI 10.17487/RFC7541, May 2015,
+              <https://www.rfc-editor.org/info/rfc7541>.
 
-   [QPACK]    "*** BROKEN REFERENCE ***".
+   [QPACK]    Krasic, C., Bishop, M., and A. Frindell, "QPACK: Header
+              Compression for HTTP/3", Work in Progress, Internet-Draft,
+              draft-ietf-quic-qpack-20, 15 December 2020,
+              <http://www.ietf.org/internet-drafts/draft-ietf-quic-
+              qpack-20.txt>.
 
-   [RFC2518]  "*** BROKEN REFERENCE ***".
+   [RFC2518]  Goland, Y., Whitehead, E., Faizi, A., Carter, S., and D.
+              Jensen, "HTTP Extensions for Distributed Authoring --
+              WEBDAV", RFC 2518, DOI 10.17487/RFC2518, February 1999,
+              <https://www.rfc-editor.org/info/rfc2518>.
 
-   [RFC8297]  "*** BROKEN REFERENCE ***".
+   [RFC8297]  Oku, K., "An HTTP Status Code for Indicating Hints",
+              RFC 8297, DOI 10.17487/RFC8297, December 2017,
+              <https://www.rfc-editor.org/info/rfc8297>.
 
 Acknowledgments
 
