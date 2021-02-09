@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2021-02-02T00:09:28.539704+00:00",
+  "timestamp": "2021-02-09T00:05:29.027060+00:00",
   "repo": "unicorn-wg/oblivious-http",
   "labels": [
     {
@@ -2542,6 +2542,48 @@
           "body": "",
           "createdAt": "2021-01-29T15:17:17Z",
           "updatedAt": "2021-01-29T15:17:17Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 43,
+      "id": "MDExOlB1bGxSZXF1ZXN0NTY5MjE0MTY1",
+      "title": "Make the picture narrower",
+      "url": "https://github.com/unicorn-wg/oblivious-http/pull/43",
+      "state": "MERGED",
+      "author": "martinthomson",
+      "authorAssociation": "MEMBER",
+      "assignees": [],
+      "labels": [],
+      "body": "The QUIC linter complained and it is usually right about this sort of\r\nthing.",
+      "createdAt": "2021-02-08T06:54:10Z",
+      "updatedAt": "2021-02-08T20:10:12Z",
+      "baseRepository": "unicorn-wg/oblivious-http",
+      "baseRefName": "main",
+      "baseRefOid": "c66017fae70ca8b50176488a5e66f7b032798add",
+      "headRepository": "unicorn-wg/oblivious-http",
+      "headRefName": "narrow-picture",
+      "headRefOid": "bb434ddafbd5da39e322d2cd9bf7f4153329ea88",
+      "closedAt": "2021-02-08T20:10:11Z",
+      "mergedAt": "2021-02-08T20:10:11Z",
+      "mergedBy": "chris-wood",
+      "mergeCommit": {
+        "oid": "53e1690dc8aa67d0608490b0c179bc7886197913"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTg1ODgwMjgy",
+          "commit": {
+            "abbreviatedOid": "bb434dd"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2021-02-08T20:10:08Z",
+          "updatedAt": "2021-02-08T20:10:08Z",
           "comments": []
         }
       ]
