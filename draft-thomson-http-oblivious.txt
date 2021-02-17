@@ -5,8 +5,8 @@
 HTTPBIS                                                       M. Thomson
 Internet-Draft                                                   Mozilla
 Intended status: Standards Track                               C.A. Wood
-Expires: 12 August 2021                                       Cloudflare
-                                                         8 February 2021
+Expires: 21 August 2021                                       Cloudflare
+                                                        17 February 2021
 
 
                              Oblivious HTTP
@@ -45,7 +45,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 12 August 2021.
+   This Internet-Draft will expire on 21 August 2021.
 
 Copyright Notice
 
@@ -809,12 +809,12 @@ Table of Contents
    proxies.  This arrangement might be necessary to prevent having the
    large volume of requests being classified as an attack by the server.
 
-   If a server does accept a large volume of requests from a proxy, it
+   If a server accepts a larger volume of requests from a proxy, it
    needs to trust that the proxy does not allow abusive levels of
    request volumes from clients.  That is, if a server allows requests
    from the proxy to be exempt from rate limits, the server might want
-   to ensure that the proxy applies similar rate limiting when receiving
-   requests from clients.
+   to ensure that the proxy applies a rate limiting policy that is
+   acceptable to the server.
 
    Servers that enter into an agreement with a proxy that enables a
    higher request rate might choose to authenticate the proxy to enable
@@ -832,7 +832,7 @@ Table of Contents
    A proxy could, as part of its function, add delays in order to
    increase the anonymity set into which each message is attributed.
    This could latency to the overall time clients take to receive a
-   response, which might not what some clients want.
+   response, which might not be what some clients want.
 
    A proxy can use padding to reduce the effectiveness of traffic
    analysis.
@@ -884,26 +884,26 @@ Table of Contents
 
    [BINARY]   Thomson, M., "Binary Representation of HTTP Messages",
               Work in Progress, Internet-Draft, draft-ietf-http-binary-
-              message-latest, 8 February 2021,
-              <https://tools.ietf.org/html/draft-ietf-http-binary-
-              message-latest>.
+              message-latest, 17 February 2021,
+              <https://datatracker.ietf.org/doc/html/draft-ietf-http-
+              binary-message-latest.txt>.
 
-   [HPKE]     Barnes, R., Bhargavan, K., Lipp, B., and C. Wood, "Hybrid
-              Public Key Encryption", Work in Progress, Internet-Draft,
-              draft-irtf-cfrg-hpke-07, 16 December 2020,
-              <http://www.ietf.org/internet-drafts/draft-irtf-cfrg-hpke-
-              07.txt>.
+   [HPKE]     Barnes, R. L., Bhargavan, K., Lipp, B., and C. A. Wood,
+              "Hybrid Public Key Encryption", Work in Progress,
+              Internet-Draft, draft-irtf-cfrg-hpke-08, 15 February 2021,
+              <https://www.ietf.org/archive/id/draft-irtf-cfrg-hpke-
+              08.txt>.
 
-   [HTTP]     Fielding, R., Nottingham, M., and J. Reschke, "HTTP
+   [HTTP]     Fielding, R. T., Nottingham, M., and J. Reschke, "HTTP
               Semantics", Work in Progress, Internet-Draft, draft-ietf-
               httpbis-semantics-14, 12 January 2021,
-              <http://www.ietf.org/internet-drafts/draft-ietf-httpbis-
+              <https://www.ietf.org/archive/id/draft-ietf-httpbis-
               semantics-14.txt>.
 
    [QUIC]     Iyengar, J. and M. Thomson, "QUIC: A UDP-Based Multiplexed
               and Secure Transport", Work in Progress, Internet-Draft,
               draft-ietf-quic-transport-34, 14 January 2021,
-              <http://www.ietf.org/internet-drafts/draft-ietf-quic-
+              <https://www.ietf.org/archive/id/draft-ietf-quic-
               transport-34.txt>.
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
@@ -940,11 +940,11 @@ Table of Contents
               RFC 7239, DOI 10.17487/RFC7239, June 2014,
               <https://www.rfc-editor.org/info/rfc7239>.
 
-   [ODOH]     Kinnear, E., McManus, P., Pauly, T., and C. Wood,
+   [ODOH]     Kinnear, E., McManus, P., Pauly, T., and C. A. Wood,
               "Oblivious DNS Over HTTPS", Work in Progress, Internet-
               Draft, draft-pauly-dprive-oblivious-doh-04, 26 January
-              2021, <http://www.ietf.org/internet-drafts/draft-pauly-
-              dprive-oblivious-doh-04.txt>.
+              2021, <https://www.ietf.org/archive/id/draft-pauly-dprive-
+              oblivious-doh-04.txt>.
 
    [RANDOM]   Eastlake 3rd, D., Schiller, J., and S. Crocker,
               "Randomness Requirements for Security", BCP 106, RFC 4086,
