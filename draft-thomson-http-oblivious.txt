@@ -66,6 +66,7 @@ Table of Contents
    1.  Introduction
    2.  Conventions and Definitions
    3.  Overview
+     3.1.  Applicability
    4.  Key Configuration
      4.1.  Key Configuration Encoding
      4.2.  Key Configuration Media Type
@@ -250,6 +251,47 @@ Table of Contents
 
    10.  The client removes the encapsulation to obtain the response to
         the original request.
+
+3.1.  Applicability
+
+   Oblivious HTTP has limited applicability.  Many uses of HTTP benefit
+   from being able to carry state between requests, such as with cookies
+   ([RFC6265]), authentication (Section 11 of
+   [I-D.ietf-httpbis-semantics]), or even alternative services
+   ([RFC7838]).  Oblivious HTTP seeks to prevent this sort of linkage,
+   which requires that applications not carry state between requests.
+
+   Oblivious HTTP is primarily useful where privacy risks associated
+   with possible stateful treatment of requests are sufficiently
+   negative that the cost of deploying this protocol can be justified.
+   Oblivious HTTP is simpler and less costly than more robust systems,
+   like Prio ([PRIO]) or Tor ([Dingledine2004]), which can provide
+   stronger guarantees at higher operational costs.
+
+   Oblivious HTTP is more costly than a direct connection to a server.
+   Some costs, like those involved with connection setup, can be
+   amortized, but there are several ways in which oblivious HTTP is more
+   expensive than a direct request:
+
+   *  Each oblivious request requires at least two regular HTTP
+      requests, which adds latency.
+
+   *  Each request is expanded in size with additional HTTP fields,
+      encryption-related metadata, and AEAD expansion.
+
+   *  Deriving cryptographic keys and applying them for request and
+      response protection takes non-negligible computational resources.
+
+   Examples of where preventing the linking of requests might justify
+   these costs include:
+
+   *  DNS queries.  DNS queries made to a recursive resolver reveal
+      information about the requester, particularly if linked to other
+      queries.
+
+   *  Telemetry submission.  Applications that submit reports about
+      their usage to their developers might use oblivious HTTP for some
+      types of moderately sensitive data.
 
 4.  Key Configuration
 
@@ -884,7 +926,7 @@ Table of Contents
 
    [BINARY]   Thomson, M., "Binary Representation of HTTP Messages",
               Work in Progress, Internet-Draft, draft-ietf-http-binary-
-              message-latest, 17 February 2021,
+              message-latest, 18 February 2021,
               <https://datatracker.ietf.org/doc/html/draft-ietf-http-
               binary-message-latest.txt>.
 
@@ -940,16 +982,35 @@ Table of Contents
               RFC 7239, DOI 10.17487/RFC7239, June 2014,
               <https://www.rfc-editor.org/info/rfc7239>.
 
+   [I-D.ietf-httpbis-semantics]
+              Fielding, R. T., Nottingham, M., and J. Reschke, "HTTP
+              Semantics", Work in Progress, Internet-Draft, draft-ietf-
+              httpbis-semantics-14, 12 January 2021,
+              <https://www.ietf.org/archive/id/draft-ietf-httpbis-
+              semantics-14.txt>.
+
    [ODOH]     Kinnear, E., McManus, P., Pauly, T., and C. A. Wood,
               "Oblivious DNS Over HTTPS", Work in Progress, Internet-
               Draft, draft-pauly-dprive-oblivious-doh-04, 26 January
               2021, <https://www.ietf.org/archive/id/draft-pauly-dprive-
               oblivious-doh-04.txt>.
 
+   [PRIO]     Corrigan-Gibbs, H. and D. Boneh, "Prio: Private, Robust,
+              and Scalable Computation of Aggregate Statistics", 14
+              March 2017, <https://crypto.stanford.edu/prio/paper.pdf>.
+
    [RANDOM]   Eastlake 3rd, D., Schiller, J., and S. Crocker,
               "Randomness Requirements for Security", BCP 106, RFC 4086,
               DOI 10.17487/RFC4086, June 2005,
               <https://www.rfc-editor.org/info/rfc4086>.
+
+   [RFC6265]  Barth, A., "HTTP State Management Mechanism", RFC 6265,
+              DOI 10.17487/RFC6265, April 2011,
+              <https://www.rfc-editor.org/info/rfc6265>.
+
+   [RFC7838]  Nottingham, M., McManus, P., and J. Reschke, "HTTP
+              Alternative Services", RFC 7838, DOI 10.17487/RFC7838,
+              April 2016, <https://www.rfc-editor.org/info/rfc7838>.
 
    [X25519]   Langley, A., Hamburg, M., and S. Turner, "Elliptic Curves
               for Security", RFC 7748, DOI 10.17487/RFC7748, January
