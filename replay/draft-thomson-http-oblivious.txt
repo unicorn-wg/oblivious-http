@@ -873,16 +873,21 @@ Table of Contents
 
 8.4.  Replay Attacks
 
-   Encapsulated requests can be copied and replayed toward servers.  The
-   replay risk is similar to the exposure to replay attack in TLS early
-   data (see [TLS]).
+   Encapsulated requests can be copied and replayed by the oblivious
+   proxy resource.  The design of oblivious HTTP does not assume that
+   the oblivious proxy resource will not replay requests.  In addition,
+   if a client sends an encapsulated request in TLS early data (see
+   Section 8 of [TLS] and [RFC8470]), a network-based adversary might be
+   able to cause the request to be replayed.  In both cases, the effect
+   of a replay attack and the mitigations that might be employed are
+   similar to TLS early data.
 
    A client or oblivious proxy resource MUST NOT automatically attempt
    to retry a failed request unless it receives a positive signal
    indicating that the request was not processed or forwarded.  The
    HTTP/2 REFUSED_STREAM error code (Section 8.1.4 of [RFC7540]), the
-   HTTP/3 H3_REQUEST_REJECTED error code (Section 8.1 of [QUIC-HTTP])
-   and a GOAWAY frame (in either protocol version) are all sufficient
+   HTTP/3 H3_REQUEST_REJECTED error code (Section 8.1 of [QUIC-HTTP]),
+   or a GOAWAY frame (in either protocol version) are all sufficient
    signals that no processing occurred.  Connection failures or
    interruptions are not sufficient signals that no processing occurred.
 
