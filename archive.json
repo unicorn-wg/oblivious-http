@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2021-02-09T00:05:29.027060+00:00",
+  "timestamp": "2021-02-18T00:05:47.631895+00:00",
   "repo": "unicorn-wg/oblivious-http",
   "labels": [
     {
@@ -547,16 +547,31 @@
       "id": "MDU6SXNzdWU3OTc4NTQ0MDQ=",
       "title": "Use cases/applicability",
       "url": "https://github.com/unicorn-wg/oblivious-http/issues/42",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "martinthomson",
       "authorAssociation": "MEMBER",
       "assignees": [],
       "labels": [],
       "body": "A little more text on the narrow applicability of this would be helpful.  Some people originally interpreted this as having broader application than was ever intended.",
       "createdAt": "2021-02-01T00:27:57Z",
-      "updatedAt": "2021-02-01T00:27:57Z",
-      "closedAt": null,
-      "comments": []
+      "updatedAt": "2021-02-17T23:25:37Z",
+      "closedAt": "2021-02-17T23:25:37Z",
+      "comments": [
+        {
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "body": "@martinthomson can we close this with #44?",
+          "createdAt": "2021-02-17T23:19:47Z",
+          "updatedAt": "2021-02-17T23:19:47Z"
+        },
+        {
+          "author": "martinthomson",
+          "authorAssociation": "MEMBER",
+          "body": "Yep.  I forgot to link it.",
+          "createdAt": "2021-02-17T23:25:37Z",
+          "updatedAt": "2021-02-17T23:25:37Z"
+        }
+      ]
     }
   ],
   "pulls": [
@@ -2587,6 +2602,353 @@
           "comments": []
         }
       ]
+    },
+    {
+      "number": 44,
+      "id": "MDExOlB1bGxSZXF1ZXN0NTczOTEwODkx",
+      "title": "Applicability statement",
+      "url": "https://github.com/unicorn-wg/oblivious-http/pull/44",
+      "state": "MERGED",
+      "author": "martinthomson",
+      "authorAssociation": "MEMBER",
+      "assignees": [],
+      "labels": [],
+      "body": "This is more background than I would normally like to include, but it\r\nseems prudent at this stage.\r\n\r\nThe example usage bit might go eventually, but I can see us keeping some\r\nsort of applicability statement.",
+      "createdAt": "2021-02-16T04:11:59Z",
+      "updatedAt": "2021-02-17T23:01:06Z",
+      "baseRepository": "unicorn-wg/oblivious-http",
+      "baseRefName": "main",
+      "baseRefOid": "53e1690dc8aa67d0608490b0c179bc7886197913",
+      "headRepository": "unicorn-wg/oblivious-http",
+      "headRefName": "applicability",
+      "headRefOid": "4da10d0feadd7447d2e23a5d7cee50eb5df4d18f",
+      "closedAt": "2021-02-17T23:01:05Z",
+      "mergedAt": "2021-02-17T23:01:05Z",
+      "mergedBy": "martinthomson",
+      "mergeCommit": {
+        "oid": "3f7295f192d30f8d34c0955ec190a8c50227b70b"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTkyNTg3MjQ4",
+          "commit": {
+            "abbreviatedOid": "46758e7"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2021-02-17T20:11:41Z",
+          "updatedAt": "2021-02-17T20:15:20Z",
+          "comments": [
+            {
+              "originalPosition": 33,
+              "body": "```suggestion\r\nof linkage, which requires that applications not carry state between requests.\r\n```",
+              "createdAt": "2021-02-17T20:11:41Z",
+              "updatedAt": "2021-02-17T23:00:54Z"
+            },
+            {
+              "originalPosition": 35,
+              "body": "```suggestion\r\nOblivious HTTP is primarily useful where privacy risks associated with possible\r\n```",
+              "createdAt": "2021-02-17T20:11:57Z",
+              "updatedAt": "2021-02-17T23:00:54Z"
+            },
+            {
+              "originalPosition": 40,
+              "body": "```suggestion\r\n({{Dingledine2004}}), which can provide stronger guarantees at higher operational costs.\r\n```",
+              "createdAt": "2021-02-17T20:13:08Z",
+              "updatedAt": "2021-02-17T23:00:54Z"
+            },
+            {
+              "originalPosition": 49,
+              "body": "```suggestion\r\n* Each request is expanded in size with additional HTTP fields,\r\n```",
+              "createdAt": "2021-02-17T20:14:20Z",
+              "updatedAt": "2021-02-17T23:00:54Z"
+            },
+            {
+              "originalPosition": 53,
+              "body": "```suggestion\r\n* Deriving cryptographic keys and applying them for request and\r\n  response protection takes non-negligible computational resources.\r\n```",
+              "createdAt": "2021-02-17T20:14:48Z",
+              "updatedAt": "2021-02-17T23:00:54Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "number": 45,
+      "id": "MDExOlB1bGxSZXF1ZXN0NTczOTIyOTgy",
+      "title": "Small tweaks",
+      "url": "https://github.com/unicorn-wg/oblivious-http/pull/45",
+      "state": "MERGED",
+      "author": "martinthomson",
+      "authorAssociation": "MEMBER",
+      "assignees": [],
+      "labels": [],
+      "body": "Just a missing word and some stuff that seemed like it could be better.",
+      "createdAt": "2021-02-16T04:52:54Z",
+      "updatedAt": "2021-02-17T20:16:25Z",
+      "baseRepository": "unicorn-wg/oblivious-http",
+      "baseRefName": "main",
+      "baseRefOid": "53e1690dc8aa67d0608490b0c179bc7886197913",
+      "headRepository": "unicorn-wg/oblivious-http",
+      "headRefName": "what-clients-want",
+      "headRefOid": "1b59256a1221de5ed7cf1482e0673e9323a404e7",
+      "closedAt": "2021-02-17T20:16:25Z",
+      "mergedAt": "2021-02-17T20:16:25Z",
+      "mergedBy": "chris-wood",
+      "mergeCommit": {
+        "oid": "ddfe799828059cc1e7f5cdf42e18caac9ec4536c"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTkyNTkwMzI4",
+          "commit": {
+            "abbreviatedOid": "2fc9cee"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2021-02-17T20:15:55Z",
+          "updatedAt": "2021-02-17T20:16:14Z",
+          "comments": [
+            {
+              "originalPosition": 5,
+              "body": "```suggestion\r\nIf a server accepts a larger volume of requests from a proxy, it needs to\r\n```",
+              "createdAt": "2021-02-17T20:15:55Z",
+              "updatedAt": "2021-02-17T20:16:20Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "number": 46,
+      "id": "MDExOlB1bGxSZXF1ZXN0NTc0NjYwNjc0",
+      "title": "Add text on replay",
+      "url": "https://github.com/unicorn-wg/oblivious-http/pull/46",
+      "state": "OPEN",
+      "author": "martinthomson",
+      "authorAssociation": "MEMBER",
+      "assignees": [],
+      "labels": [],
+      "body": "This isn't anything that special, but this is a case where a bunch of\r\nour established defenses don't work.",
+      "createdAt": "2021-02-17T05:45:27Z",
+      "updatedAt": "2021-02-18T00:01:08Z",
+      "baseRepository": "unicorn-wg/oblivious-http",
+      "baseRefName": "main",
+      "baseRefOid": "53e1690dc8aa67d0608490b0c179bc7886197913",
+      "headRepository": "unicorn-wg/oblivious-http",
+      "headRefName": "replay",
+      "headRefOid": "f683da209611e9e1277b5d76c8003a0ab04cbd8e",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [
+        {
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "body": "The new changes LGTM. Feel free to merge assuming you're done with edits!",
+          "createdAt": "2021-02-18T00:01:08Z",
+          "updatedAt": "2021-02-18T00:01:08Z"
+        }
+      ],
+      "reviews": [
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTkyNTk2MjQ4",
+          "commit": {
+            "abbreviatedOid": "d11742d"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "LGTM with some nits and questions about future changes. Nothing blocking.",
+          "createdAt": "2021-02-17T20:23:57Z",
+          "updatedAt": "2021-02-17T20:29:44Z",
+          "comments": [
+            {
+              "originalPosition": 17,
+              "body": "```suggestion\r\n{{!TLS=RFC8446}}). However, one important difference is that the oblivious proxy, which handles\r\nencapsulated requests, can replay messages; replay attacks by network adversaries are less \r\napplicable unless clients or proxies send encapsulated requests as early data. \r\n```",
+              "createdAt": "2021-02-17T20:23:57Z",
+              "updatedAt": "2021-02-17T23:26:13Z"
+            },
+            {
+              "originalPosition": 17,
+              "body": "... basically, trying to say that we limit the attack surface here compared to TLS, in that only proxies can reasonably replay, compared to general network attackers.",
+              "createdAt": "2021-02-17T20:24:33Z",
+              "updatedAt": "2021-02-17T23:26:13Z"
+            },
+            {
+              "originalPosition": 31,
+              "body": "```suggestion\r\ncannot be used as it depends on being able to observe previous interactions.\r\nOblivious HTTP explicitly prevents such linkability.\r\n```",
+              "createdAt": "2021-02-17T20:25:23Z",
+              "updatedAt": "2021-02-17T23:26:13Z"
+            },
+            {
+              "originalPosition": 51,
+              "body": "Is this something we should add to the main spec? In particular, the oblivious request could derive a nonce and shove it in header in the request forwarded to the target. (Or we can RECOMMEND this?)",
+              "createdAt": "2021-02-17T20:27:52Z",
+              "updatedAt": "2021-02-17T23:26:13Z"
+            },
+            {
+              "originalPosition": 24,
+              "body": "```suggestion\r\nversion) are all sufficient signals that no processing occurred. Connection failures or interruptions\r\nare not sufficient signals that no processing occurred. \r\n```\r\n\r\nThe client's connection to the proxy could idle timeout, at which point the client's signal is lost.",
+              "createdAt": "2021-02-17T20:29:10Z",
+              "updatedAt": "2021-02-17T23:26:13Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTkyNzA0MjQz",
+          "commit": {
+            "abbreviatedOid": "d11742d"
+          },
+          "author": "martinthomson",
+          "authorAssociation": "MEMBER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-02-17T23:03:45Z",
+          "updatedAt": "2021-02-17T23:03:45Z",
+          "comments": [
+            {
+              "originalPosition": 17,
+              "body": "Are we saying here that we don't necessarily trust the proxy not to replay?  I like the observation about replay exposure to TLS early data.  I think that both work, but I want to try capturing this in a different way.",
+              "createdAt": "2021-02-17T23:03:45Z",
+              "updatedAt": "2021-02-17T23:26:13Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTkyNzA1MDU0",
+          "commit": {
+            "abbreviatedOid": "d11742d"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-02-17T23:05:15Z",
+          "updatedAt": "2021-02-17T23:05:16Z",
+          "comments": [
+            {
+              "originalPosition": 17,
+              "body": "Dunno, we might not \ud83e\udd37  I could imagine a proxy attempting to be \"helpful\" and replaying messages on a client's behalf.",
+              "createdAt": "2021-02-17T23:05:16Z",
+              "updatedAt": "2021-02-17T23:26:13Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTkyNzA2NjEx",
+          "commit": {
+            "abbreviatedOid": "d11742d"
+          },
+          "author": "martinthomson",
+          "authorAssociation": "MEMBER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-02-17T23:08:13Z",
+          "updatedAt": "2021-02-17T23:08:13Z",
+          "comments": [
+            {
+              "originalPosition": 51,
+              "body": "This is hard: it doesn't make sense to build this in as a mandatory piece because there are cases that don't need replay protection.  In general, a known-safe request doesn't need extra protection against replay attack.  So the need isn't general.\r\n\r\nUsing `enc` works, but that depends on constraining the deployment infrastructure, including having the client be aware of this constraint (I guess the request resource could be trusted to extract a nonce and forward it to the target resource as well).\r\n\r\nSo yeah, a general mechanism would be nice, but it seems like it might be best left to an extension.",
+              "createdAt": "2021-02-17T23:08:13Z",
+              "updatedAt": "2021-02-17T23:26:13Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTkyNzA3MjE4",
+          "commit": {
+            "abbreviatedOid": "7165bdb"
+          },
+          "author": "martinthomson",
+          "authorAssociation": "MEMBER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-02-17T23:09:25Z",
+          "updatedAt": "2021-02-17T23:09:25Z",
+          "comments": [
+            {
+              "originalPosition": 17,
+              "body": "It's potentially a nice feature of a proxy (though I suspect most won't want to hold the necessary state).",
+              "createdAt": "2021-02-17T23:09:25Z",
+              "updatedAt": "2021-02-17T23:26:13Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTkyNzA4MTU2",
+          "commit": {
+            "abbreviatedOid": "7165bdb"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-02-17T23:11:21Z",
+          "updatedAt": "2021-02-17T23:11:21Z",
+          "comments": [
+            {
+              "originalPosition": 17,
+              "body": "Yeah, my comment was more to note that this type of replay is much easier to do by a proxy, if it was going to do it. (Less so of the network attacker, which is assumed malicious.)",
+              "createdAt": "2021-02-17T23:11:21Z",
+              "updatedAt": "2021-02-17T23:26:13Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTkyNzA4MzI0",
+          "commit": {
+            "abbreviatedOid": "7165bdb"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-02-17T23:11:39Z",
+          "updatedAt": "2021-02-17T23:11:39Z",
+          "comments": [
+            {
+              "originalPosition": 51,
+              "body": "An extension is a great idea, yeah.",
+              "createdAt": "2021-02-17T23:11:39Z",
+              "updatedAt": "2021-02-17T23:26:13Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "number": 47,
+      "id": "MDExOlB1bGxSZXF1ZXN0NTc1MjgyNjIw",
+      "title": "Document post-compromise security properties",
+      "url": "https://github.com/unicorn-wg/oblivious-http/pull/47",
+      "state": "OPEN",
+      "author": "martinthomson",
+      "authorAssociation": "MEMBER",
+      "assignees": [],
+      "labels": [],
+      "body": "And recommend key rotation as a mitigation strategy.\r\n\r\nCloses #41.\r\nCloses #39.",
+      "createdAt": "2021-02-17T23:42:49Z",
+      "updatedAt": "2021-02-17T23:42:49Z",
+      "baseRepository": "unicorn-wg/oblivious-http",
+      "baseRefName": "main",
+      "baseRefOid": "3f7295f192d30f8d34c0955ec190a8c50227b70b",
+      "headRepository": "unicorn-wg/oblivious-http",
+      "headRefName": "pcs",
+      "headRefOid": "316fef5a49e1beaa18cbd536ff7bbc5e35053893",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": []
     }
   ]
 }
