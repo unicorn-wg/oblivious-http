@@ -992,7 +992,7 @@ Table of Contents
 9.  Privacy Considerations
 
    One goal of this design is that independent client requests are only
-   linkable by the chosen KeyConfig.  The obliviious proxy and request
+   linkable by the chosen KeyConfig.  The oblivious proxy and request
    resources can link requests using the same KeyConfig by matching
    KeyConfig.key_id.  The oblivious proxy can also link requests using
    the public key corresponding to KeyConfig.key_id.  The proxy cannot
@@ -1022,7 +1022,7 @@ Table of Contents
 
    [BINARY]   Thomson, M., "Binary Representation of HTTP Messages",
               Work in Progress, Internet-Draft, draft-ietf-http-binary-
-              message-latest, 19 February 2021,
+              message-latest, 20 February 2021,
               <https://datatracker.ietf.org/doc/html/draft-ietf-http-
               binary-message-latest.txt>.
 
