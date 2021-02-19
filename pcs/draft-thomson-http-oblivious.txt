@@ -66,6 +66,7 @@ Table of Contents
    1.  Introduction
    2.  Conventions and Definitions
    3.  Overview
+     3.1.  Applicability
    4.  Key Configuration
      4.1.  Key Configuration Encoding
      4.2.  Key Configuration Media Type
@@ -79,12 +80,13 @@ Table of Contents
      7.1.  message/ohttp-req Media Type
      7.2.  message/ohttp-res Media Type
    8.  Security Considerations
-     8.1.  Client
+     8.1.  Client Responsibilities
      8.2.  Proxy Responsibilities
        8.2.1.  Denial of Service
        8.2.2.  Linkability Through Traffic Analysis
      8.3.  Server Responsibilities
-     8.4.  Post-Compromise Security
+     8.4.  Replay Attacks
+     8.5.  Post-Compromise Security
    9.  IANA Considerations
    10. References
      10.1.  Normative References
@@ -251,6 +253,47 @@ Table of Contents
 
    10.  The client removes the encapsulation to obtain the response to
         the original request.
+
+3.1.  Applicability
+
+   Oblivious HTTP has limited applicability.  Many uses of HTTP benefit
+   from being able to carry state between requests, such as with cookies
+   ([RFC6265]), authentication (Section 11 of
+   [I-D.ietf-httpbis-semantics]), or even alternative services
+   ([RFC7838]).  Oblivious HTTP seeks to prevent this sort of linkage,
+   which requires that applications not carry state between requests.
+
+   Oblivious HTTP is primarily useful where privacy risks associated
+   with possible stateful treatment of requests are sufficiently
+   negative that the cost of deploying this protocol can be justified.
+   Oblivious HTTP is simpler and less costly than more robust systems,
+   like Prio ([PRIO]) or Tor ([Dingledine2004]), which can provide
+   stronger guarantees at higher operational costs.
+
+   Oblivious HTTP is more costly than a direct connection to a server.
+   Some costs, like those involved with connection setup, can be
+   amortized, but there are several ways in which oblivious HTTP is more
+   expensive than a direct request:
+
+   *  Each oblivious request requires at least two regular HTTP
+      requests, which adds latency.
+
+   *  Each request is expanded in size with additional HTTP fields,
+      encryption-related metadata, and AEAD expansion.
+
+   *  Deriving cryptographic keys and applying them for request and
+      response protection takes non-negligible computational resources.
+
+   Examples of where preventing the linking of requests might justify
+   these costs include:
+
+   *  DNS queries.  DNS queries made to a recursive resolver reveal
+      information about the requester, particularly if linked to other
+      queries.
+
+   *  Telemetry submission.  Applications that submit reports about
+      their usage to their developers might use oblivious HTTP for some
+      types of moderately sensitive data.
 
 4.  Key Configuration
 
@@ -742,7 +785,7 @@ Table of Contents
    oblivious target resource simplifies the interactions between those
    resources without affecting client privacy.
 
-8.1.  Client
+8.1.  Client Responsibilities
 
    Clients MUST ensure that the key configuration they select for
    generating encapsulated requests is integrity protected and
@@ -810,12 +853,12 @@ Table of Contents
    proxies.  This arrangement might be necessary to prevent having the
    large volume of requests being classified as an attack by the server.
 
-   If a server does accept a large volume of requests from a proxy, it
+   If a server accepts a larger volume of requests from a proxy, it
    needs to trust that the proxy does not allow abusive levels of
    request volumes from clients.  That is, if a server allows requests
    from the proxy to be exempt from rate limits, the server might want
-   to ensure that the proxy applies similar rate limiting when receiving
-   requests from clients.
+   to ensure that the proxy applies a rate limiting policy that is
+   acceptable to the server.
 
    Servers that enter into an agreement with a proxy that enables a
    higher request rate might choose to authenticate the proxy to enable
@@ -833,7 +876,7 @@ Table of Contents
    A proxy could, as part of its function, add delays in order to
    increase the anonymity set into which each message is attributed.
    This could latency to the overall time clients take to receive a
-   response, which might not what some clients want.
+   response, which might not be what some clients want.
 
    A proxy can use padding to reduce the effectiveness of traffic
    analysis.
@@ -871,7 +914,61 @@ Table of Contents
    corresponds to the key identifier, but the encapsulated request
    cannot be successfully decrypted using the key.
 
-8.4.  Post-Compromise Security
+8.4.  Replay Attacks
+
+   Encapsulated requests can be copied and replayed by the oblivious
+   proxy resource.  The design of oblivious HTTP does not assume that
+   the oblivious proxy resource will not replay requests.  In addition,
+   if a client sends an encapsulated request in TLS early data (see
+   Section 8 of [TLS] and [RFC8470]), a network-based adversary might be
+   able to cause the request to be replayed.  In both cases, the effect
+   of a replay attack and the mitigations that might be employed are
+   similar to TLS early data.
+
+   A client or oblivious proxy resource MUST NOT automatically attempt
+   to retry a failed request unless it receives a positive signal
+   indicating that the request was not processed or forwarded.  The
+   HTTP/2 REFUSED_STREAM error code (Section 8.1.4 of [RFC7540]), the
+   HTTP/3 H3_REQUEST_REJECTED error code (Section 8.1 of [QUIC-HTTP]),
+   or a GOAWAY frame (in either protocol version) are all sufficient
+   signals that no processing occurred.  Connection failures or
+   interruptions are not sufficient signals that no processing occurred.
+
+   The anti-replay mechanisms described in Section 8 of [TLS] are
+   generally applicable to oblivious HTTP requests.  Servers can use the
+   encapsulated keying material as a unique key for identifying
+   potential replays.
+
+   The mechanism used in TLS for managing differences in client and
+   server clocks cannot be used as it depends on being able to observe
+   previous interactions.  Oblivious HTTP explicitly prevents such
+   linkability.  Applications can still include an explicit indication
+   of time to limit the span of time over which a server might need to
+   track accepted requests.  Clock information could be used for client
+   identification, so reduction in precision or obfuscation might be
+   necessary.
+
+   The considerations in [RFC8470] as they relate to managing the risk
+   of replay also apply, though there is no option to delay the
+   processing of a request.
+
+   Limiting requests to those with safe methods might not be
+   satisfactory for some applications, particularly those that involve
+   the submission of data to a server.  The use of idempotent methods
+   might be of some use in managing replay risk, though it is important
+   to recognize that different idempotent requests can be combined to be
+   not idempotent.
+
+   Idempotent actions with a narrow scope based on the value of a
+   protected nonce could enable data submission with limited replay
+   exposure.  A nonce might be added as an explicit part of a request,
+   or, if the oblivious request and target resources are co-located, the
+   encapsulated keying material can be used to produce a nonce.
+
+   The server-chosen "response_nonce" field ensures that responses have
+   unique AEAD keys and nonces even when requests are replayed.
+
+8.5.  Post-Compromise Security
 
    This design does not provide post-compromise security for responses.
    A client only needs to retain keying material that might be used
@@ -927,14 +1024,30 @@ Table of Contents
               <https://datatracker.ietf.org/doc/html/draft-ietf-quic-
               transport-34.txt>.
 
+   [QUIC-HTTP]
+              Bishop, M., "Hypertext Transfer Protocol Version 3
+              (HTTP/3)", Work in Progress, Internet-Draft, draft-ietf-
+              quic-http-34, 2 February 2021,
+              <https://datatracker.ietf.org/doc/html/draft-ietf-quic-
+              http-34.txt>.
+
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
               DOI 10.17487/RFC2119, March 1997,
               <https://datatracker.ietf.org/doc/html/rfc2119>.
 
+   [RFC7540]  Belshe, M., Peon, R., and M. Thomson, Ed., "Hypertext
+              Transfer Protocol Version 2 (HTTP/2)", RFC 7540,
+              DOI 10.17487/RFC7540, May 2015,
+              <https://datatracker.ietf.org/doc/html/rfc7540>.
+
    [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
               2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
               May 2017, <https://datatracker.ietf.org/doc/html/rfc8174>.
+
+   [RFC8470]  Thomson, M., Nottingham, M., and W. Tarreau, "Using Early
+              Data in HTTP", RFC 8470, DOI 10.17487/RFC8470, September
+              2018, <https://datatracker.ietf.org/doc/html/rfc8470>.
 
    [TLS]      Rescorla, E., "The Transport Layer Security (TLS) Protocol
               Version 1.3", RFC 8446, DOI 10.17487/RFC8446, August 2018,
@@ -962,16 +1075,36 @@ Table of Contents
               RFC 7239, DOI 10.17487/RFC7239, June 2014,
               <https://datatracker.ietf.org/doc/html/rfc7239>.
 
+   [I-D.ietf-httpbis-semantics]
+              Fielding, R. T., Nottingham, M., and J. Reschke, "HTTP
+              Semantics", Work in Progress, Internet-Draft, draft-ietf-
+              httpbis-semantics-14, 12 January 2021,
+              <https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-
+              semantics-14.txt>.
+
    [ODOH]     Kinnear, E., McManus, P., Pauly, T., and C. A. Wood,
               "Oblivious DNS Over HTTPS", Work in Progress, Internet-
               Draft, draft-pauly-dprive-oblivious-doh-04, 26 January
               2021, <https://datatracker.ietf.org/doc/html/draft-pauly-
               dprive-oblivious-doh-04.txt>.
 
+   [PRIO]     Corrigan-Gibbs, H. and D. Boneh, "Prio: Private, Robust,
+              and Scalable Computation of Aggregate Statistics", 14
+              March 2017, <https://crypto.stanford.edu/prio/paper.pdf>.
+
    [RANDOM]   Eastlake 3rd, D., Schiller, J., and S. Crocker,
               "Randomness Requirements for Security", BCP 106, RFC 4086,
               DOI 10.17487/RFC4086, June 2005,
               <https://datatracker.ietf.org/doc/html/rfc4086>.
+
+   [RFC6265]  Barth, A., "HTTP State Management Mechanism", RFC 6265,
+              DOI 10.17487/RFC6265, April 2011,
+              <https://datatracker.ietf.org/doc/html/rfc6265>.
+
+   [RFC7838]  Nottingham, M., McManus, P., and J. Reschke, "HTTP
+              Alternative Services", RFC 7838, DOI 10.17487/RFC7838,
+              April 2016,
+              <https://datatracker.ietf.org/doc/html/rfc7838>.
 
    [X25519]   Langley, A., Hamburg, M., and S. Turner, "Elliptic Curves
               for Security", RFC 7748, DOI 10.17487/RFC7748, January
