@@ -435,7 +435,7 @@ Table of Contents
      KEM Identifier (16),
      KDF Identifier (16),
      AEAD Identifier (16),
-     Encapsulated KEM Shared Secret (Nenc),
+     Encapsulated KEM Shared Secret (8*Nenc),
      AEAD-Protected Request (..),
    }
 
@@ -1011,7 +1011,7 @@ Table of Contents
 
    [BINARY]   Thomson, M., "Binary Representation of HTTP Messages",
               Work in Progress, Internet-Draft, draft-ietf-http-binary-
-              message-latest, 19 February 2021,
+              message-latest, 20 February 2021,
               <https://datatracker.ietf.org/doc/html/draft-ietf-http-
               binary-message-latest.txt>.
 
