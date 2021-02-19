@@ -5,8 +5,8 @@
 HTTPBIS                                                       M. Thomson
 Internet-Draft                                                   Mozilla
 Intended status: Standards Track                               C.A. Wood
-Expires: 22 August 2021                                       Cloudflare
-                                                        18 February 2021
+Expires: 23 August 2021                                       Cloudflare
+                                                        19 February 2021
 
 
                              Oblivious HTTP
@@ -45,7 +45,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 22 August 2021.
+   This Internet-Draft will expire on 23 August 2021.
 
 Copyright Notice
 
@@ -86,6 +86,7 @@ Table of Contents
        8.2.2.  Linkability Through Traffic Analysis
      8.3.  Server Responsibilities
      8.4.  Replay Attacks
+     8.5.  Post-Compromise Security
    9.  IANA Considerations
    10. References
      10.1.  Normative References
@@ -967,6 +968,26 @@ Table of Contents
    The server-chosen "response_nonce" field ensures that responses have
    unique AEAD keys and nonces even when requests are replayed.
 
+8.5.  Post-Compromise Security
+
+   This design does not provide post-compromise security for responses.
+   A client only needs to retain keying material that might be used
+   compromise the confidentiality and integrity of a response until that
+   response is consumed, so there is negligible risk associated with a
+   client compromise.
+
+   A server retains a secret key that might be used to remove protection
+   from messages over much longer periods.  A server compromise that
+   provided access to the oblivious request resource secret key could
+   allow an attacker to recover the plaintext of all requests sent
+   toward affected keys and all of the responses that were generated.
+   Accessing requests and responses also requires access to requests and
+   responses, which implies either compromise of TLS connections or
+   collusion with the oblivious proxy resource.
+
+   The total number of affected messages affected by server key
+   compromise can be limited by regular rotation of server keys.
+
 9.  IANA Considerations
 
    Please update the "Media Types" registry at
@@ -981,66 +1002,67 @@ Table of Contents
 
    [BINARY]   Thomson, M., "Binary Representation of HTTP Messages",
               Work in Progress, Internet-Draft, draft-ietf-http-binary-
-              message-latest, 18 February 2021,
+              message-latest, 19 February 2021,
               <https://datatracker.ietf.org/doc/html/draft-ietf-http-
               binary-message-latest.txt>.
 
    [HPKE]     Barnes, R. L., Bhargavan, K., Lipp, B., and C. A. Wood,
               "Hybrid Public Key Encryption", Work in Progress,
               Internet-Draft, draft-irtf-cfrg-hpke-08, 15 February 2021,
-              <https://www.ietf.org/archive/id/draft-irtf-cfrg-hpke-
-              08.txt>.
+              <https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-
+              hpke-08.txt>.
 
    [HTTP]     Fielding, R. T., Nottingham, M., and J. Reschke, "HTTP
               Semantics", Work in Progress, Internet-Draft, draft-ietf-
               httpbis-semantics-14, 12 January 2021,
-              <https://www.ietf.org/archive/id/draft-ietf-httpbis-
+              <https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-
               semantics-14.txt>.
 
    [QUIC]     Iyengar, J. and M. Thomson, "QUIC: A UDP-Based Multiplexed
               and Secure Transport", Work in Progress, Internet-Draft,
               draft-ietf-quic-transport-34, 14 January 2021,
-              <https://www.ietf.org/archive/id/draft-ietf-quic-
+              <https://datatracker.ietf.org/doc/html/draft-ietf-quic-
               transport-34.txt>.
 
    [QUIC-HTTP]
               Bishop, M., "Hypertext Transfer Protocol Version 3
               (HTTP/3)", Work in Progress, Internet-Draft, draft-ietf-
               quic-http-34, 2 February 2021,
-              <https://www.ietf.org/archive/id/draft-ietf-quic-http-
-              34.txt>.
+              <https://datatracker.ietf.org/doc/html/draft-ietf-quic-
+              http-34.txt>.
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
               DOI 10.17487/RFC2119, March 1997,
-              <https://www.rfc-editor.org/info/rfc2119>.
+              <https://datatracker.ietf.org/doc/html/rfc2119>.
 
    [RFC7540]  Belshe, M., Peon, R., and M. Thomson, Ed., "Hypertext
               Transfer Protocol Version 2 (HTTP/2)", RFC 7540,
               DOI 10.17487/RFC7540, May 2015,
-              <https://www.rfc-editor.org/info/rfc7540>.
+              <https://datatracker.ietf.org/doc/html/rfc7540>.
 
    [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
               2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
-              May 2017, <https://www.rfc-editor.org/info/rfc8174>.
+              May 2017, <https://datatracker.ietf.org/doc/html/rfc8174>.
 
    [RFC8470]  Thomson, M., Nottingham, M., and W. Tarreau, "Using Early
               Data in HTTP", RFC 8470, DOI 10.17487/RFC8470, September
-              2018, <https://www.rfc-editor.org/info/rfc8470>.
+              2018, <https://datatracker.ietf.org/doc/html/rfc8470>.
 
    [TLS]      Rescorla, E., "The Transport Layer Security (TLS) Protocol
               Version 1.3", RFC 8446, DOI 10.17487/RFC8446, August 2018,
-              <https://www.rfc-editor.org/info/rfc8446>.
+              <https://datatracker.ietf.org/doc/html/rfc8446>.
 
 10.2.  Informative References
 
    [ALT-SVC]  Nottingham, M., McManus, P., and J. Reschke, "HTTP
               Alternative Services", RFC 7838, DOI 10.17487/RFC7838,
-              April 2016, <https://www.rfc-editor.org/info/rfc7838>.
+              April 2016,
+              <https://datatracker.ietf.org/doc/html/rfc7838>.
 
    [COOKIES]  Barth, A., "HTTP State Management Mechanism", RFC 6265,
               DOI 10.17487/RFC6265, April 2011,
-              <https://www.rfc-editor.org/info/rfc6265>.
+              <https://datatracker.ietf.org/doc/html/rfc6265>.
 
    [Dingledine2004]
               Dingledine, R., Mathewson, N., and P. Syverson, "Tor: The
@@ -1051,20 +1073,20 @@ Table of Contents
    [FORWARDED]
               Petersson, A. and M. Nilsson, "Forwarded HTTP Extension",
               RFC 7239, DOI 10.17487/RFC7239, June 2014,
-              <https://www.rfc-editor.org/info/rfc7239>.
+              <https://datatracker.ietf.org/doc/html/rfc7239>.
 
    [I-D.ietf-httpbis-semantics]
               Fielding, R. T., Nottingham, M., and J. Reschke, "HTTP
               Semantics", Work in Progress, Internet-Draft, draft-ietf-
               httpbis-semantics-14, 12 January 2021,
-              <https://www.ietf.org/archive/id/draft-ietf-httpbis-
+              <https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-
               semantics-14.txt>.
 
    [ODOH]     Kinnear, E., McManus, P., Pauly, T., and C. A. Wood,
               "Oblivious DNS Over HTTPS", Work in Progress, Internet-
               Draft, draft-pauly-dprive-oblivious-doh-04, 26 January
-              2021, <https://www.ietf.org/archive/id/draft-pauly-dprive-
-              oblivious-doh-04.txt>.
+              2021, <https://datatracker.ietf.org/doc/html/draft-pauly-
+              dprive-oblivious-doh-04.txt>.
 
    [PRIO]     Corrigan-Gibbs, H. and D. Boneh, "Prio: Private, Robust,
               and Scalable Computation of Aggregate Statistics", 14
@@ -1073,19 +1095,20 @@ Table of Contents
    [RANDOM]   Eastlake 3rd, D., Schiller, J., and S. Crocker,
               "Randomness Requirements for Security", BCP 106, RFC 4086,
               DOI 10.17487/RFC4086, June 2005,
-              <https://www.rfc-editor.org/info/rfc4086>.
+              <https://datatracker.ietf.org/doc/html/rfc4086>.
 
    [RFC6265]  Barth, A., "HTTP State Management Mechanism", RFC 6265,
               DOI 10.17487/RFC6265, April 2011,
-              <https://www.rfc-editor.org/info/rfc6265>.
+              <https://datatracker.ietf.org/doc/html/rfc6265>.
 
    [RFC7838]  Nottingham, M., McManus, P., and J. Reschke, "HTTP
               Alternative Services", RFC 7838, DOI 10.17487/RFC7838,
-              April 2016, <https://www.rfc-editor.org/info/rfc7838>.
+              April 2016,
+              <https://datatracker.ietf.org/doc/html/rfc7838>.
 
    [X25519]   Langley, A., Hamburg, M., and S. Turner, "Elliptic Curves
               for Security", RFC 7748, DOI 10.17487/RFC7748, January
-              2016, <https://www.rfc-editor.org/info/rfc7748>.
+              2016, <https://datatracker.ietf.org/doc/html/rfc7748>.
 
 Appendix A.  Complete Example of a Request and Response
 
