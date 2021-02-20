@@ -5,8 +5,8 @@
 HTTPBIS                                                       M. Thomson
 Internet-Draft                                                   Mozilla
 Intended status: Standards Track                               C.A. Wood
-Expires: 23 August 2021                                       Cloudflare
-                                                        19 February 2021
+Expires: 24 August 2021                                       Cloudflare
+                                                        20 February 2021
 
 
                              Oblivious HTTP
@@ -45,7 +45,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 23 August 2021.
+   This Internet-Draft will expire on 24 August 2021.
 
 Copyright Notice
 
@@ -71,8 +71,8 @@ Table of Contents
      4.1.  Key Configuration Encoding
      4.2.  Key Configuration Media Type
    5.  HPKE Encapsulation
-     5.1.  HPKE Encapsulation of Requests
-     5.2.  HPKE Encapsulation of Responses
+     5.1.  Encapsulation of Requests
+     5.2.  Encapsulation of Responses
    6.  HTTP Usage
      6.1.  Informational Responses
      6.2.  Errors
@@ -459,7 +459,7 @@ Table of Contents
    The size of the Nonce field in an Encapsulated Response corresponds
    to the size of an AEAD key for the corresponding HPKE ciphersuite.
 
-5.1.  HPKE Encapsulation of Requests
+5.1.  Encapsulation of Requests
 
    Clients encapsulate a request "request" using values from a key
    configuration:
@@ -537,7 +537,7 @@ Table of Contents
    context = SetupBaseR(enc, skR, "request")
    request, error = context.Open(aad, ct)
 
-5.2.  HPKE Encapsulation of Responses
+5.2.  Encapsulation of Responses
 
    Given an HPKE context "context", a request message "request", and a
    response "response", servers generate an Encapsulated Response
