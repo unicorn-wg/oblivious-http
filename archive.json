@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2021-02-18T00:05:47.631895+00:00",
+  "timestamp": "2021-02-21T00:05:39.359194+00:00",
   "repo": "unicorn-wg/oblivious-http",
   "labels": [
     {
@@ -451,31 +451,39 @@
       "id": "MDU6SXNzdWU3OTM3ODgzMDA=",
       "title": "The length of the public key is fixed",
       "url": "https://github.com/unicorn-wg/oblivious-http/issues/31",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "martinthomson",
       "authorAssociation": "MEMBER",
       "assignees": [],
       "labels": [],
       "body": "We currently length-prefix it, but we don't *have* to.  Think about this a little.",
       "createdAt": "2021-01-25T23:00:15Z",
-      "updatedAt": "2021-01-25T23:00:15Z",
-      "closedAt": null,
-      "comments": []
+      "updatedAt": "2021-02-19T21:54:53Z",
+      "closedAt": "2021-02-19T21:54:53Z",
+      "comments": [
+        {
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Both the public key and encapsulated secret are fixed length. I think making these fixed length on the wire is good. However, it *does* require the parsing code to know the corresponding size, which depends on the KEM. This requires there to be a function to map the kem_id to the corresponding size(s). @martinthomson, do you have such an API in your implementation? I have one in mine, which would make this pretty straightforward to implement.",
+          "createdAt": "2021-02-19T17:25:54Z",
+          "updatedAt": "2021-02-19T17:25:54Z"
+        }
+      ]
     },
     {
       "number": 32,
       "id": "MDU6SXNzdWU3OTM3OTc3ODU=",
       "title": "Include KEMID in Encapsulated Request",
       "url": "https://github.com/unicorn-wg/oblivious-http/issues/32",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "chris-wood",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "Currently, an encapsulated request carries a key ID which maps to a KEM key that determines the size of the encapsulated public key in a request. This means that code parsing a request needs to know the ID -> KEM mapping in order to parse things correctly, which is somewhat annoying. I propose we add KEMID to the request so that this mapping isn't needed to just parse the message. As a bonus, that would also fold in the KEMID explicitly into the AAD alongside the KDFID and AEADID. ",
       "createdAt": "2021-01-25T23:21:13Z",
-      "updatedAt": "2021-01-25T23:21:13Z",
-      "closedAt": null,
+      "updatedAt": "2021-02-20T14:02:13Z",
+      "closedAt": "2021-02-20T14:02:13Z",
       "comments": []
     },
     {
@@ -483,15 +491,15 @@
       "id": "MDU6SXNzdWU3OTc4NTI3MjI=",
       "title": "Discuss correlation of requests by key",
       "url": "https://github.com/unicorn-wg/oblivious-http/issues/38",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "martinthomson",
       "authorAssociation": "MEMBER",
       "assignees": [],
       "labels": [],
       "body": "A server that wants to undermine this process can ensure that clients are provided with individual keys.  Though there is a limited number of key identifiers (though see also #27), a server could extend the number of identifiers with a little bit of trial decryption.  Or the server could just use this ability selectively.\r\n\r\nThough the draft deliberately avoids talking about how clients learn about keys, we might talk about the implications of acquiring keys from servers.  If the server is responsible for issuing keys, then the server can target individuals with specific keys.\r\n\r\n@davidben suggests that maybe we could have the proxy provide keys.  This is not a bad way to deal with this problem, though it places more trust in the proxy as the proxy now needs to be trusted not to provide a key for which it has the secret key.  That might still work if the key could be further authenticated by the server, but that's a rabbit hole of its own.",
       "createdAt": "2021-02-01T00:22:14Z",
-      "updatedAt": "2021-02-01T00:22:14Z",
-      "closedAt": null,
+      "updatedAt": "2021-02-19T21:59:35Z",
+      "closedAt": "2021-02-19T21:59:35Z",
       "comments": []
     },
     {
@@ -499,15 +507,15 @@
       "id": "MDU6SXNzdWU3OTc4NTMwMTM=",
       "title": "Time bounds on keys",
       "url": "https://github.com/unicorn-wg/oblivious-http/issues/39",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "martinthomson",
       "authorAssociation": "MEMBER",
       "assignees": [],
       "labels": [],
       "body": "@davidben suggests that we need to consider how to time-bound server keys to limit the risk of secret key exposure.",
       "createdAt": "2021-02-01T00:23:17Z",
-      "updatedAt": "2021-02-01T00:23:17Z",
-      "closedAt": null,
+      "updatedAt": "2021-02-19T17:01:19Z",
+      "closedAt": "2021-02-19T17:01:19Z",
       "comments": []
     },
     {
@@ -515,15 +523,15 @@
       "id": "MDU6SXNzdWU3OTc4NTMzNjc=",
       "title": "Requests can be replayed",
       "url": "https://github.com/unicorn-wg/oblivious-http/issues/40",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "martinthomson",
       "authorAssociation": "MEMBER",
       "assignees": [],
       "labels": [],
       "body": "This means that servers need anti-replay protections, especially if they are performing non-idempotent operations.",
       "createdAt": "2021-02-01T00:24:26Z",
-      "updatedAt": "2021-02-01T00:24:26Z",
-      "closedAt": null,
+      "updatedAt": "2021-02-18T00:10:18Z",
+      "closedAt": "2021-02-18T00:10:18Z",
       "comments": []
     },
     {
@@ -531,15 +539,15 @@
       "id": "MDU6SXNzdWU3OTc4NTM3NTk=",
       "title": "Responses lack post-compromise security",
       "url": "https://github.com/unicorn-wg/oblivious-http/issues/41",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "martinthomson",
       "authorAssociation": "MEMBER",
       "assignees": [],
       "labels": [],
       "body": "Compromise of the client after it sends the request can be used to recover the keys used to decrypt (or falsify) the response.",
       "createdAt": "2021-02-01T00:25:44Z",
-      "updatedAt": "2021-02-01T00:25:44Z",
-      "closedAt": null,
+      "updatedAt": "2021-02-19T17:01:19Z",
+      "closedAt": "2021-02-19T17:01:19Z",
       "comments": []
     },
     {
@@ -2730,24 +2738,26 @@
       "id": "MDExOlB1bGxSZXF1ZXN0NTc0NjYwNjc0",
       "title": "Add text on replay",
       "url": "https://github.com/unicorn-wg/oblivious-http/pull/46",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "martinthomson",
       "authorAssociation": "MEMBER",
       "assignees": [],
       "labels": [],
       "body": "This isn't anything that special, but this is a case where a bunch of\r\nour established defenses don't work.",
       "createdAt": "2021-02-17T05:45:27Z",
-      "updatedAt": "2021-02-18T00:01:08Z",
+      "updatedAt": "2021-02-18T00:10:18Z",
       "baseRepository": "unicorn-wg/oblivious-http",
       "baseRefName": "main",
       "baseRefOid": "53e1690dc8aa67d0608490b0c179bc7886197913",
       "headRepository": "unicorn-wg/oblivious-http",
       "headRefName": "replay",
       "headRefOid": "f683da209611e9e1277b5d76c8003a0ab04cbd8e",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "closedAt": "2021-02-18T00:10:18Z",
+      "mergedAt": "2021-02-18T00:10:17Z",
+      "mergedBy": "martinthomson",
+      "mergeCommit": {
+        "oid": "c34bc4ac4775ca9627911dddfbad9446376901c4"
+      },
       "comments": [
         {
           "author": "chris-wood",
@@ -2929,26 +2939,229 @@
       "id": "MDExOlB1bGxSZXF1ZXN0NTc1MjgyNjIw",
       "title": "Document post-compromise security properties",
       "url": "https://github.com/unicorn-wg/oblivious-http/pull/47",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "martinthomson",
       "authorAssociation": "MEMBER",
       "assignees": [],
       "labels": [],
       "body": "And recommend key rotation as a mitigation strategy.\r\n\r\nCloses #41.\r\nCloses #39.",
       "createdAt": "2021-02-17T23:42:49Z",
-      "updatedAt": "2021-02-17T23:42:49Z",
+      "updatedAt": "2021-02-19T17:01:20Z",
       "baseRepository": "unicorn-wg/oblivious-http",
       "baseRefName": "main",
-      "baseRefOid": "3f7295f192d30f8d34c0955ec190a8c50227b70b",
+      "baseRefOid": "c34bc4ac4775ca9627911dddfbad9446376901c4",
       "headRepository": "unicorn-wg/oblivious-http",
       "headRefName": "pcs",
-      "headRefOid": "316fef5a49e1beaa18cbd536ff7bbc5e35053893",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "headRefOid": "b87abde3d056545c380e61e7253abf1cc1059c75",
+      "closedAt": "2021-02-19T17:01:19Z",
+      "mergedAt": "2021-02-19T17:01:19Z",
+      "mergedBy": "chris-wood",
+      "mergeCommit": {
+        "oid": "978ae2acb453e92d2d16c9d2ef71b5ad2c13b223"
+      },
       "comments": [],
-      "reviews": []
+      "reviews": [
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTk0MzgxNjk2",
+          "commit": {
+            "abbreviatedOid": "316fef5"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2021-02-19T16:58:50Z",
+          "updatedAt": "2021-02-19T16:59:15Z",
+          "comments": [
+            {
+              "originalPosition": 11,
+              "body": "```suggestion\r\nA server retains a secret key that might be used to remove protection from messages\r\n```",
+              "createdAt": "2021-02-19T16:58:50Z",
+              "updatedAt": "2021-02-19T17:00:08Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "number": 48,
+      "id": "MDExOlB1bGxSZXF1ZXN0NTc2NjEyODM4",
+      "title": "Discuss linkability concerns (without going into the weeds).",
+      "url": "https://github.com/unicorn-wg/oblivious-http/pull/48",
+      "state": "MERGED",
+      "author": "chris-wood",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Closes #38.",
+      "createdAt": "2021-02-19T17:40:45Z",
+      "updatedAt": "2021-02-19T23:17:56Z",
+      "baseRepository": "unicorn-wg/oblivious-http",
+      "baseRefName": "main",
+      "baseRefOid": "978ae2acb453e92d2d16c9d2ef71b5ad2c13b223",
+      "headRepository": "unicorn-wg/oblivious-http",
+      "headRefName": "caw/privacy",
+      "headRefOid": "ade3a5e39e16471458bbdc585da8837545443dbc",
+      "closedAt": "2021-02-19T21:59:36Z",
+      "mergedAt": "2021-02-19T21:59:35Z",
+      "mergedBy": "martinthomson",
+      "mergeCommit": {
+        "oid": "6b1bc58762f389fcaa10b47f90d89766d1c3efbf"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTk0NjA3MjQy",
+          "commit": {
+            "abbreviatedOid": "39c1a38"
+          },
+          "author": "martinthomson",
+          "authorAssociation": "MEMBER",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2021-02-19T21:58:26Z",
+          "updatedAt": "2021-02-19T21:59:13Z",
+          "comments": [
+            {
+              "originalPosition": 7,
+              "body": "```suggestion\r\nby the chosen KeyConfig. The oblivious proxy and request resources can link\r\n```",
+              "createdAt": "2021-02-19T21:58:26Z",
+              "updatedAt": "2021-02-19T21:59:30Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTk0NjQ1MzEw",
+          "commit": {
+            "abbreviatedOid": "ade3a5e"
+          },
+          "author": "davidben",
+          "authorAssociation": "NONE",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-02-19T23:17:56Z",
+          "updatedAt": "2021-02-19T23:17:56Z",
+          "comments": [
+            {
+              "originalPosition": 17,
+              "body": "Is it *completely* out of scope? While Section 4 doesn't fully define a mechanism, it does suggest a particular one:\r\n\r\n> One way to ensure integrity for key configuration is for the oblivious request resource to serve content to the client directly, using HTTPS and the \"application/ohttp-keys\" media type; see Section 4.2.\r\n\r\n(That was where my initial comment came from. It seems anything that follows that suggestion would run into this sort of thing.)",
+              "createdAt": "2021-02-19T23:17:56Z",
+              "updatedAt": "2021-02-19T23:17:56Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "number": 49,
+      "id": "MDExOlB1bGxSZXF1ZXN0NTc2NjI3ODgz",
+      "title": "Remove length prefix on fixed-length values.",
+      "url": "https://github.com/unicorn-wg/oblivious-http/pull/49",
+      "state": "MERGED",
+      "author": "chris-wood",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Closes #31 and #32.\r\n\r\nGiven [the parsing code here](https://github.com/martinthomson/ohttp/blob/main/ohttp/src/lib.rs#L255-L264) (either assuming a fixed key ID, or looking up the KEM based on key ID), I think this is a nice simplification. It also authenticates more, even if redundant. (The kemID is already part of the HPKE key schedule.) I implemented this change and it's straightforward.",
+      "createdAt": "2021-02-19T18:10:24Z",
+      "updatedAt": "2021-02-19T22:03:14Z",
+      "baseRepository": "unicorn-wg/oblivious-http",
+      "baseRefName": "main",
+      "baseRefOid": "978ae2acb453e92d2d16c9d2ef71b5ad2c13b223",
+      "headRepository": "unicorn-wg/oblivious-http",
+      "headRefName": "caw/fix-sizes",
+      "headRefOid": "777580e8a2f5df62edec82ea8d0d814f0a5acf32",
+      "closedAt": "2021-02-19T21:54:53Z",
+      "mergedAt": "2021-02-19T21:54:53Z",
+      "mergedBy": "martinthomson",
+      "mergeCommit": {
+        "oid": "f0ddfb17e99866c9793352e8b49c976426f5a02e"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTk0NjA0ODM0",
+          "commit": {
+            "abbreviatedOid": "fa882ec"
+          },
+          "author": "martinthomson",
+          "authorAssociation": "MEMBER",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2021-02-19T21:54:04Z",
+          "updatedAt": "2021-02-19T21:54:40Z",
+          "comments": [
+            {
+              "originalPosition": 27,
+              "body": "```suggestion\r\n  Encapsulated KEM Shared Secret (8*Nenc),\r\n```",
+              "createdAt": "2021-02-19T21:54:04Z",
+              "updatedAt": "2021-02-19T21:54:48Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTk0NjA5ODYw",
+          "commit": {
+            "abbreviatedOid": "777580e"
+          },
+          "author": "martinthomson",
+          "authorAssociation": "MEMBER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-02-19T22:03:10Z",
+          "updatedAt": "2021-02-19T22:03:14Z",
+          "comments": [
+            {
+              "originalPosition": 5,
+              "body": "Oh, I just realized that this isn't right as we need the KEM ID to precede this.",
+              "createdAt": "2021-02-19T22:03:10Z",
+              "updatedAt": "2021-02-19T22:03:14Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "number": 50,
+      "id": "MDExOlB1bGxSZXF1ZXN0NTc2ODc3NzM3",
+      "title": "Small cleanups",
+      "url": "https://github.com/unicorn-wg/oblivious-http/pull/50",
+      "state": "MERGED",
+      "author": "martinthomson",
+      "authorAssociation": "MEMBER",
+      "assignees": [],
+      "labels": [],
+      "body": "The encapsulation of responses isn't *really* HPKE.  The rest are just\r\ntweaks.",
+      "createdAt": "2021-02-20T06:23:14Z",
+      "updatedAt": "2021-02-20T14:02:00Z",
+      "baseRepository": "unicorn-wg/oblivious-http",
+      "baseRefName": "main",
+      "baseRefOid": "6b1bc58762f389fcaa10b47f90d89766d1c3efbf",
+      "headRepository": "unicorn-wg/oblivious-http",
+      "headRefName": "cleanup",
+      "headRefOid": "016cbc5997b4b5db6ee8fe963f1c694e6614b790",
+      "closedAt": "2021-02-20T14:02:00Z",
+      "mergedAt": "2021-02-20T14:02:00Z",
+      "mergedBy": "chris-wood",
+      "mergeCommit": {
+        "oid": "9a7d832548a61c52ba939e5447dbdd6ef0461a36"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTk0NzU0ODc3",
+          "commit": {
+            "abbreviatedOid": "016cbc5"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2021-02-20T14:01:54Z",
+          "updatedAt": "2021-02-20T14:01:54Z",
+          "comments": []
+        }
+      ]
     }
   ]
 }
