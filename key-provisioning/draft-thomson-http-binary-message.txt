@@ -4,8 +4,9 @@
 
 HTTPBIS                                                       M. Thomson
 Internet-Draft                                                   Mozilla
-Intended status: Standards Track                         22 January 2021
-Expires: 26 July 2021
+Intended status: Standards Track                               C.A. Wood
+Expires: 25 August 2021                                       Cloudflare
+                                                        21 February 2021
 
 
                  Binary Representation of HTTP Messages
@@ -41,7 +42,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 26 July 2021.
+   This Internet-Draft will expire on 25 August 2021.
 
 Copyright Notice
 
@@ -70,7 +71,6 @@ Table of Contents
        3.5.1.  Informational Status Codes
      3.6.  Header and Trailer Field Lines
      3.7.  Content
-     3.8.  Padding
    4.  Invalid Messages
    5.  Examples
      5.1.  Request Example
@@ -82,15 +82,15 @@ Table of Contents
      9.1.  Normative References
      9.2.  Informative References
    Acknowledgments
-   Author's Address
+   Authors' Addresses
 
 1.  Introduction
 
    This document defines a simple format for representing an HTTP
    message ([HTTP]), either request or response.  This allows for the
    encoding of HTTP messages that can be conveyed outside of an HTTP
-   protocol.  This enables the application of transformations to entire
-   messages, including the application of encryption and authentication.
+   protocol.  This enables the transformation of entire messages,
+   including the application of authenticated encryption.
 
    This format is informed by the framing structure of HTTP/2 ([H2]) and
    HTTP/3 ([H3]).  In comparison, this format simpler by virtue of not
@@ -108,7 +108,7 @@ Table of Contents
       message components; and
 
    *  an indefinite-length encoding enables efficient generation of
-      messages where lengths are not known when starting an encoding.
+      messages where lengths are not known when encoding starts.
 
 2.  Conventions and Definitions
 
@@ -118,9 +118,8 @@ Table of Contents
    BCP 14 [RFC2119] [RFC8174] when, and only when, they appear in all
    capitals, as shown here.
 
-   This document uses terminology from HTTP ([HTTP]).
-
-   This document uses notation from QUIC ([QUIC]).
+   This document uses terminology from HTTP ([HTTP]) and notation from
+   QUIC ([QUIC]).
 
 3.  Format
 
@@ -130,19 +129,19 @@ Table of Contents
    1.  Framing indicator.  This format uses a single integer to describe
        framing, which describes whether the message is a request or
        response and how subsequent sections are formatted; see
-       Section 3.3
+       Section 3.3.
 
-   2.  Control data.  For a request, this contains the request method
+   2.  For a response, any number of interim responses, each consisting
+       of an informational status code and header section.
+
+   3.  Control data.  For a request, this contains the request method
        and target.  For a response, this contains the status code.
 
-   3.  Header section.  This contains zero or more header fields.
+   4.  Header section.  This contains zero or more header fields.
 
-   4.  Content.  This is a sequence of zero or more bytes.
+   5.  Content.  This is a sequence of zero or more bytes.
 
-   5.  Trailer section.  This contains zero or more trailer fields.
-
-   A response message can include multiple informational responses,
-   which causes the control data and header section to be repeated.
+   6.  Trailer section.  This contains zero or more trailer fields.
 
    All lengths and numeric values are encoded using the variable-length
    integer encoding from [QUIC].
@@ -180,14 +179,14 @@ Table of Contents
 
    That is, a known-length message consists of a framing indicator, a
    block of control data that is formatted according to the value of the
-   framing indicator, a header field section with a length prefix,
-   binary content with a length prefix, and a trailer field section with
-   a length prefix.
+   framing indicator, a header section with a length prefix, binary
+   content with a length prefix, and a trailer section with a length
+   prefix.
 
    Response messages that contain informational status codes result in a
    different structure; see Section 3.5.1.
 
-   Fields in the header and trailer field sections consist of a length-
+   Fields in the header and trailer sections consist of a length-
    prefixed name and length-prefixed value.  Both name and value are
    sequences of bytes that cannot be zero length.
 
@@ -237,10 +236,9 @@ Table of Contents
 
    That is, an indeterminate length consists of a framing indicator, a
    block of control data that is formatted according to the value of the
-   framing indicator, a header field section that is terminated by a
-   zero value, any number of non-zero-length chunks of binary content, a
-   zero value, and a trailer field section that is terminated by a zero
-   value.
+   framing indicator, a header section that is terminated by a zero
+   value, any number of non-zero-length chunks of binary content, a zero
+   value, and a trailer section that is terminated by a zero value.
 
    Response messages that contain informational status codes result in a
    different structure; see Section 3.5.1.
@@ -279,7 +277,7 @@ Table of Contents
    the order listed.
 
    The rules in Section 8.1.2.3 of [H2] for constructing pseudo-header
-   fields apply to the construction of these values.  However, where tge
+   fields apply to the construction of these values.  However, where the
    ":authority" pseudo-header field might be omitted in HTTP/2, a zero-
    length value is encoded instead.
 
@@ -317,8 +315,8 @@ Table of Contents
 
    This format supports informational status codes (see Section 15.2 of
    [HTTP]).  Responses that include information status codes are encoded
-   by repeating the response control data and associated header field
-   section until the final status code is encoded.
+   by repeating the response control data and associated header section
+   until the final status code is encoded.
 
    The format of the informational response control data is shown in
    Figure 5.
@@ -332,15 +330,15 @@ Table of Contents
    A response message can include any number of informational responses.
    If the response control data includes an informational status code
    (that is, a value between 100 and 199 inclusive), the control data is
-   followed by a header field section (encoded with known- or
-   indeterminate- length according to the framing indicator).  After the
-   header field section, another response control data block follows.
+   followed by a header section (encoded with known- or indeterminate-
+   length according to the framing indicator).  After the header
+   section, another response control data block follows.
 
 3.6.  Header and Trailer Field Lines
 
-   Header and trailer field sections consist of zero or more field
-   lines; see Section 5 of [HTTP].  The format of a field section
-   depends on whether the message is known- or intermediate-length.
+   Header and trailer sections consist of zero or more field lines; see
+   Section 5 of [HTTP].  The format of a field section depends on
+   whether the message is known- or intermediate-length.
 
    Each field line includes a name and a value.  Both the name and value
    are non-zero length sequences of bytes.  The format of a field line
@@ -392,21 +390,11 @@ Table of Contents
 
    The content of messages is a sequence of bytes of any length.  Though
    a known-length message has a limit, this limit is large enough that
-   it is unlikely to be a practical limitation.  There is there is no
-   limit to an indeterminate length message.
+   it is unlikely to be a practical limitation.  There is no limit to
+   the size of content in an indeterminate length message.
 
    Omitting content by truncating a message is only possible if the
    content is zero-length.
-
-3.8.  Padding
-
-   Messages can contain arbitrary amounts of padding.  Padding is simply
-   any number of 0-valued bytes that are appended to messages.  A
-   message that contains non-zero padding MAY be treated as invalid; see
-   Section 4.  Alternatively, non-zero padding can be discarded.
-
-   For a truncated message, adding has the effect of adding zero-length
-   field sections or content.
 
 4.  Invalid Messages
 
@@ -429,7 +417,7 @@ Table of Contents
    "message/http".
 
    Valid HTTP/1.1 messages require lines terminated with CRLF (the two
-   bytes 0x0a and 0x0d).  For simplicity and consistenct, the content of
+   bytes 0x0a and 0x0d).  For simplicity and consistency, the content of
    these examples is limited to text, which also uses CRLF for line
    endings.
 
@@ -463,14 +451,14 @@ Table of Contents
 
    The same message can be truncated with no effect on interpretation.
    In this case, the last two bytes - corresponding to content and a
-   trailer field section - can each be removed without altering the
-   semantics of the message.
+   trailer section - can each be removed without altering the semantics
+   of the message.
 
    The same message, encoded using an indefinite-length encoding is
    shown in Figure 9.  As the content of this message is empty, the
    difference in formats is negligible.
 
-   01034745 54056874 74707300 0a2f6865  ..GET.https../he
+   02034745 54056874 74707300 0a2f6865  ..GET.https../he
    6c6c6f2e 7478740a 75736572 2d616765  llo.txt.user-age
    6e743463 75726c2f 372e3136 2e33206c  nt4curl/7.16.3 l
    69626375 726c2f37 2e31362e 33204f70  ibcurl/7.16.3 Op
@@ -550,7 +538,7 @@ Table of Contents
    be conveyed using the binary format.
 
    HTTP/1.1 200 OK
-   Transfer-Encoding: camel, chunked
+   Transfer-Encoding: chunked
 
    4
    This
@@ -567,7 +555,7 @@ Table of Contents
    Figure 13 shows this message using the known-length coding.  Note
    that the transfer-encoding header field is removed.
 
-   0240c800 1d546869 7320636f 6e74656e  .@...This conten
+   0140c800 1d546869 7320636f 6e74656e  .@...This conten
    7420636f 6e746169 6e732043 524c462e  t contains CRLF.
    0d0a0d07 74726169 6c657204 74657874  ....trailer.text
 
@@ -653,68 +641,76 @@ Table of Contents
    [H2]       Belshe, M., Peon, R., and M. Thomson, Ed., "Hypertext
               Transfer Protocol Version 2 (HTTP/2)", RFC 7540,
               DOI 10.17487/RFC7540, May 2015,
-              <https://www.rfc-editor.org/info/rfc7540>.
+              <https://datatracker.ietf.org/doc/html/rfc7540>.
 
-   [HTTP]     Fielding, R., Nottingham, M., and J. Reschke, "HTTP
+   [HTTP]     Fielding, R. T., Nottingham, M., and J. Reschke, "HTTP
               Semantics", Work in Progress, Internet-Draft, draft-ietf-
               httpbis-semantics-14, 12 January 2021,
-              <http://www.ietf.org/internet-drafts/draft-ietf-httpbis-
+              <https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-
               semantics-14.txt>.
 
    [MESSAGING]
-              Fielding, R., Nottingham, M., and J. Reschke, "HTTP/1.1",
-              Work in Progress, Internet-Draft, draft-ietf-httpbis-
-              messaging-14, 12 January 2021, <http://www.ietf.org/
-              internet-drafts/draft-ietf-httpbis-messaging-14.txt>.
+              Fielding, R. T., Nottingham, M., and J. Reschke,
+              "HTTP/1.1", Work in Progress, Internet-Draft, draft-ietf-
+              httpbis-messaging-14, 12 January 2021,
+              <https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-
+              messaging-14.txt>.
 
    [QUIC]     Iyengar, J. and M. Thomson, "QUIC: A UDP-Based Multiplexed
               and Secure Transport", Work in Progress, Internet-Draft,
               draft-ietf-quic-transport-34, 14 January 2021,
-              <http://www.ietf.org/internet-drafts/draft-ietf-quic-
+              <https://datatracker.ietf.org/doc/html/draft-ietf-quic-
               transport-34.txt>.
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
               DOI 10.17487/RFC2119, March 1997,
-              <https://www.rfc-editor.org/info/rfc2119>.
+              <https://datatracker.ietf.org/doc/html/rfc2119>.
 
    [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
               2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
-              May 2017, <https://www.rfc-editor.org/info/rfc8174>.
+              May 2017, <https://datatracker.ietf.org/doc/html/rfc8174>.
 
 9.2.  Informative References
 
    [H3]       Bishop, M., "Hypertext Transfer Protocol Version 3
               (HTTP/3)", Work in Progress, Internet-Draft, draft-ietf-
-              quic-http-33, 15 December 2020, <http://www.ietf.org/
-              internet-drafts/draft-ietf-quic-http-33.txt>.
+              quic-http-34, 2 February 2021,
+              <https://datatracker.ietf.org/doc/html/draft-ietf-quic-
+              http-34.txt>.
 
    [HPACK]    Peon, R. and H. Ruellan, "HPACK: Header Compression for
               HTTP/2", RFC 7541, DOI 10.17487/RFC7541, May 2015,
-              <https://www.rfc-editor.org/info/rfc7541>.
+              <https://datatracker.ietf.org/doc/html/rfc7541>.
 
-   [QPACK]    Krasic, C., Bishop, M., and A. Frindell, "QPACK: Header
+   [QPACK]    Krasic, C. '., Bishop, M., and A. Frindell, "QPACK: Header
               Compression for HTTP/3", Work in Progress, Internet-Draft,
-              draft-ietf-quic-qpack-20, 15 December 2020,
-              <http://www.ietf.org/internet-drafts/draft-ietf-quic-
-              qpack-20.txt>.
+              draft-ietf-quic-qpack-21, 2 February 2021,
+              <https://datatracker.ietf.org/doc/html/draft-ietf-quic-
+              qpack-21.txt>.
 
    [RFC2518]  Goland, Y., Whitehead, E., Faizi, A., Carter, S., and D.
               Jensen, "HTTP Extensions for Distributed Authoring --
               WEBDAV", RFC 2518, DOI 10.17487/RFC2518, February 1999,
-              <https://www.rfc-editor.org/info/rfc2518>.
+              <https://datatracker.ietf.org/doc/html/rfc2518>.
 
    [RFC8297]  Oku, K., "An HTTP Status Code for Indicating Hints",
               RFC 8297, DOI 10.17487/RFC8297, December 2017,
-              <https://www.rfc-editor.org/info/rfc8297>.
+              <https://datatracker.ietf.org/doc/html/rfc8297>.
 
 Acknowledgments
 
    TODO: credit where credit is due.
 
-Author's Address
+Authors' Addresses
 
    Martin Thomson
    Mozilla
 
    Email: mt@lowentropy.net
+
+
+   Christopher A. Wood
+   Cloudflare
+
+   Email: caw@heapingbits.net

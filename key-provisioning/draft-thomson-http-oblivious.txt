@@ -5,8 +5,8 @@
 HTTPBIS                                                       M. Thomson
 Internet-Draft                                                   Mozilla
 Intended status: Standards Track                               C.A. Wood
-Expires: 26 July 2021                                         Cloudflare
-                                                         22 January 2021
+Expires: 25 August 2021                                       Cloudflare
+                                                        21 February 2021
 
 
                              Oblivious HTTP
@@ -15,9 +15,9 @@ Expires: 26 July 2021                                         Cloudflare
 Abstract
 
    This document describes a system for the forwarding of encrypted HTTP
-   messages.  This allows clients to make requests of servers without
-   the server being able to link requests to other requests from the
-   same client.
+   messages.  This allows a client to make multiple requests of a server
+   without the server being able to link those requests to the client or
+   to identify the requests as having come from the same client.
 
 Discussion Venues
 
@@ -45,7 +45,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 26 July 2021.
+   This Internet-Draft will expire on 25 August 2021.
 
 Copyright Notice
 
@@ -66,13 +66,13 @@ Table of Contents
    1.  Introduction
    2.  Conventions and Definitions
    3.  Overview
+     3.1.  Applicability
    4.  Key Configuration
      4.1.  Key Configuration Encoding
      4.2.  Key Configuration Media Type
    5.  HPKE Encapsulation
-     5.1.  HPKE Encapsulation of Requests
-     5.2.  HPKE Encapsulation of Responses
-     5.3.  Padding
+     5.1.  Encapsulation of Requests
+     5.2.  Encapsulation of Responses
    6.  HTTP Usage
      6.1.  Informational Responses
      6.2.  Errors
@@ -80,15 +80,19 @@ Table of Contents
      7.1.  message/ohttp-req Media Type
      7.2.  message/ohttp-res Media Type
    8.  Security Considerations
-     8.1.  Client
+     8.1.  Client Responsibilities
      8.2.  Proxy Responsibilities
        8.2.1.  Denial of Service
        8.2.2.  Linkability Through Traffic Analysis
      8.3.  Server Responsibilities
-   9.  IANA Considerations
-   10. References
-     10.1.  Normative References
-     10.2.  Informative References
+     8.4.  Replay Attacks
+     8.5.  Post-Compromise Security
+   9.  Privacy Considerations
+   10. IANA Considerations
+   11. References
+     11.1.  Normative References
+     11.2.  Informative References
+   Appendix A.  Complete Example of a Request and Response
    Acknowledgments
    Authors' Addresses
 
@@ -165,11 +169,10 @@ Table of Contents
    This draft includes pseudocode that uses the functions and
    conventions defined in [HPKE].
 
-   This draft uses the variable-length integer encoding from Section 16
-   of [QUIC].  Encoding and decoding variable-length integers to a
-   sequence of bytes are described using the functions "vencode()" and
-   "vdecode()".  The function "len()" takes the length of a sequence of
-   bytes.
+   Encoding an integer to a sequence of bytes in network byte order is
+   described using the function "encode(n, v)", where "n" is the number
+   of bytes and "v" is the integer value.  The function "len()" returns
+   the length of a sequence of bytes.
 
    Formats are described using notation from Section 1.3 of [QUIC].
 
@@ -194,25 +197,25 @@ Table of Contents
    to correlate that request with the client IP or other requests that
    the client might make to that server.
 
-   +---------+        +----------+        +----------+    +----------+
-   | Client  |        | Proxy    |        | Request  |    | Target   |
-   |         |        | Resource |        | Resource |    | Resource |
-   +---------+        +----------+        +----------+    +----------+
-        |                  |                   |               |
-        | Encapsulated     |                   |               |
-        | Request          |                   |               |
-        |----------------->| Encapsulated      |               |
-        |                  | Request           |               |
-        |                  |------------------>| Request       |
-        |                  |                   |-------------->|
-        |                  |                   |               |
-        |                  |                   |      Response |
-        |                  |      Encapsulated |<--------------|
-        |                  |          Response |               |
-        |     Encapsulated |<------------------|               |
-        |         Response |                   |               |
-        |<-----------------|                   |               |
-        |                  |                   |               |
+   +---------+       +----------+       +----------+    +----------+
+   | Client  |       | Proxy    |       | Request  |    | Target   |
+   |         |       | Resource |       | Resource |    | Resource |
+   +---------+       +----------+       +----------+    +----------+
+        |                 |                  |               |
+        | Encapsulated    |                  |               |
+        | Request         |                  |               |
+        |---------------->| Encapsulated     |               |
+        |                 | Request          |               |
+        |                 |----------------->| Request       |
+        |                 |                  |-------------->|
+        |                 |                  |               |
+        |                 |                  |      Response |
+        |                 |     Encapsulated |<--------------|
+        |                 |         Response |               |
+        |    Encapsulated |<-----------------|               |
+        |        Response |                  |               |
+        |<----------------|                  |               |
+        |                 |                  |               |
 
                     Figure 1: Overview of Oblivious HTTP
 
@@ -252,6 +255,47 @@ Table of Contents
    10.  The client removes the encapsulation to obtain the response to
         the original request.
 
+3.1.  Applicability
+
+   Oblivious HTTP has limited applicability.  Many uses of HTTP benefit
+   from being able to carry state between requests, such as with cookies
+   ([RFC6265]), authentication (Section 11 of
+   [I-D.ietf-httpbis-semantics]), or even alternative services
+   ([RFC7838]).  Oblivious HTTP seeks to prevent this sort of linkage,
+   which requires that applications not carry state between requests.
+
+   Oblivious HTTP is primarily useful where privacy risks associated
+   with possible stateful treatment of requests are sufficiently
+   negative that the cost of deploying this protocol can be justified.
+   Oblivious HTTP is simpler and less costly than more robust systems,
+   like Prio ([PRIO]) or Tor ([Dingledine2004]), which can provide
+   stronger guarantees at higher operational costs.
+
+   Oblivious HTTP is more costly than a direct connection to a server.
+   Some costs, like those involved with connection setup, can be
+   amortized, but there are several ways in which oblivious HTTP is more
+   expensive than a direct request:
+
+   *  Each oblivious request requires at least two regular HTTP
+      requests, which adds latency.
+
+   *  Each request is expanded in size with additional HTTP fields,
+      encryption-related metadata, and AEAD expansion.
+
+   *  Deriving cryptographic keys and applying them for request and
+      response protection takes non-negligible computational resources.
+
+   Examples of where preventing the linking of requests might justify
+   these costs include:
+
+   *  DNS queries.  DNS queries made to a recursive resolver reveal
+      information about the requester, particularly if linked to other
+      queries.
+
+   *  Telemetry submission.  Applications that submit reports about
+      their usage to their developers might use oblivious HTTP for some
+      types of moderately sensitive data.
+
 4.  Key Configuration
 
    A client needs to acquire information about the key configuration of
@@ -260,10 +304,14 @@ Table of Contents
 
    In order to ensure that clients do not encapsulate messages that
    other entities can intercept, the key configuration MUST be
-   authenticated and have integrity protection.  One way to ensure
-   integrity for key configuration is for the oblivious request resource
-   to serve content to the client directly, using HTTPS and the
-   "application/ohttp-keys" media type; see Section 4.2.
+   authenticated and have integrity protection.
+
+   This document describes the "application/ohttp-keys" media type; see
+   Section 4.2.  This media type might be used, for example with HTTPS,
+   as part of a system for configuring or discovering key
+   configurations.  Note however that such a system needs to consider
+   the potential for key configuration to be used to compromise client
+   privacy; see Section 9.
 
    Specifying a format for expressing the information a client needs to
    construct an encapsulated request ensures that different client
@@ -290,7 +338,7 @@ Table of Contents
    Figure 2 shows a single key configuration, KeyConfig, that is
    expressed using the TLS syntax; see Section 3 of [TLS].
 
-   opaque HpkePublicKey<1..2^16-1>;
+   opaque HpkePublicKey[Npk];
    uint16 HpkeKemId;
    uint16 HpkeKdfId;
    uint16 HpkeAeadId;
@@ -302,8 +350,8 @@ Table of Contents
 
    struct {
      uint8 key_id;
-     HpkePublicKey public_key;
      HpkeKemId kem_id;
+     HpkePublicKey public_key;
      HpkeSymmetricAlgorithms cipher_suites<4..2^16-4>;
    } KeyConfig;
 
@@ -312,6 +360,8 @@ Table of Contents
    The types HpkeKemId, HpkeKdfId, and HpkeAeadId identify a KEM, KDF,
    and AEAD respectively.  The definitions for these identifiers and the
    semantics of the algorithms they identify can be found in [HPKE].
+   The Npk parameter corresponding to the HpkeKdfId can be found in
+   [HPKE].
 
 4.2.  Key Configuration Media Type
 
@@ -385,18 +435,19 @@ Table of Contents
    Figure 3.  Section 5.1 describes the process for constructing and
    processing an Encapsulated Request.
 
-   Key Identifer {
-     Key ID Length (i),
-     Key ID (..),
-   }
-
    Encapsulated Request {
-     Key Identifier (..),
-     Encapsulated KEM Shared Secret (..),
+     Key Identifier (8),
+     KEM Identifier (16),
+     KDF Identifier (16),
+     AEAD Identifier (16),
+     Encapsulated KEM Shared Secret (8*Nenc),
      AEAD-Protected Request (..),
    }
 
                        Figure 3: Encapsulated Request
+
+   The Nenc parameter corresponding to the HpkeKdfId can be found in
+   [HPKE].
 
    Responses are bound to responses and so consist only of AEAD-
    protected content.  Section 5.2 describes the process for
@@ -412,42 +463,69 @@ Table of Contents
    The size of the Nonce field in an Encapsulated Response corresponds
    to the size of an AEAD key for the corresponding HPKE ciphersuite.
 
-5.1.  HPKE Encapsulation of Requests
+5.1.  Encapsulation of Requests
 
-   Clients encapsulate a request "request" with an HPKE public key
-   "pkR", whose Key Identifier is "keyID" as follows:
+   Clients encapsulate a request "request" using values from a key
+   configuration:
+
+   *  the key identifier from the configuration, "keyID", with the
+      corresponding KEM identified by "kemID",
+
+   *  the public key from the configuration, "pkR", and
+
+   *  a selected combination of KDF, identified by "kdfID", and AEAD,
+      identified by "aeadID".
+
+   The client then constructs an encapsulated request, "enc_request", as
+   follows:
 
    1.  Compute an HPKE context using "pkR", yielding "context" and
        encapsulation key "enc".
 
-   2.  Encrypt (seal) "request" with "keyID" as associated data using
+   2.  Construct associated data, "aad", by concatenating the values of
+       "keyID", "kemID", "kdfID", and "aeadID", as one 8-bit integer and
+       three 16-bit integers, respectively, each in network byte order.
+
+   3.  Encrypt (seal) "request" with "aad" as associated data using
        "context", yielding ciphertext "ct".
 
-   3.  Concatenate the length of "keyID" as a variable-length integer,
-       "keyID", "enc", and "ct", yielding an Encapsulated Request
-       "enc_request".  Note that "enc" is of fixed-length, so there is
-       no ambiguity in parsing "enc" and "ct".
+   4.  Concatenate the values of "aad", "enc", and "ct", yielding an
+       Encapsulated Request "enc_request".
+
+   Note that "enc" is of fixed-length, so there is no ambiguity in
+   parsing this structure.
 
    In pseudocode, this procedure is as follows:
 
    enc, context = SetupBaseS(pkR, "request")
-   ct = context.Seal(keyID, request)
-   enc_request = concat(vencode(len(keyID)), keyID, enc, ct)
+   aad = concat(encode(1, keyID),
+                encode(2, kemID),
+                encode(2, kdfID),
+                encode(2, aeadID))
+   ct = context.Seal(aad, request)
+   enc_request = concat(aad, enc, ct)
 
    Servers decrypt an Encapsulated Request by reversing this process.
    Given an Encapsulated Request "enc_request", a server:
 
-   1.  Parses "enc_request" into "keyID", "enc", and "ct" (indicated
-       using the function "parse()" in pseudocode).  The server is then
-       able to find the HPKE private key, "skR", corresponding to
-       "keyID".  If no such key exists, the server returns an error; see
-       Section 6.2.
+   1.  Parses "enc_request" into "keyID", "kemID", "kdfID", "aeadID",
+       "enc", and "ct" (indicated using the function "parse()" in
+       pseudocode).  The server is then able to find the HPKE private
+       key, "skR", corresponding to "keyID".
+
+       a.  If "keyID" does not identify a key matching the type of
+       "kemID", the server returns an error.
+
+       b.  If "kdfID" and "aeadID" identify a combination of KDF and
+       AEAD that the server is unwilling to use with "skR", the server
+       returns an error.
 
    2.  Compute an HPKE context using "skR" and the encapsulated key
        "enc", yielding "context".
 
-   3.  Construct additional associated data, "aad", as the Key
-       Identifier "keyID" from "enc_request".
+   3.  Construct additional associated data, "aad", from "keyID",
+       "kdfID", and "aeadID" or as the first five bytes of
+       "enc_request".
 
    4.  Decrypt "ct" using "aad" as associated data, yielding "request"
        or an error on failure.  If decryption fails, the server returns
@@ -455,22 +533,24 @@ Table of Contents
 
    In pseudocode, this procedure is as follows:
 
-   keyID, enc, ct = parse(enc_request)
+   keyID, kemID, kdfID, aeadID, enc, ct = parse(enc_request)
+   aad = concat(encode(1, keyID),
+                encode(2, kemID),
+                encode(2, kdfID),
+                encode(2, aeadID))
    context = SetupBaseR(enc, skR, "request")
-   request, error = context.Open(keyID, ct)
+   request, error = context.Open(aad, ct)
 
-   Servers MUST verify that the request padding consists of all zeroes
-   before processing the corresponding Message.
-
-5.2.  HPKE Encapsulation of Responses
+5.2.  Encapsulation of Responses
 
    Given an HPKE context "context", a request message "request", and a
    response "response", servers generate an Encapsulated Response
    "enc_response" as follows:
 
    1.  Export a secret "secret" from "context", using the string
-       "response" as a label.  The length of this secret is "Nk" - the
-       length of an AEAD key assocated with "context".
+       "response" as context.  The length of this secret is "max(Nn,
+       Nk)", where "Nn" and "Nk" are the length of AEAD key and nonce
+       associated with "context".
 
    2.  Generate a random value of length "max(Nn, Nk)" bytes, called
        "response_nonce".
@@ -506,7 +586,8 @@ Table of Contents
    prk = Extract(salt, secret)
    aead_key = Expand(secret, "key", Nk)
    aead_nonce = Expand(secret, "nonce", Nn)
-   enc_reponse = Seal(aead_key, aead_nonce, "", response)
+   ct = Seal(aead_key, aead_nonce, "", response)
+   enc_response = concat(response_nonce, ct)
 
    Clients decrypt an Encapsulated Request by reversing this process.
    That is, they first parse "enc_response" into "response_nonce" and
@@ -517,12 +598,6 @@ Table of Contents
    provided by the AEAD.  Decrypting might produce an error, as follows:
 
    reponse, error = Open(aead_key, aead_nonce, "", ct)
-
-5.3.  Padding
-
-   Plaintext Messages support arbitrary length padding.  Clients and
-   servers MAY pad HTTP messages as needed to hide metadata leakage
-   through ciphertext length.
 
 6.  HTTP Usage
 
@@ -724,7 +799,7 @@ Table of Contents
    oblivious target resource simplifies the interactions between those
    resources without affecting client privacy.
 
-8.1.  Client
+8.1.  Client Responsibilities
 
    Clients MUST ensure that the key configuration they select for
    generating encapsulated requests is integrity protected and
@@ -792,12 +867,12 @@ Table of Contents
    proxies.  This arrangement might be necessary to prevent having the
    large volume of requests being classified as an attack by the server.
 
-   If a server does accept a large volume of requests from a proxy, it
+   If a server accepts a larger volume of requests from a proxy, it
    needs to trust that the proxy does not allow abusive levels of
    request volumes from clients.  That is, if a server allows requests
    from the proxy to be exempt from rate limits, the server might want
-   to ensure that the proxy applies similar rate limiting when receiving
-   requests from clients.
+   to ensure that the proxy applies a rate limiting policy that is
+   acceptable to the server.
 
    Servers that enter into an agreement with a proxy that enables a
    higher request rate might choose to authenticate the proxy to enable
@@ -815,7 +890,7 @@ Table of Contents
    A proxy could, as part of its function, add delays in order to
    increase the anonymity set into which each message is attributed.
    This could latency to the overall time clients take to receive a
-   response, which might not what some clients want.
+   response, which might not be what some clients want.
 
    A proxy can use padding to reduce the effectiveness of traffic
    analysis.
@@ -841,7 +916,112 @@ Table of Contents
    confidentiality protection for the unprotected requests and
    responses, plus protections for traffic analysis; see Section 8.2.2.
 
-9.  IANA Considerations
+   An oblivious request resource needs to have a plan for replacing
+   keys.  This might include regular replacement of keys, which can be
+   assigned new key identifiers.  If an oblivious request resource
+   receives a request that contains a key identifier that it does not
+   understand or that corresponds to a key that has been replaced, the
+   server can respond with an HTTP 422 (Unprocessable Content) status
+   code.
+
+   A server can also use a 422 status code if the server has a key that
+   corresponds to the key identifier, but the encapsulated request
+   cannot be successfully decrypted using the key.
+
+8.4.  Replay Attacks
+
+   Encapsulated requests can be copied and replayed by the oblivious
+   proxy resource.  The design of oblivious HTTP does not assume that
+   the oblivious proxy resource will not replay requests.  In addition,
+   if a client sends an encapsulated request in TLS early data (see
+   Section 8 of [TLS] and [RFC8470]), a network-based adversary might be
+   able to cause the request to be replayed.  In both cases, the effect
+   of a replay attack and the mitigations that might be employed are
+   similar to TLS early data.
+
+   A client or oblivious proxy resource MUST NOT automatically attempt
+   to retry a failed request unless it receives a positive signal
+   indicating that the request was not processed or forwarded.  The
+   HTTP/2 REFUSED_STREAM error code (Section 8.1.4 of [RFC7540]), the
+   HTTP/3 H3_REQUEST_REJECTED error code (Section 8.1 of [QUIC-HTTP]),
+   or a GOAWAY frame (in either protocol version) are all sufficient
+   signals that no processing occurred.  Connection failures or
+   interruptions are not sufficient signals that no processing occurred.
+
+   The anti-replay mechanisms described in Section 8 of [TLS] are
+   generally applicable to oblivious HTTP requests.  Servers can use the
+   encapsulated keying material as a unique key for identifying
+   potential replays.
+
+   The mechanism used in TLS for managing differences in client and
+   server clocks cannot be used as it depends on being able to observe
+   previous interactions.  Oblivious HTTP explicitly prevents such
+   linkability.  Applications can still include an explicit indication
+   of time to limit the span of time over which a server might need to
+   track accepted requests.  Clock information could be used for client
+   identification, so reduction in precision or obfuscation might be
+   necessary.
+
+   The considerations in [RFC8470] as they relate to managing the risk
+   of replay also apply, though there is no option to delay the
+   processing of a request.
+
+   Limiting requests to those with safe methods might not be
+   satisfactory for some applications, particularly those that involve
+   the submission of data to a server.  The use of idempotent methods
+   might be of some use in managing replay risk, though it is important
+   to recognize that different idempotent requests can be combined to be
+   not idempotent.
+
+   Idempotent actions with a narrow scope based on the value of a
+   protected nonce could enable data submission with limited replay
+   exposure.  A nonce might be added as an explicit part of a request,
+   or, if the oblivious request and target resources are co-located, the
+   encapsulated keying material can be used to produce a nonce.
+
+   The server-chosen "response_nonce" field ensures that responses have
+   unique AEAD keys and nonces even when requests are replayed.
+
+8.5.  Post-Compromise Security
+
+   This design does not provide post-compromise security for responses.
+   A client only needs to retain keying material that might be used
+   compromise the confidentiality and integrity of a response until that
+   response is consumed, so there is negligible risk associated with a
+   client compromise.
+
+   A server retains a secret key that might be used to remove protection
+   from messages over much longer periods.  A server compromise that
+   provided access to the oblivious request resource secret key could
+   allow an attacker to recover the plaintext of all requests sent
+   toward affected keys and all of the responses that were generated.
+   Accessing requests and responses also requires access to requests and
+   responses, which implies either compromise of TLS connections or
+   collusion with the oblivious proxy resource.
+
+   The total number of affected messages affected by server key
+   compromise can be limited by regular rotation of server keys.
+
+9.  Privacy Considerations
+
+   One goal of this design is that independent client requests are only
+   linkable by the chosen key configuration.  The oblivious proxy and
+   request resources can link requests using the same key configuration
+   by matching KeyConfig.key_id, or, if the oblivious target resource is
+   willing to use trial decryption, a limited set of key configurations
+   that share an identifier.  An oblivious proxy can link requests using
+   the public key corresponding to KeyConfig.key_id.
+
+   Request resources are capable of linking requests depending on how
+   KeyConfigs are produced by servers and discovered by clients.
+   Specifically, servers can maliciously construct key configurations to
+   track individual clients.  A specific method for a client to acquire
+   key configurations is not included in this specification.  Clients
+   need to consider these tracking vectors when choosing a discovery
+   method.  Applications using this design should provide accommodations
+   to mitigate tracking.
+
+10.  IANA Considerations
 
    Please update the "Media Types" registry at
    https://www.iana.org/assignments/media-types
@@ -849,56 +1029,73 @@ Table of Contents
    information in Section 7 for the media types "message/ohttp-req",
    "message/ohttp-res", and "application/ohttp-keys".
 
-10.  References
+11.  References
 
-10.1.  Normative References
+11.1.  Normative References
 
    [BINARY]   Thomson, M., "Binary Representation of HTTP Messages",
               Work in Progress, Internet-Draft, draft-ietf-http-binary-
-              message-latest, 22 January 2021,
-              <https://tools.ietf.org/html/draft-ietf-http-binary-
-              message-latest>.
+              message-latest, 22 February 2021,
+              <https://datatracker.ietf.org/doc/html/draft-ietf-http-
+              binary-message-latest.txt>.
 
-   [HPKE]     Barnes, R., Bhargavan, K., Lipp, B., and C. Wood, "Hybrid
-              Public Key Encryption", Work in Progress, Internet-Draft,
-              draft-irtf-cfrg-hpke-07, 16 December 2020,
-              <http://www.ietf.org/internet-drafts/draft-irtf-cfrg-hpke-
-              07.txt>.
+   [HPKE]     Barnes, R. L., Bhargavan, K., Lipp, B., and C. A. Wood,
+              "Hybrid Public Key Encryption", Work in Progress,
+              Internet-Draft, draft-irtf-cfrg-hpke-08, 15 February 2021,
+              <https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-
+              hpke-08.txt>.
 
-   [HTTP]     Fielding, R., Nottingham, M., and J. Reschke, "HTTP
+   [HTTP]     Fielding, R. T., Nottingham, M., and J. Reschke, "HTTP
               Semantics", Work in Progress, Internet-Draft, draft-ietf-
               httpbis-semantics-14, 12 January 2021,
-              <http://www.ietf.org/internet-drafts/draft-ietf-httpbis-
+              <https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-
               semantics-14.txt>.
 
    [QUIC]     Iyengar, J. and M. Thomson, "QUIC: A UDP-Based Multiplexed
               and Secure Transport", Work in Progress, Internet-Draft,
               draft-ietf-quic-transport-34, 14 January 2021,
-              <http://www.ietf.org/internet-drafts/draft-ietf-quic-
+              <https://datatracker.ietf.org/doc/html/draft-ietf-quic-
               transport-34.txt>.
+
+   [QUIC-HTTP]
+              Bishop, M., "Hypertext Transfer Protocol Version 3
+              (HTTP/3)", Work in Progress, Internet-Draft, draft-ietf-
+              quic-http-34, 2 February 2021,
+              <https://datatracker.ietf.org/doc/html/draft-ietf-quic-
+              http-34.txt>.
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
               DOI 10.17487/RFC2119, March 1997,
-              <https://www.rfc-editor.org/info/rfc2119>.
+              <https://datatracker.ietf.org/doc/html/rfc2119>.
+
+   [RFC7540]  Belshe, M., Peon, R., and M. Thomson, Ed., "Hypertext
+              Transfer Protocol Version 2 (HTTP/2)", RFC 7540,
+              DOI 10.17487/RFC7540, May 2015,
+              <https://datatracker.ietf.org/doc/html/rfc7540>.
 
    [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
               2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
-              May 2017, <https://www.rfc-editor.org/info/rfc8174>.
+              May 2017, <https://datatracker.ietf.org/doc/html/rfc8174>.
+
+   [RFC8470]  Thomson, M., Nottingham, M., and W. Tarreau, "Using Early
+              Data in HTTP", RFC 8470, DOI 10.17487/RFC8470, September
+              2018, <https://datatracker.ietf.org/doc/html/rfc8470>.
 
    [TLS]      Rescorla, E., "The Transport Layer Security (TLS) Protocol
               Version 1.3", RFC 8446, DOI 10.17487/RFC8446, August 2018,
-              <https://www.rfc-editor.org/info/rfc8446>.
+              <https://datatracker.ietf.org/doc/html/rfc8446>.
 
-10.2.  Informative References
+11.2.  Informative References
 
    [ALT-SVC]  Nottingham, M., McManus, P., and J. Reschke, "HTTP
               Alternative Services", RFC 7838, DOI 10.17487/RFC7838,
-              April 2016, <https://www.rfc-editor.org/info/rfc7838>.
+              April 2016,
+              <https://datatracker.ietf.org/doc/html/rfc7838>.
 
    [COOKIES]  Barth, A., "HTTP State Management Mechanism", RFC 6265,
               DOI 10.17487/RFC6265, April 2011,
-              <https://www.rfc-editor.org/info/rfc6265>.
+              <https://datatracker.ietf.org/doc/html/rfc6265>.
 
    [Dingledine2004]
               Dingledine, R., Mathewson, N., and P. Syverson, "Tor: The
@@ -909,16 +1106,175 @@ Table of Contents
    [FORWARDED]
               Petersson, A. and M. Nilsson, "Forwarded HTTP Extension",
               RFC 7239, DOI 10.17487/RFC7239, June 2014,
-              <https://www.rfc-editor.org/info/rfc7239>.
+              <https://datatracker.ietf.org/doc/html/rfc7239>.
+
+   [I-D.ietf-httpbis-semantics]
+              Fielding, R. T., Nottingham, M., and J. Reschke, "HTTP
+              Semantics", Work in Progress, Internet-Draft, draft-ietf-
+              httpbis-semantics-14, 12 January 2021,
+              <https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-
+              semantics-14.txt>.
+
+   [ODOH]     Kinnear, E., McManus, P., Pauly, T., and C. A. Wood,
+              "Oblivious DNS Over HTTPS", Work in Progress, Internet-
+              Draft, draft-pauly-dprive-oblivious-doh-04, 26 January
+              2021, <https://datatracker.ietf.org/doc/html/draft-pauly-
+              dprive-oblivious-doh-04.txt>.
+
+   [PRIO]     Corrigan-Gibbs, H. and D. Boneh, "Prio: Private, Robust,
+              and Scalable Computation of Aggregate Statistics", 14
+              March 2017, <https://crypto.stanford.edu/prio/paper.pdf>.
 
    [RANDOM]   Eastlake 3rd, D., Schiller, J., and S. Crocker,
               "Randomness Requirements for Security", BCP 106, RFC 4086,
               DOI 10.17487/RFC4086, June 2005,
-              <https://www.rfc-editor.org/info/rfc4086>.
+              <https://datatracker.ietf.org/doc/html/rfc4086>.
+
+   [RFC6265]  Barth, A., "HTTP State Management Mechanism", RFC 6265,
+              DOI 10.17487/RFC6265, April 2011,
+              <https://datatracker.ietf.org/doc/html/rfc6265>.
+
+   [RFC7838]  Nottingham, M., McManus, P., and J. Reschke, "HTTP
+              Alternative Services", RFC 7838, DOI 10.17487/RFC7838,
+              April 2016,
+              <https://datatracker.ietf.org/doc/html/rfc7838>.
+
+   [X25519]   Langley, A., Hamburg, M., and S. Turner, "Elliptic Curves
+              for Security", RFC 7748, DOI 10.17487/RFC7748, January
+              2016, <https://datatracker.ietf.org/doc/html/rfc7748>.
+
+Appendix A.  Complete Example of a Request and Response
+
+   A single request and response exchange is shown here.  Binary values
+   (key configuration, secret keys, the content of messages, and
+   intermediate values) are shown in hexadecimal.  The request and
+   response here are absolutely minimal; the purpose of this example is
+   to show the cryptographic operations.
+
+   The oblivious request resource generates a key pair.  In this example
+   the server chooses DHKEM(X25519, HKDF-SHA256) and generates an X25519
+   key pair [X25519].  The X25519 secret key is:
+
+   15ce887006e079dcc7d67e73e5c13e31a55083f816eca9ebcf523b90ea2ab7b0
+
+   The oblivious request resource constructs a key configuration that
+   includes the corresponding public key as follows:
+
+   0100200020f21c612398e4384c21b7f2a759133c6c2d1b9ce6d033613dfad2c7
+   3d4826214900080001000100010003
+
+   This key configuration is somehow obtained by the client.  Then when
+   a client wishes to send an HTTP request of a GET request to
+   "https://example.com", it constructs the following binary HTTP
+   message:
+
+   00034745540568747470730b6578616d706c652e636f6d012f
+
+   The client then reads the oblivious request resource key
+   configuration and selects a mutually supported KDF and AEAD.  In this
+   example, the client selects HKDF-SHA256 and AES-128-GCM.  The client
+   then generates an HPKE context that uses the server public key.  This
+   results in the following encapsulated key:
+
+   a7e0dffe93bc9ed807b51588f10669cd2f09ceb7f6a71153658275993eb88276
+
+   The corresponding private key is:
+
+   3b04f76e7ea1313484dd73c343adb94c23671f98cb66fc7ecc6127f38e1d4431
+
+   Applying the Seal operation from the HPKE context produces an
+   encrypted message, allowing the client to construct the following
+   encapsulated request:
+
+   0100010001a7e0dffe93bc9ed807b51588f10669cd2f09ceb7f6a71153658275
+   993eb88276b497362592977a4abc7857cf9892377af698ca0ee31fe72d21ca12
+   6ff2074eb9292ce7a83fc53158ff
+
+   The client then sends this to the oblivious proxy resource in a POST
+   request, which might look like the following HTTP/1.1 request:
+
+   POST /request.example.net/proxy HTTP/1.1
+   Host: proxy.example.org
+   Content-Type: message/ohttp-req
+   Content-Length: 78
+
+   <content is the encapsulated request above>
+
+   The oblivious proxy resource receives this request and forwards it to
+   the oblivious request resource, which might look like:
+
+   POST /oblivious/request HTTP/1.1
+   Host: example.com
+   Content-Type: message/ohttp-req
+   Content-Length: 78
+
+   <content is the encapsulated request above>
+
+   The oblivous request resource receives this request, selects the key
+   it generated previously using the key identifier from the message,
+   and decrypts the message.  As this request is directed to the same
+   server, the oblivious request resource does not need to initiate an
+   HTTP request to the oblivious target resource.  The request can be
+   served directly by the oblivious target resource, which generates a
+   minimal response (consisting of just a 200 status code) as follows:
+
+   0140c8
+
+   The response is constructed by extracting a secret from the HPKE
+   context:
+
+   861c67eefd91906068ee3208a9102274
+
+   The key derivation for the encapsulated response uses both the
+   encapsulated KEM key from the request and a randomly selected nonce.
+   This produces a salt of:
+
+   a7e0dffe93bc9ed807b51588f10669cd2f09ceb7f6a71153658275993eb88276
+   55645b6626d6e8b1163d739c6cd3d94a
+
+   The salt and secret are both passed to the Extract function of the
+   selected KDF (HKDF-SHA256) to produce a pseudorandom key of:
+
+   ac29e0e1df48de4b349bb97db74da7f6732557a2fa6d12019ddadd8bf1e9cd99
+
+   The pseudorandom key is used with the Expand function of the KDF and
+   an info field of "key" to produce a 16-byte key for the selected AEAD
+   (AES-128-GCM):
+
+   0d81ce961eb6e61d510e18053418f316
+
+   With the same KDF and pseudorandom key, an info field of "nonce" is
+   used to generate a 12-byte nonce:
+
+   ba2d3637b5f041cc15ef73b2
+
+   The AEAD Seal function is then used to encrypt the response, which is
+   added to the randomized nonce value to produce the encapsulated
+   response:
+
+   55645b6626d6e8b1163d739c6cd3d94ac7e0cfd48adf8057517241ee220d20bc
+   e00a4a
+
+   The oblivious request resource then constructs a response:
+
+   HTTP/1.1 200 OK
+   Date: Wed, 27 Jan 2021 04:45:07 GMT
+   Cache-Control: private, no-store
+   Content-Type: message/ohttp-res
+   Content-Length: 38
+
+   <content is the encapsulated response>
+
+   The same response might then be generated by the oblivious proxy
+   resource which might change as little as the Date header.  The client
+   is then able to use the HPKE context it created and the nonce from
+   the encapsulated response to construct the AEAD key and nonce and
+   decrypt the response.
 
 Acknowledgments
 
-   TODO: credit where credit is due.
+   This design is based on a design for oblivious DoH, described in
+   [ODOH].  Eric Rescorla helped unify the structure of the key format.
 
 Authors' Addresses
 
