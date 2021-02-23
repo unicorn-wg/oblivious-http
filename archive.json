@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2021-02-21T00:05:39.359194+00:00",
+  "timestamp": "2021-02-23T00:05:38.771716+00:00",
   "repo": "unicorn-wg/oblivious-http",
   "labels": [
     {
@@ -3162,6 +3162,74 @@
           "comments": []
         }
       ]
+    },
+    {
+      "number": 51,
+      "id": "MDExOlB1bGxSZXF1ZXN0NTc3MTkyOTk5",
+      "title": "More clearly dodge responsibility",
+      "url": "https://github.com/unicorn-wg/oblivious-http/pull/51",
+      "state": "MERGED",
+      "author": "martinthomson",
+      "authorAssociation": "MEMBER",
+      "assignees": [],
+      "labels": [],
+      "body": "The whole mess that is key configuration discovery needs real work.\r\nThere are cases where trust suffices, but we can't rely on that here.\r\nWhat this does is tweak the language to more clearly note the lines of\r\nresponsibility for this draft.\r\n\r\nI also noted that we didn't talk about trial decryption and tracking, so\r\nI added that.  It seemed like we didn't need to mention multiple keys\r\nwith the same identifier twice after that.",
+      "createdAt": "2021-02-21T22:27:33Z",
+      "updatedAt": "2021-02-21T23:30:18Z",
+      "baseRepository": "unicorn-wg/oblivious-http",
+      "baseRefName": "main",
+      "baseRefOid": "9a7d832548a61c52ba939e5447dbdd6ef0461a36",
+      "headRepository": "unicorn-wg/oblivious-http",
+      "headRefName": "key-provisioning",
+      "headRefOid": "43e4b9cb80bbf087e18f99587b84c4e89951aabc",
+      "closedAt": "2021-02-21T23:30:17Z",
+      "mergedAt": "2021-02-21T23:30:17Z",
+      "mergedBy": "chris-wood",
+      "mergeCommit": {
+        "oid": "3ab659c01c482d9abc048ce1dd61409cbc83ae64"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTk0ODk1MjI0",
+          "commit": {
+            "abbreviatedOid": "43e4b9c"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2021-02-21T23:30:13Z",
+          "updatedAt": "2021-02-21T23:30:13Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 52,
+      "id": "MDExOlB1bGxSZXF1ZXN0NTc3MjA1MjM3",
+      "title": "Update examples based on -01 changes",
+      "url": "https://github.com/unicorn-wg/oblivious-http/pull/52",
+      "state": "OPEN",
+      "author": "martinthomson",
+      "authorAssociation": "MEMBER",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2021-02-21T23:50:28Z",
+      "updatedAt": "2021-02-21T23:50:28Z",
+      "baseRepository": "unicorn-wg/oblivious-http",
+      "baseRefName": "main",
+      "baseRefOid": "3ab659c01c482d9abc048ce1dd61409cbc83ae64",
+      "headRepository": "unicorn-wg/oblivious-http",
+      "headRefName": "examples-01",
+      "headRefOid": "b8dbe69de322e86fd17cfae8a1311d8dc8a388fb",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": []
     }
   ]
 }
