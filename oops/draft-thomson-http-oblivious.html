@@ -9,28 +9,29 @@
 <meta content="Christopher A. Wood" name="author">
 <meta content="
        This document describes a system for the forwarding of encrypted HTTP messages.
-This allows clients to make requests of servers without the server being able to
-link requests to other requests from the same client. 
+This allows a client to make multiple requests of a server without the server being able
+to link those requests to the client or to identify the requests as having come
+from the same client. 
     " name="description">
 <meta content="xml2rfc 3.5.0" name="generator">
 <meta content="draft-thomson-http-oblivious" name="ietf.draft">
 <!-- Generator version information:
   xml2rfc 3.5.0
-    Python 3.8.5
+    Python 3.8.7
     appdirs 1.4.4
     ConfigArgParse 1.2.3
     google-i18n-address 2.4.0
     html5lib 1.1
-    intervaltree 3.0.2
+    intervaltree 3.1.0
     Jinja2 2.11.2
     kitchen 1.2.6
-    lxml 4.5.0
-    pycountry 19.8.18
-    pyflakes 2.1.1
-    PyYAML 5.3.1
-    requests 2.22.0
-    setuptools 45.2.0
-    six 1.14.0
+    lxml 4.6.2
+    pycountry 20.7.3
+    pyflakes 2.2.0
+    PyYAML 5.4.1
+    requests 2.25.1
+    setuptools 51.3.3
+    six 1.15.0
 -->
 <link href="draft-thomson-http-oblivious.xml" rel="alternate" type="application/rfc+xml">
 <link href="#copyright" rel="license">
@@ -839,11 +840,11 @@ address div.right {
 <thead><tr>
 <td class="left">Internet-Draft</td>
 <td class="center">Oblivious HTTP</td>
-<td class="right">January 2021</td>
+<td class="right">March 2021</td>
 </tr></thead>
 <tfoot><tr>
 <td class="left">Thomson &amp; Wood</td>
-<td class="center">Expires 1 August 2021</td>
+<td class="center">Expires 2 September 2021</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -856,12 +857,12 @@ address div.right {
 <dd class="internet-draft">draft-thomson-http-oblivious</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2021-01-28" class="published">28 January 2021</time>
+<time datetime="2021-03-01" class="published">1 March 2021</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2021-08-01">1 August 2021</time></dd>
+<dd class="expires"><time datetime="2021-09-02">2 September 2021</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -879,8 +880,9 @@ address div.right {
 <section id="section-abstract">
       <h2 id="abstract"><a href="#abstract" class="selfRef">Abstract</a></h2>
 <p id="section-abstract-1">This document describes a system for the forwarding of encrypted HTTP messages.
-This allows clients to make requests of servers without the server being able to
-link requests to other requests from the same client.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
+This allows a client to make multiple requests of a server without the server being able
+to link those requests to the client or to identify the requests as having come
+from the same client.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
 </section>
 <section class="note rfcEditorRemove" id="section-note.1">
       <h2 id="name-discussion-venues">
@@ -912,7 +914,7 @@ link requests to other requests from the same client.<a href="#section-abstract-
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 1 August 2021.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 2 September 2021.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -948,7 +950,12 @@ link requests to other requests from the same client.<a href="#section-abstract-
             <p id="section-toc.1-1.2.1" class="keepWithNext"><a href="#section-2" class="xref">2</a>.  <a href="#name-conventions-and-definitions" class="xref">Conventions and Definitions</a><a href="#section-toc.1-1.2.1" class="pilcrow">¶</a></p>
 </li>
           <li class="toc compact ulEmpty" id="section-toc.1-1.3">
-            <p id="section-toc.1-1.3.1" class="keepWithNext"><a href="#section-3" class="xref">3</a>.  <a href="#name-overview" class="xref">Overview</a><a href="#section-toc.1-1.3.1" class="pilcrow">¶</a></p>
+            <p id="section-toc.1-1.3.1"><a href="#section-3" class="xref">3</a>.  <a href="#name-overview" class="xref">Overview</a><a href="#section-toc.1-1.3.1" class="pilcrow">¶</a></p>
+<ul class="toc compact ulEmpty">
+<li class="toc compact ulEmpty" id="section-toc.1-1.3.2.1">
+                <p id="section-toc.1-1.3.2.1.1" class="keepWithNext"><a href="#section-3.1" class="xref">3.1</a>.  <a href="#name-applicability" class="xref">Applicability</a><a href="#section-toc.1-1.3.2.1.1" class="pilcrow">¶</a></p>
+</li>
+            </ul>
 </li>
           <li class="toc compact ulEmpty" id="section-toc.1-1.4">
             <p id="section-toc.1-1.4.1"><a href="#section-4" class="xref">4</a>.  <a href="#name-key-configuration" class="xref">Key Configuration</a><a href="#section-toc.1-1.4.1" class="pilcrow">¶</a></p>
@@ -965,10 +972,10 @@ link requests to other requests from the same client.<a href="#section-abstract-
             <p id="section-toc.1-1.5.1"><a href="#section-5" class="xref">5</a>.  <a href="#name-hpke-encapsulation" class="xref">HPKE Encapsulation</a><a href="#section-toc.1-1.5.1" class="pilcrow">¶</a></p>
 <ul class="toc compact ulEmpty">
 <li class="toc compact ulEmpty" id="section-toc.1-1.5.2.1">
-                <p id="section-toc.1-1.5.2.1.1"><a href="#section-5.1" class="xref">5.1</a>.  <a href="#name-hpke-encapsulation-of-reque" class="xref">HPKE Encapsulation of Requests</a><a href="#section-toc.1-1.5.2.1.1" class="pilcrow">¶</a></p>
+                <p id="section-toc.1-1.5.2.1.1"><a href="#section-5.1" class="xref">5.1</a>.  <a href="#name-encapsulation-of-requests" class="xref">Encapsulation of Requests</a><a href="#section-toc.1-1.5.2.1.1" class="pilcrow">¶</a></p>
 </li>
               <li class="toc compact ulEmpty" id="section-toc.1-1.5.2.2">
-                <p id="section-toc.1-1.5.2.2.1"><a href="#section-5.2" class="xref">5.2</a>.  <a href="#name-hpke-encapsulation-of-respo" class="xref">HPKE Encapsulation of Responses</a><a href="#section-toc.1-1.5.2.2.1" class="pilcrow">¶</a></p>
+                <p id="section-toc.1-1.5.2.2.1"><a href="#section-5.2" class="xref">5.2</a>.  <a href="#name-encapsulation-of-responses" class="xref">Encapsulation of Responses</a><a href="#section-toc.1-1.5.2.2.1" class="pilcrow">¶</a></p>
 </li>
             </ul>
 </li>
@@ -998,7 +1005,7 @@ link requests to other requests from the same client.<a href="#section-abstract-
             <p id="section-toc.1-1.8.1"><a href="#section-8" class="xref">8</a>.  <a href="#name-security-considerations" class="xref">Security Considerations</a><a href="#section-toc.1-1.8.1" class="pilcrow">¶</a></p>
 <ul class="toc compact ulEmpty">
 <li class="toc compact ulEmpty" id="section-toc.1-1.8.2.1">
-                <p id="section-toc.1-1.8.2.1.1"><a href="#section-8.1" class="xref">8.1</a>.  <a href="#name-client" class="xref">Client</a><a href="#section-toc.1-1.8.2.1.1" class="pilcrow">¶</a></p>
+                <p id="section-toc.1-1.8.2.1.1"><a href="#section-8.1" class="xref">8.1</a>.  <a href="#name-client-responsibilities" class="xref">Client Responsibilities</a><a href="#section-toc.1-1.8.2.1.1" class="pilcrow">¶</a></p>
 </li>
               <li class="toc compact ulEmpty" id="section-toc.1-1.8.2.2">
                 <p id="section-toc.1-1.8.2.2.1"><a href="#section-8.2" class="xref">8.2</a>.  <a href="#name-proxy-responsibilities" class="xref">Proxy Responsibilities</a><a href="#section-toc.1-1.8.2.2.1" class="pilcrow">¶</a></p>
@@ -1014,30 +1021,39 @@ link requests to other requests from the same client.<a href="#section-abstract-
               <li class="toc compact ulEmpty" id="section-toc.1-1.8.2.3">
                 <p id="section-toc.1-1.8.2.3.1"><a href="#section-8.3" class="xref">8.3</a>.  <a href="#name-server-responsibilities" class="xref">Server Responsibilities</a><a href="#section-toc.1-1.8.2.3.1" class="pilcrow">¶</a></p>
 </li>
+              <li class="toc compact ulEmpty" id="section-toc.1-1.8.2.4">
+                <p id="section-toc.1-1.8.2.4.1"><a href="#section-8.4" class="xref">8.4</a>.  <a href="#name-replay-attacks" class="xref">Replay Attacks</a><a href="#section-toc.1-1.8.2.4.1" class="pilcrow">¶</a></p>
+</li>
+              <li class="toc compact ulEmpty" id="section-toc.1-1.8.2.5">
+                <p id="section-toc.1-1.8.2.5.1"><a href="#section-8.5" class="xref">8.5</a>.  <a href="#name-post-compromise-security" class="xref">Post-Compromise Security</a><a href="#section-toc.1-1.8.2.5.1" class="pilcrow">¶</a></p>
+</li>
             </ul>
 </li>
           <li class="toc compact ulEmpty" id="section-toc.1-1.9">
-            <p id="section-toc.1-1.9.1"><a href="#section-9" class="xref">9</a>.  <a href="#name-iana-considerations" class="xref">IANA Considerations</a><a href="#section-toc.1-1.9.1" class="pilcrow">¶</a></p>
+            <p id="section-toc.1-1.9.1"><a href="#section-9" class="xref">9</a>.  <a href="#name-privacy-considerations" class="xref">Privacy Considerations</a><a href="#section-toc.1-1.9.1" class="pilcrow">¶</a></p>
 </li>
           <li class="toc compact ulEmpty" id="section-toc.1-1.10">
-            <p id="section-toc.1-1.10.1"><a href="#section-10" class="xref">10</a>. <a href="#name-references" class="xref">References</a><a href="#section-toc.1-1.10.1" class="pilcrow">¶</a></p>
-<ul class="toc compact ulEmpty">
-<li class="toc compact ulEmpty" id="section-toc.1-1.10.2.1">
-                <p id="section-toc.1-1.10.2.1.1"><a href="#section-10.1" class="xref">10.1</a>.  <a href="#name-normative-references" class="xref">Normative References</a><a href="#section-toc.1-1.10.2.1.1" class="pilcrow">¶</a></p>
+            <p id="section-toc.1-1.10.1"><a href="#section-10" class="xref">10</a>. <a href="#name-iana-considerations" class="xref">IANA Considerations</a><a href="#section-toc.1-1.10.1" class="pilcrow">¶</a></p>
 </li>
-              <li class="toc compact ulEmpty" id="section-toc.1-1.10.2.2">
-                <p id="section-toc.1-1.10.2.2.1"><a href="#section-10.2" class="xref">10.2</a>.  <a href="#name-informative-references" class="xref">Informative References</a><a href="#section-toc.1-1.10.2.2.1" class="pilcrow">¶</a></p>
+          <li class="toc compact ulEmpty" id="section-toc.1-1.11">
+            <p id="section-toc.1-1.11.1"><a href="#section-11" class="xref">11</a>. <a href="#name-references" class="xref">References</a><a href="#section-toc.1-1.11.1" class="pilcrow">¶</a></p>
+<ul class="toc compact ulEmpty">
+<li class="toc compact ulEmpty" id="section-toc.1-1.11.2.1">
+                <p id="section-toc.1-1.11.2.1.1"><a href="#section-11.1" class="xref">11.1</a>.  <a href="#name-normative-references" class="xref">Normative References</a><a href="#section-toc.1-1.11.2.1.1" class="pilcrow">¶</a></p>
+</li>
+              <li class="toc compact ulEmpty" id="section-toc.1-1.11.2.2">
+                <p id="section-toc.1-1.11.2.2.1"><a href="#section-11.2" class="xref">11.2</a>.  <a href="#name-informative-references" class="xref">Informative References</a><a href="#section-toc.1-1.11.2.2.1" class="pilcrow">¶</a></p>
 </li>
             </ul>
 </li>
-          <li class="toc compact ulEmpty" id="section-toc.1-1.11">
-            <p id="section-toc.1-1.11.1"><a href="#section-appendix.a" class="xref">Appendix A</a>.  <a href="#name-complete-example-of-a-reque" class="xref">Complete Example of a Request and Response</a><a href="#section-toc.1-1.11.1" class="pilcrow">¶</a></p>
-</li>
           <li class="toc compact ulEmpty" id="section-toc.1-1.12">
-            <p id="section-toc.1-1.12.1"><a href="#section-appendix.b" class="xref"></a><a href="#name-acknowledgments" class="xref">Acknowledgments</a><a href="#section-toc.1-1.12.1" class="pilcrow">¶</a></p>
+            <p id="section-toc.1-1.12.1"><a href="#section-appendix.a" class="xref">Appendix A</a>.  <a href="#name-complete-example-of-a-reque" class="xref">Complete Example of a Request and Response</a><a href="#section-toc.1-1.12.1" class="pilcrow">¶</a></p>
 </li>
           <li class="toc compact ulEmpty" id="section-toc.1-1.13">
-            <p id="section-toc.1-1.13.1"><a href="#section-appendix.c" class="xref"></a><a href="#name-authors-addresses" class="xref">Authors' Addresses</a><a href="#section-toc.1-1.13.1" class="pilcrow">¶</a></p>
+            <p id="section-toc.1-1.13.1"><a href="#section-appendix.b" class="xref"></a><a href="#name-acknowledgments" class="xref">Acknowledgments</a><a href="#section-toc.1-1.13.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="toc compact ulEmpty" id="section-toc.1-1.14">
+            <p id="section-toc.1-1.14.1"><a href="#section-appendix.c" class="xref"></a><a href="#name-authors-addresses" class="xref">Authors' Addresses</a><a href="#section-toc.1-1.14.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
 </nav>
@@ -1137,8 +1153,7 @@ in <span>[<a href="#HPKE" class="xref">HPKE</a>]</span>.<a href="#section-2-3" c
 using the function <code>encode(n, v)</code>, where <code>n</code> is the number of bytes and <code>v</code> is
 the integer value. The function <code>len()</code> returns the length of a sequence of
 bytes.<a href="#section-2-4" class="pilcrow">¶</a></p>
-<p id="section-2-5">Formats are described using notation from Section 1.3 of
-<span>[<a href="#QUIC" class="xref">QUIC</a>]</span>.<a href="#section-2-5" class="pilcrow">¶</a></p>
+<p id="section-2-5">Formats are described using notation from <span><a href="https://tools.ietf.org/html/draft-ietf-quic-transport-34#section-1.3" class="relref">Section 1.3</a> of [<a href="#QUIC" class="xref">QUIC</a>]</span>.<a href="#section-2-5" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="overview">
@@ -1168,25 +1183,25 @@ server.<a href="#section-3-3" class="pilcrow">¶</a></p>
 <figure id="figure-1">
         <div class="artwork art-text alignLeft" id="section-3-4.1">
 <pre>
-+---------+        +----------+        +----------+    +----------+
-| Client  |        | Proxy    |        | Request  |    | Target   |
-|         |        | Resource |        | Resource |    | Resource |
-+---------+        +----------+        +----------+    +----------+
-     |                  |                   |               |
-     | Encapsulated     |                   |               |
-     | Request          |                   |               |
-     |-----------------&gt;| Encapsulated      |               |
-     |                  | Request           |               |
-     |                  |------------------&gt;| Request       |
-     |                  |                   |--------------&gt;|
-     |                  |                   |               |
-     |                  |                   |      Response |
-     |                  |      Encapsulated |&lt;--------------|
-     |                  |          Response |               |
-     |     Encapsulated |&lt;------------------|               |
-     |         Response |                   |               |
-     |&lt;-----------------|                   |               |
-     |                  |                   |               |
++---------+       +----------+       +----------+    +----------+
+| Client  |       | Proxy    |       | Request  |    | Target   |
+|         |       | Resource |       | Resource |    | Resource |
++---------+       +----------+       +----------+    +----------+
+     |                 |                  |               |
+     | Encapsulated    |                  |               |
+     | Request         |                  |               |
+     |----------------&gt;| Encapsulated     |               |
+     |                 | Request          |               |
+     |                 |-----------------&gt;| Request       |
+     |                 |                  |--------------&gt;|
+     |                 |                  |               |
+     |                 |                  |      Response |
+     |                 |     Encapsulated |&lt;--------------|
+     |                 |         Response |               |
+     |    Encapsulated |&lt;-----------------|               |
+     |        Response |                  |               |
+     |&lt;----------------|                  |               |
+     |                 |                  |               |
 </pre>
 </div>
 <figcaption><a href="#figure-1" class="selfRef">Figure 1</a>:
@@ -1226,6 +1241,48 @@ oblivious proxy resource.<a href="#section-3-6.8" class="pilcrow">¶</a>
 request.<a href="#section-3-6.10" class="pilcrow">¶</a>
 </li>
       </ol>
+<div id="applicability">
+<section id="section-3.1">
+        <h3 id="name-applicability">
+<a href="#section-3.1" class="section-number selfRef">3.1. </a><a href="#name-applicability" class="section-name selfRef">Applicability</a>
+        </h3>
+<p id="section-3.1-1">Oblivious HTTP has limited applicability.  Many uses of HTTP benefit from being
+able to carry state between requests, such as with cookies (<span>[<a href="#RFC6265" class="xref">RFC6265</a>]</span>),
+authentication (Section 11 of <span>[<a href="#I-D.ietf-httpbis-semantics" class="xref">I-D.ietf-httpbis-semantics</a>]</span>), or even
+alternative services (<span>[<a href="#RFC7838" class="xref">RFC7838</a>]</span>).  Oblivious HTTP seeks to prevent this sort
+of linkage, which requires that applications not carry state between requests.<a href="#section-3.1-1" class="pilcrow">¶</a></p>
+<p id="section-3.1-2">Oblivious HTTP is primarily useful where privacy risks associated with possible
+stateful treatment of requests are sufficiently negative that the cost of
+deploying this protocol can be justified.  Oblivious HTTP is simpler and less
+costly than more robust systems, like Prio (<span>[<a href="#PRIO" class="xref">PRIO</a>]</span>) or Tor
+(<span>[<a href="#Dingledine2004" class="xref">Dingledine2004</a>]</span>), which can provide stronger guarantees at higher operational costs.<a href="#section-3.1-2" class="pilcrow">¶</a></p>
+<p id="section-3.1-3">Oblivious HTTP is more costly than a direct connection to a server.  Some costs,
+like those involved with connection setup, can be amortized, but there are
+several ways in which oblivious HTTP is more expensive than a direct request:<a href="#section-3.1-3" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-3.1-4.1">Each oblivious request requires at least two regular HTTP requests, which adds
+latency.<a href="#section-3.1-4.1" class="pilcrow">¶</a>
+</li>
+          <li class="normal" id="section-3.1-4.2">Each request is expanded in size with additional HTTP fields,
+encryption-related metadata, and AEAD expansion.<a href="#section-3.1-4.2" class="pilcrow">¶</a>
+</li>
+          <li class="normal" id="section-3.1-4.3">Deriving cryptographic keys and applying them for request and
+response protection takes non-negligible computational resources.<a href="#section-3.1-4.3" class="pilcrow">¶</a>
+</li>
+        </ul>
+<p id="section-3.1-5">Examples of where preventing the linking of requests might justify these costs
+include:<a href="#section-3.1-5" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-3.1-6.1">DNS queries.  DNS queries made to a recursive resolver reveal information
+about the requester, particularly if linked to other queries.<a href="#section-3.1-6.1" class="pilcrow">¶</a>
+</li>
+          <li class="normal" id="section-3.1-6.2">Telemetry submission.  Applications that submit reports about their usage to
+their developers might use oblivious HTTP for some types of moderately
+sensitive data.<a href="#section-3.1-6.2" class="pilcrow">¶</a>
+</li>
+        </ul>
+</section>
+</div>
 </section>
 </div>
 <div id="key-configuration">
@@ -1237,21 +1294,24 @@ request.<a href="#section-3-6.10" class="pilcrow">¶</a>
 oblivious request resource in order to send encapsulated requests.<a href="#section-4-1" class="pilcrow">¶</a></p>
 <p id="section-4-2">In order to ensure that clients do not encapsulate messages that other entities
 can intercept, the key configuration MUST be authenticated and have integrity
-protection. One way to ensure integrity for key configuration is for the
-oblivious request resource to serve content to the client directly, using HTTPS
-and the "application/ohttp-keys" media type; see <a href="#ohttp-keys" class="xref">Section 4.2</a>.<a href="#section-4-2" class="pilcrow">¶</a></p>
-<p id="section-4-3">Specifying a format for expressing the information a client needs to construct
+protection.<a href="#section-4-2" class="pilcrow">¶</a></p>
+<p id="section-4-3">This document describes the "application/ohttp-keys" media type; see
+<a href="#ohttp-keys" class="xref">Section 4.2</a>.  This media type might be used, for example with HTTPS, as part
+of a system for configuring or discovering key configurations.  Note however
+that such a system needs to consider the potential for key configuration to be
+used to compromise client privacy; see <a href="#privacy" class="xref">Section 9</a>.<a href="#section-4-3" class="pilcrow">¶</a></p>
+<p id="section-4-4">Specifying a format for expressing the information a client needs to construct
 an encapsulated request ensures that different client implementations can be
 configured in the same way. This also enables advertising key configurations in
-a consistent format.<a href="#section-4-3" class="pilcrow">¶</a></p>
-<p id="section-4-4">A client might have multiple key configurations to select from when
+a consistent format.<a href="#section-4-4" class="pilcrow">¶</a></p>
+<p id="section-4-5">A client might have multiple key configurations to select from when
 encapsulating a request. Clients are responsible for selecting a preferred key
 configuration from those it supports. Clients need to consider both the key
 encapsulation method (KEM) and the combinations of key derivation function
 (KDF) and authenticated encryption with associated data (AEAD) in this
-decision.<a href="#section-4-4" class="pilcrow">¶</a></p>
-<p id="section-4-5">Evolution of the key configuration format is supported through the definition
-of new formats that are identified by new media types.<a href="#section-4-5" class="pilcrow">¶</a></p>
+decision.<a href="#section-4-5" class="pilcrow">¶</a></p>
+<p id="section-4-6">Evolution of the key configuration format is supported through the definition
+of new formats that are identified by new media types.<a href="#section-4-6" class="pilcrow">¶</a></p>
 <div id="key-config">
 <section id="section-4.1">
         <h3 id="name-key-configuration-encoding">
@@ -1262,12 +1322,12 @@ identifier for the KEM that the public key uses, and a set HPKE symmetric
 algorithms. Each symmetric algorithm consists of an identifier for a KDF and an
 identifier for an AEAD.<a href="#section-4.1-1" class="pilcrow">¶</a></p>
 <p id="section-4.1-2"><a href="#format-key-config" class="xref">Figure 2</a> shows a single key configuration, KeyConfig, that is
-expressed using the TLS syntax; see Section 3 of <span>[<a href="#TLS" class="xref">TLS</a>]</span>.<a href="#section-4.1-2" class="pilcrow">¶</a></p>
+expressed using the TLS syntax; see <span><a href="https://rfc-editor.org/rfc/rfc8446#section-3" class="relref">Section 3</a> of [<a href="#TLS" class="xref">TLS</a>]</span>.<a href="#section-4.1-2" class="pilcrow">¶</a></p>
 <span id="name-a-single-key-configuration"></span><div id="format-key-config">
 <figure id="figure-2">
           <div class="artwork art-text alignLeft art-tls-syntax" id="section-4.1-3.1">
 <pre>
-opaque HpkePublicKey&lt;1..2^16-1&gt;;
+opaque HpkePublicKey[Npk];
 uint16 HpkeKemId;
 uint16 HpkeKdfId;
 uint16 HpkeAeadId;
@@ -1291,7 +1351,8 @@ struct {
 </div>
 <p id="section-4.1-4">The types HpkeKemId, HpkeKdfId, and HpkeAeadId identify a KEM, KDF, and AEAD
 respectively. The definitions for these identifiers and the semantics of the
-algorithms they identify can be found in <span>[<a href="#HPKE" class="xref">HPKE</a>]</span>.<a href="#section-4.1-4" class="pilcrow">¶</a></p>
+algorithms they identify can be found in <span>[<a href="#HPKE" class="xref">HPKE</a>]</span>. The Npk parameter
+corresponding to the HpkeKdfId can be found in <span>[<a href="#HPKE" class="xref">HPKE</a>]</span>.<a href="#section-4.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="ohttp-keys">
@@ -1457,9 +1518,10 @@ process for constructing and processing an Encapsulated Request.<a href="#sectio
 <pre>
 Encapsulated Request {
   Key Identifier (8),
+  KEM Identifier (16),
   KDF Identifier (16),
   AEAD Identifier (16),
-  Encapsulated KEM Shared Secret (..),
+  Encapsulated KEM Shared Secret (8*Nenc),
   AEAD-Protected Request (..),
 }
 </pre>
@@ -1468,12 +1530,13 @@ Encapsulated Request {
 <a href="#name-encapsulated-request" class="selfRef">Encapsulated Request</a>
         </figcaption></figure>
 </div>
-<p id="section-5-7">Responses are bound to responses and so consist only of AEAD-protected content.
+<p id="section-5-7">The Nenc parameter corresponding to the HpkeKdfId can be found in <span>[<a href="#HPKE" class="xref">HPKE</a>]</span>.<a href="#section-5-7" class="pilcrow">¶</a></p>
+<p id="section-5-8">Responses are bound to responses and so consist only of AEAD-protected content.
 <a href="#response" class="xref">Section 5.2</a> describes the process for constructing and processing an
-Encapsulated Response.<a href="#section-5-7" class="pilcrow">¶</a></p>
+Encapsulated Response.<a href="#section-5-8" class="pilcrow">¶</a></p>
 <span id="name-encapsulated-response"></span><div id="fig-enc-response">
 <figure id="figure-4">
-        <div class="artwork art-text alignLeft" id="section-5-8.1">
+        <div class="artwork art-text alignLeft" id="section-5-9.1">
 <pre>
 Encapsulated Response {
   Nonce (Nk),
@@ -1485,16 +1548,17 @@ Encapsulated Response {
 <a href="#name-encapsulated-response" class="selfRef">Encapsulated Response</a>
         </figcaption></figure>
 </div>
-<p id="section-5-9">The size of the Nonce field in an Encapsulated Response corresponds to the
-size of an AEAD key for the corresponding HPKE ciphersuite.<a href="#section-5-9" class="pilcrow">¶</a></p>
+<p id="section-5-10">The size of the Nonce field in an Encapsulated Response corresponds to the
+size of an AEAD key for the corresponding HPKE ciphersuite.<a href="#section-5-10" class="pilcrow">¶</a></p>
 <div id="request">
 <section id="section-5.1">
-        <h3 id="name-hpke-encapsulation-of-reque">
-<a href="#section-5.1" class="section-number selfRef">5.1. </a><a href="#name-hpke-encapsulation-of-reque" class="section-name selfRef">HPKE Encapsulation of Requests</a>
+        <h3 id="name-encapsulation-of-requests">
+<a href="#section-5.1" class="section-number selfRef">5.1. </a><a href="#name-encapsulation-of-requests" class="section-name selfRef">Encapsulation of Requests</a>
         </h3>
 <p id="section-5.1-1">Clients encapsulate a request <code>request</code> using values from a key configuration:<a href="#section-5.1-1" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-5.1-2.1">the key identifier from the configuration, <code>keyID</code>,<a href="#section-5.1-2.1" class="pilcrow">¶</a>
+<li class="normal" id="section-5.1-2.1">the key identifier from the configuration, <code>keyID</code>, with the corresponding KEM
+identified by <code>kemID</code>,<a href="#section-5.1-2.1" class="pilcrow">¶</a>
 </li>
           <li class="normal" id="section-5.1-2.2">the public key from the configuration, <code>pkR</code>, and<a href="#section-5.1-2.2" class="pilcrow">¶</a>
 </li>
@@ -1508,8 +1572,8 @@ size of an AEAD key for the corresponding HPKE ciphersuite.<a href="#section-5-9
 key <code>enc</code>.<a href="#section-5.1-4.1" class="pilcrow">¶</a>
 </li>
           <li id="section-5.1-4.2">Construct associated data, <code>aad</code>, by concatenating the values of <code>keyID</code>,
-<code>kdfID</code>, and <code>aeadID</code>, as 8-, 16- and 16-bit integers respectively, each in
-network byte order.<a href="#section-5.1-4.2" class="pilcrow">¶</a>
+<code>kemID</code>, <code>kdfID</code>, and <code>aeadID</code>, as one 8-bit integer and three 16-bit
+integers, respectively, each in network byte order.<a href="#section-5.1-4.2" class="pilcrow">¶</a>
 </li>
           <li id="section-5.1-4.3">Encrypt (seal) <code>request</code> with <code>aad</code> as associated data using <code>context</code>,
 yielding ciphertext <code>ct</code>.<a href="#section-5.1-4.3" class="pilcrow">¶</a>
@@ -1525,6 +1589,7 @@ structure.<a href="#section-5.1-5" class="pilcrow">¶</a></p>
 <pre>
 enc, context = SetupBaseS(pkR, "request")
 aad = concat(encode(1, keyID),
+             encode(2, kemID),
              encode(2, kdfID),
              encode(2, aeadID))
 ct = context.Seal(aad, request)
@@ -1535,11 +1600,12 @@ enc_request = concat(aad, enc, ct)
 Encapsulated Request <code>enc_request</code>, a server:<a href="#section-5.1-8" class="pilcrow">¶</a></p>
 <ol start="1" type="1" class="normal type-1" id="section-5.1-9">
 <li id="section-5.1-9.1">
-            <p id="section-5.1-9.1.1">Parses <code>enc_request</code> into <code>keyID</code>, <code>kdfID</code>, <code>aeadID</code>, <code>enc</code>, and <code>ct</code>
+            <p id="section-5.1-9.1.1">Parses <code>enc_request</code> into <code>keyID</code>, <code>kemID</code>, <code>kdfID</code>, <code>aeadID</code>, <code>enc</code>, and <code>ct</code>
 (indicated using the function <code>parse()</code> in pseudocode). The server is then
 able to find the HPKE private key, <code>skR</code>, corresponding to <code>keyID</code>.<a href="#section-5.1-9.1.1" class="pilcrow">¶</a></p>
 <p id="section-5.1-9.1.2">
-a. If <code>keyID</code> does not identify a key, the server returns an error.<a href="#section-5.1-9.1.2" class="pilcrow">¶</a></p>
+a. If <code>keyID</code> does not identify a key matching the type of <code>kemID</code>, the server
+   returns an error.<a href="#section-5.1-9.1.2" class="pilcrow">¶</a></p>
 <p id="section-5.1-9.1.3">
 b. If <code>kdfID</code> and <code>aeadID</code> identify a combination of KDF and AEAD that the
    server is unwilling to use with <code>skR</code>, the server returns an error.<a href="#section-5.1-9.1.3" class="pilcrow">¶</a></p>
@@ -1557,8 +1623,9 @@ on failure. If decryption fails, the server returns an error.<a href="#section-5
 <p id="section-5.1-10">In pseudocode, this procedure is as follows:<a href="#section-5.1-10" class="pilcrow">¶</a></p>
 <div class="artwork art-text alignLeft" id="section-5.1-11">
 <pre>
-keyID, kdfID, aeadID, enc, ct = parse(enc_request)
+keyID, kemID, kdfID, aeadID, enc, ct = parse(enc_request)
 aad = concat(encode(1, keyID),
+             encode(2, kemID),
              encode(2, kdfID),
              encode(2, aeadID))
 context = SetupBaseR(enc, skR, "request")
@@ -1569,8 +1636,8 @@ request, error = context.Open(aad, ct)
 </div>
 <div id="response">
 <section id="section-5.2">
-        <h3 id="name-hpke-encapsulation-of-respo">
-<a href="#section-5.2" class="section-number selfRef">5.2. </a><a href="#name-hpke-encapsulation-of-respo" class="section-name selfRef">HPKE Encapsulation of Responses</a>
+        <h3 id="name-encapsulation-of-responses">
+<a href="#section-5.2" class="section-number selfRef">5.2. </a><a href="#name-encapsulation-of-responses" class="section-name selfRef">Encapsulation of Responses</a>
         </h3>
 <p id="section-5.2-1">Given an HPKE context <code>context</code>, a request message <code>request</code>, and a response
 <code>response</code>, servers generate an Encapsulated Response <code>enc_response</code> as
@@ -1610,8 +1677,8 @@ secret = context.Export("response", Nk)
 response_nonce = random(max(Nn, Nk))
 salt = concat(enc, response_nonce)
 prk = Extract(salt, secret)
-aead_key = Expand(secret, "key", Nk)
-aead_nonce = Expand(secret, "nonce", Nn)
+aead_key = Expand(prk, "key", Nk)
+aead_nonce = Expand(prk, "nonce", Nn)
 ct = Seal(aead_key, aead_nonce, "", response)
 enc_response = concat(response_nonce, ct)
 </pre><a href="#section-5.2-4" class="pilcrow">¶</a>
@@ -1652,7 +1719,7 @@ request is copied from the client.  The oblivious proxy resource MUST NOT add
 information about the client to this request.<a href="#section-6-2" class="pilcrow">¶</a></p>
 <p id="section-6-3">When a response is received from the oblivious request resource, the oblivious
 proxy resource forwards the response according to the rules of an HTTP proxy;
-see Section 7.6 of <span>[<a href="#HTTP" class="xref">HTTP</a>]</span>.<a href="#section-6-3" class="pilcrow">¶</a></p>
+see <span><a href="https://tools.ietf.org/html/draft-ietf-httpbis-semantics-14#section-7.6" class="relref">Section 7.6</a> of [<a href="#HTTP" class="xref">HTTP</a>]</span>.<a href="#section-6-3" class="pilcrow">¶</a></p>
 <p id="section-6-4">An oblivious request resource, if it receives any response from the oblivious
 target resource, sends a single 200 response containing the encapsulated
 response.  Like the request from the client, this response MUST only contain
@@ -1661,7 +1728,7 @@ header field indicating the content type, and the encapsulated response as the
 response content.  As with requests, additional fields MAY be used to convey
 information that does not reveal information about the encapsulated response.<a href="#section-6-4" class="pilcrow">¶</a></p>
 <p id="section-6-5">An oblivious request resource acts as a gateway for requests to the oblivious
-target resource (see Section 7.6 of <span>[<a href="#HTTP" class="xref">HTTP</a>]</span>).  The one exception is that any
+target resource (see <span><a href="https://tools.ietf.org/html/draft-ietf-httpbis-semantics-14#section-7.6" class="relref">Section 7.6</a> of [<a href="#HTTP" class="xref">HTTP</a>]</span>).  The one exception is that any
 information it might forward in a response MUST be encapsulated, unless it is
 responding to errors it detects before removing encapsulation of the request;
 see <a href="#errors" class="xref">Section 6.2</a>.<a href="#section-6-5" class="pilcrow">¶</a></p>
@@ -1993,10 +2060,10 @@ operated by the same entity as the oblivious request resource. However,
 colocation of the oblivious request resource and oblivious target resource
 simplifies the interactions between those resources without affecting client
 privacy.<a href="#section-8-6" class="pilcrow">¶</a></p>
-<div id="client">
+<div id="client-responsibilities">
 <section id="section-8.1">
-        <h3 id="name-client">
-<a href="#section-8.1" class="section-number selfRef">8.1. </a><a href="#name-client" class="section-name selfRef">Client</a>
+        <h3 id="name-client-responsibilities">
+<a href="#section-8.1" class="section-number selfRef">8.1. </a><a href="#name-client-responsibilities" class="section-name selfRef">Client Responsibilities</a>
         </h3>
 <p id="section-8.1-1">Clients MUST ensure that the key configuration they select for generating
 encapsulated requests is integrity protected and authenticated so that it can
@@ -2039,7 +2106,7 @@ to perform. For each request it receives, it makes a request of the oblivious
 request resource that includes the same content. When it receives a response,
 it sends a response to the client that includes the content of the response
 from the oblivious request resource. When generating a request, the proxy MUST
-follow the forwarding rules in Section 7.6 of <span>[<a href="#HTTP" class="xref">HTTP</a>]</span>.<a href="#section-8.2-1" class="pilcrow">¶</a></p>
+follow the forwarding rules in <span><a href="https://tools.ietf.org/html/draft-ietf-httpbis-semantics-14#section-7.6" class="relref">Section 7.6</a> of [<a href="#HTTP" class="xref">HTTP</a>]</span>.<a href="#section-8.2-1" class="pilcrow">¶</a></p>
 <p id="section-8.2-2">A proxy can also generate responses, though it assumed to not be able to
 examine the content of a request (other than to observe the choice of key
 identifier, KDF, and AEAD), so it is also assumed that it cannot generate an
@@ -2057,11 +2124,11 @@ the same proxy (see <a href="#ta" class="xref">Section 8.2.2</a>), servers that 
 resource might need an arrangement with proxies. This arrangement might be
 necessary to prevent having the large volume of requests being classified as an
 attack by the server.<a href="#section-8.2.1-1" class="pilcrow">¶</a></p>
-<p id="section-8.2.1-2">If a server does accept a large volume of requests from a proxy, it needs to
+<p id="section-8.2.1-2">If a server accepts a larger volume of requests from a proxy, it needs to
 trust that the proxy does not allow abusive levels of request volumes from
 clients. That is, if a server allows requests from the proxy to be exempt from
-rate limits, the server might want to ensure that the proxy applies similar
-rate limiting when receiving requests from clients.<a href="#section-8.2.1-2" class="pilcrow">¶</a></p>
+rate limits, the server might want to ensure that the proxy applies a rate
+limiting policy that is acceptable to the server.<a href="#section-8.2.1-2" class="pilcrow">¶</a></p>
 <p id="section-8.2.1-3">Servers that enter into an agreement with a proxy that enables a higher request
 rate might choose to authenticate the proxy to enable the higher rate.<a href="#section-8.2.1-3" class="pilcrow">¶</a></p>
 </section>
@@ -2078,7 +2145,7 @@ single connection, traffic analysis could be used to match messages that are
 forwarded by the proxy.<a href="#section-8.2.2-1" class="pilcrow">¶</a></p>
 <p id="section-8.2.2-2">A proxy could, as part of its function, add delays in order to increase the
 anonymity set into which each message is attributed. This could latency to the
-overall time clients take to receive a response, which might not what some
+overall time clients take to receive a response, which might not be what some
 clients want.<a href="#section-8.2.2-2" class="pilcrow">¶</a></p>
 <p id="section-8.2.2-3">A proxy can use padding to reduce the effectiveness of traffic analysis.<a href="#section-8.2.2-3" class="pilcrow">¶</a></p>
 <p id="section-8.2.2-4">A proxy that forwards large volumes of exchanges can provide better privacy by
@@ -2114,70 +2181,169 @@ corresponds to the key identifier, but the encapsulated request cannot be
 successfully decrypted using the key.<a href="#section-8.3-5" class="pilcrow">¶</a></p>
 </section>
 </div>
+<div id="replay-attacks">
+<section id="section-8.4">
+        <h3 id="name-replay-attacks">
+<a href="#section-8.4" class="section-number selfRef">8.4. </a><a href="#name-replay-attacks" class="section-name selfRef">Replay Attacks</a>
+        </h3>
+<p id="section-8.4-1">Encapsulated requests can be copied and replayed by the oblivious proxy
+resource. The design of oblivious HTTP does not assume that the oblivious proxy
+resource will not replay requests. In addition, if a client sends an
+encapsulated request in TLS early data (see <span><a href="https://rfc-editor.org/rfc/rfc8446#section-8" class="relref">Section 8</a> of [<a href="#TLS" class="xref">TLS</a>]</span> and
+<span>[<a href="#RFC8470" class="xref">RFC8470</a>]</span>), a network-based adversary might be able to cause the request to
+be replayed. In both cases, the effect of a replay attack and the mitigations
+that might be employed are similar to TLS early data.<a href="#section-8.4-1" class="pilcrow">¶</a></p>
+<p id="section-8.4-2">A client or oblivious proxy resource MUST NOT automatically attempt to retry a
+failed request unless it receives a positive signal indicating that the request
+was not processed or forwarded. The HTTP/2 REFUSED_STREAM error code (Section
+8.1.4 of <span>[<a href="#RFC7540" class="xref">RFC7540</a>]</span>), the HTTP/3 H3_REQUEST_REJECTED error code (Section 8.1
+of <span>[<a href="#QUIC-HTTP" class="xref">QUIC-HTTP</a>]</span>), or a GOAWAY frame (in either protocol
+version) are all sufficient signals that no processing occurred. Connection
+failures or interruptions are not sufficient signals that no processing
+occurred.<a href="#section-8.4-2" class="pilcrow">¶</a></p>
+<p id="section-8.4-3">The anti-replay mechanisms described in <span><a href="https://rfc-editor.org/rfc/rfc8446#section-8" class="relref">Section 8</a> of [<a href="#TLS" class="xref">TLS</a>]</span> are generally
+applicable to oblivious HTTP requests. Servers can use the encapsulated keying
+material as a unique key for identifying potential replays.<a href="#section-8.4-3" class="pilcrow">¶</a></p>
+<p id="section-8.4-4">The mechanism used in TLS for managing differences in client and server clocks
+cannot be used as it depends on being able to observe previous interactions.
+Oblivious HTTP explicitly prevents such linkability.
+Applications can still include an explicit indication of time to limit the span
+of time over which a server might need to track accepted requests. Clock
+information could be used for client identification, so reduction in precision
+or obfuscation might be necessary.<a href="#section-8.4-4" class="pilcrow">¶</a></p>
+<p id="section-8.4-5">The considerations in <span>[<a href="#RFC8470" class="xref">RFC8470</a>]</span> as they relate to managing the risk of
+replay also apply, though there is no option to delay the processing of a
+request.<a href="#section-8.4-5" class="pilcrow">¶</a></p>
+<p id="section-8.4-6">Limiting requests to those with safe methods might not be satisfactory for some
+applications, particularly those that involve the submission of data to a
+server. The use of idempotent methods might be of some use in managing replay
+risk, though it is important to recognize that different idempotent requests
+can be combined to be not idempotent.<a href="#section-8.4-6" class="pilcrow">¶</a></p>
+<p id="section-8.4-7">Idempotent actions with a narrow scope based on the value of a protected nonce
+could enable data submission with limited replay exposure. A nonce might be
+added as an explicit part of a request, or, if the oblivious request and target
+resources are co-located, the encapsulated keying material can be used to
+produce a nonce.<a href="#section-8.4-7" class="pilcrow">¶</a></p>
+<p id="section-8.4-8">The server-chosen <code>response_nonce</code> field ensures that responses have unique
+AEAD keys and nonces even when requests are replayed.<a href="#section-8.4-8" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="post-compromise-security">
+<section id="section-8.5">
+        <h3 id="name-post-compromise-security">
+<a href="#section-8.5" class="section-number selfRef">8.5. </a><a href="#name-post-compromise-security" class="section-name selfRef">Post-Compromise Security</a>
+        </h3>
+<p id="section-8.5-1">This design does not provide post-compromise security for responses. A client
+only needs to retain keying material that might be used compromise the
+confidentiality and integrity of a response until that response is consumed, so
+there is negligible risk associated with a client compromise.<a href="#section-8.5-1" class="pilcrow">¶</a></p>
+<p id="section-8.5-2">A server retains a secret key that might be used to remove protection from messages
+over much longer periods. A server compromise that provided access to the
+oblivious request resource secret key could allow an attacker to recover the
+plaintext of all requests sent toward affected keys and all of the responses
+that were generated. Accessing requests and responses also requires access to
+requests and responses, which implies either compromise of TLS connections or
+collusion with the oblivious proxy resource.<a href="#section-8.5-2" class="pilcrow">¶</a></p>
+<p id="section-8.5-3">The total number of affected messages affected by server key compromise can be
+limited by regular rotation of server keys.<a href="#section-8.5-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="privacy">
+<section id="section-9">
+      <h2 id="name-privacy-considerations">
+<a href="#section-9" class="section-number selfRef">9. </a><a href="#name-privacy-considerations" class="section-name selfRef">Privacy Considerations</a>
+      </h2>
+<p id="section-9-1">One goal of this design is that independent client requests are only linkable
+by the chosen key configuration. The oblivious proxy and request resources can link
+requests using the same key configuration by matching KeyConfig.key_id, or, if
+the oblivious target resource is willing to use trial decryption, a limited set
+of key configurations that share an identifier. An oblivious proxy can link
+requests using the public key corresponding to KeyConfig.key_id.<a href="#section-9-1" class="pilcrow">¶</a></p>
+<p id="section-9-2">Request resources are capable of linking requests depending on how KeyConfigs
+are produced by servers and discovered by clients. Specifically, servers can
+maliciously construct key configurations to track individual clients. A specific
+method for a client to acquire key configurations is not included in this
+specification. Clients need to consider these tracking vectors when choosing a
+discovery method.  Applications using this design should provide accommodations
+to mitigate tracking.<a href="#section-9-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="iana-considerations">
-<section id="section-9">
+<section id="section-10">
       <h2 id="name-iana-considerations">
-<a href="#section-9" class="section-number selfRef">9. </a><a href="#name-iana-considerations" class="section-name selfRef">IANA Considerations</a>
+<a href="#section-10" class="section-number selfRef">10. </a><a href="#name-iana-considerations" class="section-name selfRef">IANA Considerations</a>
       </h2>
-<p id="section-9-1">Please update the "Media Types" registry at
+<p id="section-10-1">Please update the "Media Types" registry at
 <a href="https://www.iana.org/assignments/media-types">https://www.iana.org/assignments/media-types</a> with the registration
 information in <a href="#media-types" class="xref">Section 7</a> for the media types "message/ohttp-req",
-"message/ohttp-res", and "application/ohttp-keys".<a href="#section-9-1" class="pilcrow">¶</a></p>
+"message/ohttp-res", and "application/ohttp-keys".<a href="#section-10-1" class="pilcrow">¶</a></p>
 </section>
 </div>
-<section id="section-10">
+<section id="section-11">
       <h2 id="name-references">
-<a href="#section-10" class="section-number selfRef">10. </a><a href="#name-references" class="section-name selfRef">References</a>
+<a href="#section-11" class="section-number selfRef">11. </a><a href="#name-references" class="section-name selfRef">References</a>
       </h2>
-<section id="section-10.1">
+<section id="section-11.1">
         <h3 id="name-normative-references">
-<a href="#section-10.1" class="section-number selfRef">10.1. </a><a href="#name-normative-references" class="section-name selfRef">Normative References</a>
+<a href="#section-11.1" class="section-number selfRef">11.1. </a><a href="#name-normative-references" class="section-name selfRef">Normative References</a>
         </h3>
 <dl class="references">
 <dt id="BINARY">[BINARY]</dt>
         <dd>
-<span class="refAuthor">Thomson, M.</span>, <span class="refTitle">"Binary Representation of HTTP Messages"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-http-binary-message-latest</span>, <time datetime="2021-01-28" class="refDate">28 January 2021</time>, <span>&lt;<a href="https://tools.ietf.org/html/draft-ietf-http-binary-message-latest">https://tools.ietf.org/html/draft-ietf-http-binary-message-latest</a>&gt;</span>. </dd>
+<span class="refAuthor">Thomson, M.</span>, <span class="refTitle">"Binary Representation of HTTP Messages"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-http-binary-message-latest</span>, <time datetime="2021-03-01" class="refDate">1 March 2021</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-http-binary-message-latest.txt">https://datatracker.ietf.org/doc/html/draft-ietf-http-binary-message-latest.txt</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="HPKE">[HPKE]</dt>
         <dd>
-<span class="refAuthor">Barnes, R.</span><span class="refAuthor">, Bhargavan, K.</span><span class="refAuthor">, Lipp, B.</span><span class="refAuthor">, and C. Wood</span>, <span class="refTitle">"Hybrid Public Key Encryption"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-irtf-cfrg-hpke-07</span>, <time datetime="2020-12-16" class="refDate">16 December 2020</time>, <span>&lt;<a href="http://www.ietf.org/internet-drafts/draft-irtf-cfrg-hpke-07.txt">http://www.ietf.org/internet-drafts/draft-irtf-cfrg-hpke-07.txt</a>&gt;</span>. </dd>
+<span class="refAuthor">Barnes, R. L.</span><span class="refAuthor">, Bhargavan, K.</span><span class="refAuthor">, Lipp, B.</span><span class="refAuthor">, and C. A. Wood</span>, <span class="refTitle">"Hybrid Public Key Encryption"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-irtf-cfrg-hpke-08</span>, <time datetime="2021-02-15" class="refDate">15 February 2021</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-hpke-08.txt">https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-hpke-08.txt</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="HTTP">[HTTP]</dt>
         <dd>
-<span class="refAuthor">Fielding, R.</span><span class="refAuthor">, Nottingham, M.</span><span class="refAuthor">, and J. Reschke</span>, <span class="refTitle">"HTTP Semantics"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-httpbis-semantics-14</span>, <time datetime="2021-01-12" class="refDate">12 January 2021</time>, <span>&lt;<a href="http://www.ietf.org/internet-drafts/draft-ietf-httpbis-semantics-14.txt">http://www.ietf.org/internet-drafts/draft-ietf-httpbis-semantics-14.txt</a>&gt;</span>. </dd>
+<span class="refAuthor">Fielding, R. T.</span><span class="refAuthor">, Nottingham, M.</span><span class="refAuthor">, and J. Reschke</span>, <span class="refTitle">"HTTP Semantics"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-httpbis-semantics-14</span>, <time datetime="2021-01-12" class="refDate">12 January 2021</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-semantics-14.txt">https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-semantics-14.txt</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="QUIC">[QUIC]</dt>
         <dd>
-<span class="refAuthor">Iyengar, J.</span><span class="refAuthor"> and M. Thomson</span>, <span class="refTitle">"QUIC: A UDP-Based Multiplexed and Secure Transport"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-quic-transport-34</span>, <time datetime="2021-01-14" class="refDate">14 January 2021</time>, <span>&lt;<a href="http://www.ietf.org/internet-drafts/draft-ietf-quic-transport-34.txt">http://www.ietf.org/internet-drafts/draft-ietf-quic-transport-34.txt</a>&gt;</span>. </dd>
+<span class="refAuthor">Iyengar, J.</span><span class="refAuthor"> and M. Thomson</span>, <span class="refTitle">"QUIC: A UDP-Based Multiplexed and Secure Transport"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-quic-transport-34</span>, <time datetime="2021-01-14" class="refDate">14 January 2021</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-quic-transport-34.txt">https://datatracker.ietf.org/doc/html/draft-ietf-quic-transport-34.txt</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="QUIC-HTTP">[QUIC-HTTP]</dt>
+        <dd>
+<span class="refAuthor">Bishop, M.</span>, <span class="refTitle">"Hypertext Transfer Protocol Version 3 (HTTP/3)"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-quic-http-34</span>, <time datetime="2021-02-02" class="refDate">2 February 2021</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-quic-http-34.txt">https://datatracker.ietf.org/doc/html/draft-ietf-quic-http-34.txt</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC2119">[RFC2119]</dt>
         <dd>
-<span class="refAuthor">Bradner, S.</span>, <span class="refTitle">"Key words for use in RFCs to Indicate Requirement Levels"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 2119</span>, <span class="seriesInfo">DOI 10.17487/RFC2119</span>, <time datetime="1997-03" class="refDate">March 1997</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc2119">https://www.rfc-editor.org/info/rfc2119</a>&gt;</span>. </dd>
+<span class="refAuthor">Bradner, S.</span>, <span class="refTitle">"Key words for use in RFCs to Indicate Requirement Levels"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 2119</span>, <span class="seriesInfo">DOI 10.17487/RFC2119</span>, <time datetime="1997-03" class="refDate">March 1997</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/rfc2119">https://datatracker.ietf.org/doc/html/rfc2119</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC7540">[RFC7540]</dt>
+        <dd>
+<span class="refAuthor">Belshe, M.</span><span class="refAuthor">, Peon, R.</span><span class="refAuthor">, and M. Thomson, Ed.</span>, <span class="refTitle">"Hypertext Transfer Protocol Version 2 (HTTP/2)"</span>, <span class="seriesInfo">RFC 7540</span>, <span class="seriesInfo">DOI 10.17487/RFC7540</span>, <time datetime="2015-05" class="refDate">May 2015</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/rfc7540">https://datatracker.ietf.org/doc/html/rfc7540</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC8174">[RFC8174]</dt>
         <dd>
-<span class="refAuthor">Leiba, B.</span>, <span class="refTitle">"Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 8174</span>, <span class="seriesInfo">DOI 10.17487/RFC8174</span>, <time datetime="2017-05" class="refDate">May 2017</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc8174">https://www.rfc-editor.org/info/rfc8174</a>&gt;</span>. </dd>
+<span class="refAuthor">Leiba, B.</span>, <span class="refTitle">"Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 8174</span>, <span class="seriesInfo">DOI 10.17487/RFC8174</span>, <time datetime="2017-05" class="refDate">May 2017</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/rfc8174">https://datatracker.ietf.org/doc/html/rfc8174</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC8470">[RFC8470]</dt>
+        <dd>
+<span class="refAuthor">Thomson, M.</span><span class="refAuthor">, Nottingham, M.</span><span class="refAuthor">, and W. Tarreau</span>, <span class="refTitle">"Using Early Data in HTTP"</span>, <span class="seriesInfo">RFC 8470</span>, <span class="seriesInfo">DOI 10.17487/RFC8470</span>, <time datetime="2018-09" class="refDate">September 2018</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/rfc8470">https://datatracker.ietf.org/doc/html/rfc8470</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="TLS">[TLS]</dt>
       <dd>
-<span class="refAuthor">Rescorla, E.</span>, <span class="refTitle">"The Transport Layer Security (TLS) Protocol Version 1.3"</span>, <span class="seriesInfo">RFC 8446</span>, <span class="seriesInfo">DOI 10.17487/RFC8446</span>, <time datetime="2018-08" class="refDate">August 2018</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc8446">https://www.rfc-editor.org/info/rfc8446</a>&gt;</span>. </dd>
+<span class="refAuthor">Rescorla, E.</span>, <span class="refTitle">"The Transport Layer Security (TLS) Protocol Version 1.3"</span>, <span class="seriesInfo">RFC 8446</span>, <span class="seriesInfo">DOI 10.17487/RFC8446</span>, <time datetime="2018-08" class="refDate">August 2018</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/rfc8446">https://datatracker.ietf.org/doc/html/rfc8446</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 </dl>
 </section>
-<section id="section-10.2">
+<section id="section-11.2">
         <h3 id="name-informative-references">
-<a href="#section-10.2" class="section-number selfRef">10.2. </a><a href="#name-informative-references" class="section-name selfRef">Informative References</a>
+<a href="#section-11.2" class="section-number selfRef">11.2. </a><a href="#name-informative-references" class="section-name selfRef">Informative References</a>
         </h3>
 <dl class="references">
 <dt id="ALT-SVC">[ALT-SVC]</dt>
         <dd>
-<span class="refAuthor">Nottingham, M.</span><span class="refAuthor">, McManus, P.</span><span class="refAuthor">, and J. Reschke</span>, <span class="refTitle">"HTTP Alternative Services"</span>, <span class="seriesInfo">RFC 7838</span>, <span class="seriesInfo">DOI 10.17487/RFC7838</span>, <time datetime="2016-04" class="refDate">April 2016</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc7838">https://www.rfc-editor.org/info/rfc7838</a>&gt;</span>. </dd>
+<span class="refAuthor">Nottingham, M.</span><span class="refAuthor">, McManus, P.</span><span class="refAuthor">, and J. Reschke</span>, <span class="refTitle">"HTTP Alternative Services"</span>, <span class="seriesInfo">RFC 7838</span>, <span class="seriesInfo">DOI 10.17487/RFC7838</span>, <time datetime="2016-04" class="refDate">April 2016</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/rfc7838">https://datatracker.ietf.org/doc/html/rfc7838</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="COOKIES">[COOKIES]</dt>
         <dd>
-<span class="refAuthor">Barth, A.</span>, <span class="refTitle">"HTTP State Management Mechanism"</span>, <span class="seriesInfo">RFC 6265</span>, <span class="seriesInfo">DOI 10.17487/RFC6265</span>, <time datetime="2011-04" class="refDate">April 2011</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc6265">https://www.rfc-editor.org/info/rfc6265</a>&gt;</span>. </dd>
+<span class="refAuthor">Barth, A.</span>, <span class="refTitle">"HTTP State Management Mechanism"</span>, <span class="seriesInfo">RFC 6265</span>, <span class="seriesInfo">DOI 10.17487/RFC6265</span>, <time datetime="2011-04" class="refDate">April 2011</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/rfc6265">https://datatracker.ietf.org/doc/html/rfc6265</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="Dingledine2004">[Dingledine2004]</dt>
         <dd>
@@ -2185,19 +2351,35 @@ information in <a href="#media-types" class="xref">Section 7</a> for the media t
 <dd class="break"></dd>
 <dt id="FORWARDED">[FORWARDED]</dt>
         <dd>
-<span class="refAuthor">Petersson, A.</span><span class="refAuthor"> and M. Nilsson</span>, <span class="refTitle">"Forwarded HTTP Extension"</span>, <span class="seriesInfo">RFC 7239</span>, <span class="seriesInfo">DOI 10.17487/RFC7239</span>, <time datetime="2014-06" class="refDate">June 2014</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc7239">https://www.rfc-editor.org/info/rfc7239</a>&gt;</span>. </dd>
+<span class="refAuthor">Petersson, A.</span><span class="refAuthor"> and M. Nilsson</span>, <span class="refTitle">"Forwarded HTTP Extension"</span>, <span class="seriesInfo">RFC 7239</span>, <span class="seriesInfo">DOI 10.17487/RFC7239</span>, <time datetime="2014-06" class="refDate">June 2014</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/rfc7239">https://datatracker.ietf.org/doc/html/rfc7239</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="I-D.ietf-httpbis-semantics">[I-D.ietf-httpbis-semantics]</dt>
+        <dd>
+<span class="refAuthor">Fielding, R. T.</span><span class="refAuthor">, Nottingham, M.</span><span class="refAuthor">, and J. Reschke</span>, <span class="refTitle">"HTTP Semantics"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-httpbis-semantics-14</span>, <time datetime="2021-01-12" class="refDate">12 January 2021</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-semantics-14.txt">https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-semantics-14.txt</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="ODOH">[ODOH]</dt>
         <dd>
-<span class="refAuthor">Kinnear, E.</span><span class="refAuthor">, McManus, P.</span><span class="refAuthor">, Pauly, T.</span><span class="refAuthor">, and C. Wood</span>, <span class="refTitle">"Oblivious DNS Over HTTPS"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-pauly-dprive-oblivious-doh-04</span>, <time datetime="2021-01-26" class="refDate">26 January 2021</time>, <span>&lt;<a href="http://www.ietf.org/internet-drafts/draft-pauly-dprive-oblivious-doh-04.txt">http://www.ietf.org/internet-drafts/draft-pauly-dprive-oblivious-doh-04.txt</a>&gt;</span>. </dd>
+<span class="refAuthor">Kinnear, E.</span><span class="refAuthor">, McManus, P.</span><span class="refAuthor">, Pauly, T.</span><span class="refAuthor">, and C. A. Wood</span>, <span class="refTitle">"Oblivious DNS Over HTTPS"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-pauly-dprive-oblivious-doh-05</span>, <time datetime="2021-02-21" class="refDate">21 February 2021</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-pauly-dprive-oblivious-doh-05.txt">https://datatracker.ietf.org/doc/html/draft-pauly-dprive-oblivious-doh-05.txt</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="PRIO">[PRIO]</dt>
+        <dd>
+<span class="refAuthor">Corrigan-Gibbs, H.</span><span class="refAuthor"> and D. Boneh</span>, <span class="refTitle">"Prio: Private, Robust, and Scalable Computation of Aggregate Statistics"</span>, <time datetime="2017-03-14" class="refDate">14 March 2017</time>, <span>&lt;<a href="https://crypto.stanford.edu/prio/paper.pdf">https://crypto.stanford.edu/prio/paper.pdf</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RANDOM">[RANDOM]</dt>
         <dd>
-<span class="refAuthor">Eastlake 3rd, D.</span><span class="refAuthor">, Schiller, J.</span><span class="refAuthor">, and S. Crocker</span>, <span class="refTitle">"Randomness Requirements for Security"</span>, <span class="seriesInfo">BCP 106</span>, <span class="seriesInfo">RFC 4086</span>, <span class="seriesInfo">DOI 10.17487/RFC4086</span>, <time datetime="2005-06" class="refDate">June 2005</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc4086">https://www.rfc-editor.org/info/rfc4086</a>&gt;</span>. </dd>
+<span class="refAuthor">Eastlake 3rd, D.</span><span class="refAuthor">, Schiller, J.</span><span class="refAuthor">, and S. Crocker</span>, <span class="refTitle">"Randomness Requirements for Security"</span>, <span class="seriesInfo">BCP 106</span>, <span class="seriesInfo">RFC 4086</span>, <span class="seriesInfo">DOI 10.17487/RFC4086</span>, <time datetime="2005-06" class="refDate">June 2005</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/rfc4086">https://datatracker.ietf.org/doc/html/rfc4086</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC6265">[RFC6265]</dt>
+        <dd>
+<span class="refAuthor">Barth, A.</span>, <span class="refTitle">"HTTP State Management Mechanism"</span>, <span class="seriesInfo">RFC 6265</span>, <span class="seriesInfo">DOI 10.17487/RFC6265</span>, <time datetime="2011-04" class="refDate">April 2011</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/rfc6265">https://datatracker.ietf.org/doc/html/rfc6265</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC7838">[RFC7838]</dt>
+        <dd>
+<span class="refAuthor">Nottingham, M.</span><span class="refAuthor">, McManus, P.</span><span class="refAuthor">, and J. Reschke</span>, <span class="refTitle">"HTTP Alternative Services"</span>, <span class="seriesInfo">RFC 7838</span>, <span class="seriesInfo">DOI 10.17487/RFC7838</span>, <time datetime="2016-04" class="refDate">April 2016</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/rfc7838">https://datatracker.ietf.org/doc/html/rfc7838</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="X25519">[X25519]</dt>
       <dd>
-<span class="refAuthor">Langley, A.</span><span class="refAuthor">, Hamburg, M.</span><span class="refAuthor">, and S. Turner</span>, <span class="refTitle">"Elliptic Curves for Security"</span>, <span class="seriesInfo">RFC 7748</span>, <span class="seriesInfo">DOI 10.17487/RFC7748</span>, <time datetime="2016-01" class="refDate">January 2016</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc7748">https://www.rfc-editor.org/info/rfc7748</a>&gt;</span>. </dd>
+<span class="refAuthor">Langley, A.</span><span class="refAuthor">, Hamburg, M.</span><span class="refAuthor">, and S. Turner</span>, <span class="refTitle">"Elliptic Curves for Security"</span>, <span class="seriesInfo">RFC 7748</span>, <span class="seriesInfo">DOI 10.17487/RFC7748</span>, <time datetime="2016-01" class="refDate">January 2016</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/rfc7748">https://datatracker.ietf.org/doc/html/rfc7748</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 </dl>
 </section>
@@ -2228,29 +2410,40 @@ corresponding public key as follows:<a href="#section-appendix.a-4" class="pilcr
 </pre><a href="#section-appendix.a-5" class="pilcrow">¶</a>
 </div>
 <p id="section-appendix.a-6">This key configuration is somehow obtained by the client. Then when a client
-wishes to send an HTTP request of a GET request to <code>https://example.com</code>, it constructs the following binary HTTP message:<a href="#section-appendix.a-6" class="pilcrow">¶</a></p>
+wishes to send an HTTP request of a GET request to <code>https://example.com</code>, it
+constructs the following binary HTTP message:<a href="#section-appendix.a-6" class="pilcrow">¶</a></p>
 <div class="artwork art-text alignLeft" id="section-appendix.a-7">
 <pre>
 00034745540568747470730b6578616d706c652e636f6d012f
 </pre><a href="#section-appendix.a-7" class="pilcrow">¶</a>
 </div>
-<p id="section-appendix.a-8">The client then reads the oblivious request resource key configuration and selects a mutually supported KDF and AEAD. In this example, the client selects HKDF-SHA256 and AES-128-GCM. The client then generates an X25519 key pair:<a href="#section-appendix.a-8" class="pilcrow">¶</a></p>
+<p id="section-appendix.a-8">The client then reads the oblivious request resource key configuration and
+selects a mutually supported KDF and AEAD. In this example, the client selects
+HKDF-SHA256 and AES-128-GCM. The client then generates an HPKE context that
+uses the server public key. This results in the following encapsulated key:<a href="#section-appendix.a-8" class="pilcrow">¶</a></p>
 <div class="artwork art-text alignLeft" id="section-appendix.a-9">
 <pre>
-3b04f76e7ea1313484dd73c343adb94c23671f98cb66fc7ecc6127f38e1d4431
+a7e0dffe93bc9ed807b51588f10669cd2f09ceb7f6a71153658275993eb88276
 </pre><a href="#section-appendix.a-9" class="pilcrow">¶</a>
 </div>
-<p id="section-appendix.a-10">This allows the client to construct an encapsulated request:<a href="#section-appendix.a-10" class="pilcrow">¶</a></p>
+<p id="section-appendix.a-10">The corresponding private key is:<a href="#section-appendix.a-10" class="pilcrow">¶</a></p>
 <div class="artwork art-text alignLeft" id="section-appendix.a-11">
+<pre>
+3b04f76e7ea1313484dd73c343adb94c23671f98cb66fc7ecc6127f38e1d4431
+</pre><a href="#section-appendix.a-11" class="pilcrow">¶</a>
+</div>
+<p id="section-appendix.a-12">Applying the Seal operation from the HPKE context produces an encrypted
+message, allowing the client to construct the following encapsulated request:<a href="#section-appendix.a-12" class="pilcrow">¶</a></p>
+<div class="artwork art-text alignLeft" id="section-appendix.a-13">
 <pre>
 0100010001a7e0dffe93bc9ed807b51588f10669cd2f09ceb7f6a71153658275
 993eb88276b497362592977a4abc7857cf9892377af698ca0ee31fe72d21ca12
 6ff2074eb9292ce7a83fc53158ff
-</pre><a href="#section-appendix.a-11" class="pilcrow">¶</a>
+</pre><a href="#section-appendix.a-13" class="pilcrow">¶</a>
 </div>
-<p id="section-appendix.a-12">The client then sends this to the oblivious proxy resource in a POST request,
-which might look like the following HTTP/1.1 request:<a href="#section-appendix.a-12" class="pilcrow">¶</a></p>
-<div class="artwork art-text alignLeft art-http-message" id="section-appendix.a-13">
+<p id="section-appendix.a-14">The client then sends this to the oblivious proxy resource in a POST request,
+which might look like the following HTTP/1.1 request:<a href="#section-appendix.a-14" class="pilcrow">¶</a></p>
+<div class="artwork art-text alignLeft art-http-message" id="section-appendix.a-15">
 <pre>
 POST /request.example.net/proxy HTTP/1.1
 Host: proxy.example.org
@@ -2258,11 +2451,11 @@ Content-Type: message/ohttp-req
 Content-Length: 78
 
 &lt;content is the encapsulated request above&gt;
-</pre><a href="#section-appendix.a-13" class="pilcrow">¶</a>
+</pre><a href="#section-appendix.a-15" class="pilcrow">¶</a>
 </div>
-<p id="section-appendix.a-14">The oblivious proxy resource receives this request and forwards it to the
-oblivious request resource, which might look like:<a href="#section-appendix.a-14" class="pilcrow">¶</a></p>
-<div class="artwork art-text alignLeft art-http-message" id="section-appendix.a-15">
+<p id="section-appendix.a-16">The oblivious proxy resource receives this request and forwards it to the
+oblivious request resource, which might look like:<a href="#section-appendix.a-16" class="pilcrow">¶</a></p>
+<div class="artwork art-text alignLeft art-http-message" id="section-appendix.a-17">
 <pre>
 POST /oblivious/request HTTP/1.1
 Host: example.com
@@ -2270,65 +2463,65 @@ Content-Type: message/ohttp-req
 Content-Length: 78
 
 &lt;content is the encapsulated request above&gt;
-</pre><a href="#section-appendix.a-15" class="pilcrow">¶</a>
+</pre><a href="#section-appendix.a-17" class="pilcrow">¶</a>
 </div>
-<p id="section-appendix.a-16">The oblivous request resource receives this request, selects the key it
+<p id="section-appendix.a-18">The oblivous request resource receives this request, selects the key it
 generated previously using the key identifier from the message, and decrypts
 the message. As this request is directed to the same server, the oblivious
 request resource does not need to initiate an HTTP request to the oblivious
 target resource. The request can be served directly by the oblivious target
 resource, which generates a minimal response (consisting of just a 200 status
-code) as follows:<a href="#section-appendix.a-16" class="pilcrow">¶</a></p>
-<div class="artwork art-text alignLeft" id="section-appendix.a-17">
-<pre>
-0140c8
-</pre><a href="#section-appendix.a-17" class="pilcrow">¶</a>
-</div>
-<p id="section-appendix.a-18">The response is constructed by extracting a secret from the HPKE context:<a href="#section-appendix.a-18" class="pilcrow">¶</a></p>
+code) as follows:<a href="#section-appendix.a-18" class="pilcrow">¶</a></p>
 <div class="artwork art-text alignLeft" id="section-appendix.a-19">
 <pre>
-861c67eefd91906068ee3208a9102274
+0140c8
 </pre><a href="#section-appendix.a-19" class="pilcrow">¶</a>
 </div>
-<p id="section-appendix.a-20">The key derivation for the encapsulated response uses both the encapsulated KEM
-key from the request and a randomly selected nonce. This produces a salt of:<a href="#section-appendix.a-20" class="pilcrow">¶</a></p>
+<p id="section-appendix.a-20">The response is constructed by extracting a secret from the HPKE context:<a href="#section-appendix.a-20" class="pilcrow">¶</a></p>
 <div class="artwork art-text alignLeft" id="section-appendix.a-21">
+<pre>
+861c67eefd91906068ee3208a9102274
+</pre><a href="#section-appendix.a-21" class="pilcrow">¶</a>
+</div>
+<p id="section-appendix.a-22">The key derivation for the encapsulated response uses both the encapsulated KEM
+key from the request and a randomly selected nonce. This produces a salt of:<a href="#section-appendix.a-22" class="pilcrow">¶</a></p>
+<div class="artwork art-text alignLeft" id="section-appendix.a-23">
 <pre>
 a7e0dffe93bc9ed807b51588f10669cd2f09ceb7f6a71153658275993eb88276
 55645b6626d6e8b1163d739c6cd3d94a
-</pre><a href="#section-appendix.a-21" class="pilcrow">¶</a>
-</div>
-<p id="section-appendix.a-22">The salt and secret are both passed to the Extract function of the selected KDF
-(HKDF-SHA256) to produce a pseudorandom key of:<a href="#section-appendix.a-22" class="pilcrow">¶</a></p>
-<div class="artwork art-text alignLeft" id="section-appendix.a-23">
-<pre>
-ac29e0e1df48de4b349bb97db74da7f6732557a2fa6d12019ddadd8bf1e9cd99
 </pre><a href="#section-appendix.a-23" class="pilcrow">¶</a>
 </div>
-<p id="section-appendix.a-24">The pseudorandom key is used with the Expand function of the KDF and an info
-field of "key" to produce a 16-byte key for the selected AEAD (AES-128-GCM):<a href="#section-appendix.a-24" class="pilcrow">¶</a></p>
+<p id="section-appendix.a-24">The salt and secret are both passed to the Extract function of the selected KDF
+(HKDF-SHA256) to produce a pseudorandom key of:<a href="#section-appendix.a-24" class="pilcrow">¶</a></p>
 <div class="artwork art-text alignLeft" id="section-appendix.a-25">
 <pre>
-0d81ce961eb6e61d510e18053418f316
+ac29e0e1df48de4b349bb97db74da7f6732557a2fa6d12019ddadd8bf1e9cd99
 </pre><a href="#section-appendix.a-25" class="pilcrow">¶</a>
 </div>
-<p id="section-appendix.a-26">With the same KDF and pseudorandom key, an info field of "nonce" is used to
-generate a 12-byte nonce:<a href="#section-appendix.a-26" class="pilcrow">¶</a></p>
+<p id="section-appendix.a-26">The pseudorandom key is used with the Expand function of the KDF and an info
+field of "key" to produce a 16-byte key for the selected AEAD (AES-128-GCM):<a href="#section-appendix.a-26" class="pilcrow">¶</a></p>
 <div class="artwork art-text alignLeft" id="section-appendix.a-27">
 <pre>
-ba2d3637b5f041cc15ef73b2
+0d81ce961eb6e61d510e18053418f316
 </pre><a href="#section-appendix.a-27" class="pilcrow">¶</a>
 </div>
-<p id="section-appendix.a-28">The AEAD Seal function is then used to encrypt the response, which is added
-to the randomized nonce value to produce the encapsulated response:<a href="#section-appendix.a-28" class="pilcrow">¶</a></p>
+<p id="section-appendix.a-28">With the same KDF and pseudorandom key, an info field of "nonce" is used to
+generate a 12-byte nonce:<a href="#section-appendix.a-28" class="pilcrow">¶</a></p>
 <div class="artwork art-text alignLeft" id="section-appendix.a-29">
+<pre>
+ba2d3637b5f041cc15ef73b2
+</pre><a href="#section-appendix.a-29" class="pilcrow">¶</a>
+</div>
+<p id="section-appendix.a-30">The AEAD Seal function is then used to encrypt the response, which is added
+to the randomized nonce value to produce the encapsulated response:<a href="#section-appendix.a-30" class="pilcrow">¶</a></p>
+<div class="artwork art-text alignLeft" id="section-appendix.a-31">
 <pre>
 55645b6626d6e8b1163d739c6cd3d94ac7e0cfd48adf8057517241ee220d20bc
 e00a4a
-</pre><a href="#section-appendix.a-29" class="pilcrow">¶</a>
+</pre><a href="#section-appendix.a-31" class="pilcrow">¶</a>
 </div>
-<p id="section-appendix.a-30">The oblivious request resource then constructs a response:<a href="#section-appendix.a-30" class="pilcrow">¶</a></p>
-<div class="artwork art-text alignLeft art-http-message" id="section-appendix.a-31">
+<p id="section-appendix.a-32">The oblivious request resource then constructs a response:<a href="#section-appendix.a-32" class="pilcrow">¶</a></p>
+<div class="artwork art-text alignLeft art-http-message" id="section-appendix.a-33">
 <pre>
 HTTP/1.1 200 OK
 Date: Wed, 27 Jan 2021 04:45:07 GMT
@@ -2337,12 +2530,12 @@ Content-Type: message/ohttp-res
 Content-Length: 38
 
 &lt;content is the encapsulated response&gt;
-</pre><a href="#section-appendix.a-31" class="pilcrow">¶</a>
+</pre><a href="#section-appendix.a-33" class="pilcrow">¶</a>
 </div>
-<p id="section-appendix.a-32">The same response might then be generated by the oblivious proxy resource which
+<p id="section-appendix.a-34">The same response might then be generated by the oblivious proxy resource which
 might change as little as the Date header. The client is then able to use the
 HPKE context it created and the nonce from the encapsulated response to
-construct the AEAD key and nonce and decrypt the response.<a href="#section-appendix.a-32" class="pilcrow">¶</a></p>
+construct the AEAD key and nonce and decrypt the response.<a href="#section-appendix.a-34" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="acknowledgments">
