@@ -5,8 +5,8 @@
 HTTPBIS                                                       M. Thomson
 Internet-Draft                                                   Mozilla
 Intended status: Standards Track                               C.A. Wood
-Expires: 2 September 2021                                     Cloudflare
-                                                            1 March 2021
+Expires: 3 September 2021                                     Cloudflare
+                                                            2 March 2021
 
 
                              Oblivious HTTP
@@ -45,7 +45,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 2 September 2021.
+   This Internet-Draft will expire on 3 September 2021.
 
 Copyright Notice
 
@@ -584,8 +584,8 @@ Table of Contents
    response_nonce = random(max(Nn, Nk))
    salt = concat(enc, response_nonce)
    prk = Extract(salt, secret)
-   aead_key = Expand(secret, "key", Nk)
-   aead_nonce = Expand(secret, "nonce", Nn)
+   aead_key = Expand(prk, "key", Nk)
+   aead_nonce = Expand(prk, "nonce", Nn)
    ct = Seal(aead_key, aead_nonce, "", response)
    enc_response = concat(response_nonce, ct)
 
@@ -1035,7 +1035,7 @@ Table of Contents
 
    [BINARY]   Thomson, M., "Binary Representation of HTTP Messages",
               Work in Progress, Internet-Draft, draft-ietf-http-binary-
-              message-latest, 1 March 2021,
+              message-latest, 2 March 2021,
               <https://datatracker.ietf.org/doc/html/draft-ietf-http-
               binary-message-latest.txt>.
 
