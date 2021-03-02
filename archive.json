@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2021-02-23T00:05:38.771716+00:00",
+  "timestamp": "2021-03-02T00:04:53.725616+00:00",
   "repo": "unicorn-wg/oblivious-http",
   "labels": [
     {
@@ -578,6 +578,37 @@
           "body": "Yep.  I forgot to link it.",
           "createdAt": "2021-02-17T23:25:37Z",
           "updatedAt": "2021-02-17T23:25:37Z"
+        }
+      ]
+    },
+    {
+      "number": 54,
+      "id": "MDU6SXNzdWU4MTkwMzQxOTg=",
+      "title": "Consider making domain separation labels sharper",
+      "url": "https://github.com/unicorn-wg/oblivious-http/issues/54",
+      "state": "OPEN",
+      "author": "chris-wood",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Several people have pointed out (offline) that \"request\" and \"response\" could be reused by other protocols. Given that one should not reuse OHTTP keys in other protocols, I don't think this is an issue. But hedging against users tempted to to do so seems like a reasonable thing to do. We might just rename these to \"ohttp request\" and \"ohttp response\", for example.",
+      "createdAt": "2021-03-01T16:27:30Z",
+      "updatedAt": "2021-03-02T00:02:37Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "jhoyla",
+          "authorAssociation": "NONE",
+          "body": "Including 'ohttp' in the HPKE `KeySchedule` `info` field would also enforce key separation.\r\nMy vote is to do both.",
+          "createdAt": "2021-03-01T16:30:07Z",
+          "updatedAt": "2021-03-01T16:30:07Z"
+        },
+        {
+          "author": "martinthomson",
+          "authorAssociation": "MEMBER",
+          "body": "I can live with that.  No guarantee that others don't also use \"ohttp request\" or what have you at the same time that they reuse the keys, but it's good hygiene.  I might check whether that adds another HMAC iteration though.",
+          "createdAt": "2021-03-02T00:02:37Z",
+          "updatedAt": "2021-03-02T00:02:37Z"
         }
       ]
     }
@@ -3210,25 +3241,77 @@
       "id": "MDExOlB1bGxSZXF1ZXN0NTc3MjA1MjM3",
       "title": "Update examples based on -01 changes",
       "url": "https://github.com/unicorn-wg/oblivious-http/pull/52",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "martinthomson",
       "authorAssociation": "MEMBER",
       "assignees": [],
       "labels": [],
       "body": "",
       "createdAt": "2021-02-21T23:50:28Z",
-      "updatedAt": "2021-02-21T23:50:28Z",
+      "updatedAt": "2021-03-01T16:26:14Z",
       "baseRepository": "unicorn-wg/oblivious-http",
       "baseRefName": "main",
       "baseRefOid": "3ab659c01c482d9abc048ce1dd61409cbc83ae64",
       "headRepository": "unicorn-wg/oblivious-http",
       "headRefName": "examples-01",
       "headRefOid": "b8dbe69de322e86fd17cfae8a1311d8dc8a388fb",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "closedAt": "2021-03-01T16:26:14Z",
+      "mergedAt": "2021-03-01T16:26:14Z",
+      "mergedBy": "chris-wood",
+      "mergeCommit": {
+        "oid": "71f1de97252f91adf70fe98f53a8f8949f32d8df"
+      },
       "comments": [],
+      "reviews": [
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NjAwOTIyOTA1",
+          "commit": {
+            "abbreviatedOid": "b8dbe69"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2021-03-01T16:26:10Z",
+          "updatedAt": "2021-03-01T16:26:10Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 53,
+      "id": "MDExOlB1bGxSZXF1ZXN0NTgyMTYwOTk5",
+      "title": "Use it instead of lose it.",
+      "url": "https://github.com/unicorn-wg/oblivious-http/pull/53",
+      "state": "MERGED",
+      "author": "chris-wood",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2021-03-01T15:36:30Z",
+      "updatedAt": "2021-03-02T00:00:29Z",
+      "baseRepository": "unicorn-wg/oblivious-http",
+      "baseRefName": "main",
+      "baseRefOid": "3ab659c01c482d9abc048ce1dd61409cbc83ae64",
+      "headRepository": "unicorn-wg/oblivious-http",
+      "headRefName": "caw/oops",
+      "headRefOid": "498596c5c1f9ebc3fafe6c41ab7bc9de1a9c67ab",
+      "closedAt": "2021-03-02T00:00:25Z",
+      "mergedAt": "2021-03-02T00:00:25Z",
+      "mergedBy": "martinthomson",
+      "mergeCommit": {
+        "oid": "06818f92406cd0dbfda1a57fa907f594d62ea14b"
+      },
+      "comments": [
+        {
+          "author": "martinthomson",
+          "authorAssociation": "MEMBER",
+          "body": "Whoops",
+          "createdAt": "2021-03-02T00:00:29Z",
+          "updatedAt": "2021-03-02T00:00:29Z"
+        }
+      ],
       "reviews": []
     }
   ]
