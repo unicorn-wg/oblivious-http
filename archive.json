@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2021-03-02T00:04:53.725616+00:00",
+  "timestamp": "2021-03-04T00:05:46.250363+00:00",
   "repo": "unicorn-wg/oblivious-http",
   "labels": [
     {
@@ -593,7 +593,7 @@
       "labels": [],
       "body": "Several people have pointed out (offline) that \"request\" and \"response\" could be reused by other protocols. Given that one should not reuse OHTTP keys in other protocols, I don't think this is an issue. But hedging against users tempted to to do so seems like a reasonable thing to do. We might just rename these to \"ohttp request\" and \"ohttp response\", for example.",
       "createdAt": "2021-03-01T16:27:30Z",
-      "updatedAt": "2021-03-02T00:02:37Z",
+      "updatedAt": "2021-03-02T03:30:59Z",
       "closedAt": null,
       "comments": [
         {
@@ -609,6 +609,20 @@
           "body": "I can live with that.  No guarantee that others don't also use \"ohttp request\" or what have you at the same time that they reuse the keys, but it's good hygiene.  I might check whether that adds another HMAC iteration though.",
           "createdAt": "2021-03-02T00:02:37Z",
           "updatedAt": "2021-03-02T00:02:37Z"
+        },
+        {
+          "author": "martinthomson",
+          "authorAssociation": "MEMBER",
+          "body": "OK, we're over the limit pretty much no matter what we do.  HPKE is not careful enough to avoid this.\r\n\r\nHKDF-SHA-256 blocks are 512-bit/64-byte with 9 bytes minimum padding.  Output is 32 bytes.\r\nX25519 keys are 32 bytes, public and private.\r\n\r\nSHA-256 remaining is 64N + 55\r\n\r\n```\r\n   def LabeledExtract(salt, label, ikm):\r\n     labeled_ikm = concat(\"HPKE-v1\", suite_id, label, ikm)\r\n     return Extract(salt, labeled_ikm)\r\n```\r\nOverhead: 7 (\"HPKE-v1\") + 2 (suite_id) + 32 (ikm).\r\nRemaining: 64N + 14\r\n```\r\n   def LabeledExpand(prk, label, info, L):\r\n     labeled_info = concat(I2OSP(L, 2), \"HPKE-v1\", suite_id,\r\n                           label, info)\r\n     return Expand(prk, labeled_info, L)\r\n```\r\nOverhead: 2 (L) + 7 (\"HPKE-v1\") + 2 (suite_id) + 1 (for HKDF counter byte)\r\nRemaining for label + info: 64N + 43\r\n(For L > 32, additional iterations have a lower limit of 11.)\r\n```\r\n   def KeySchedule<ROLE>(mode, shared_secret, info, psk, psk_id):\r\n     VerifyPSKInputs(mode, psk, psk_id)\r\n\r\n     psk_id_hash = LabeledExtract(\"\", \"psk_id_hash\", psk_id)\r\n```\r\nHere, psk_id > 3 bytes pushes over the edge.\r\n```\r\n     info_hash = LabeledExtract(\"\", \"info_hash\", info)\r\n```\r\nHere, info > 5 bytes pushes over the edge.\r\n```\r\n     key_schedule_context = concat(mode, psk_id_hash, info_hash)\r\n\r\n     secret = LabeledExtract(shared_secret, \"secret\", psk)\r\n```\r\nNo flexibility here as psk needs to be large.\r\n```\r\n     key = LabeledExpand(secret, \"key\", key_schedule_context, Nk)\r\n```\r\nHere key_schedule_context is fixed in size, so while it spills over into\r\nmultiple blocks, and the 5 bytes of spill is well within limits.\r\n```\r\n     base_nonce = LabeledExpand(secret, \"base_nonce\",\r\n                                key_schedule_context, Nn)\r\n```\r\nThe spill here is 12 bytes. Unless Nn > 32 (which is won't be), no problem.\r\n```\r\n     exporter_secret = LabeledExpand(secret, \"exp\",\r\n                                     key_schedule_context, Nh)\r\n```\r\nA 6 byte spill and no real option to reduce this, so it's OK.\r\n```\r\n     return Context<ROLE>(key, base_nonce, 0, exporter_secret)\r\n```",
+          "createdAt": "2021-03-02T01:32:25Z",
+          "updatedAt": "2021-03-02T01:32:25Z"
+        },
+        {
+          "author": "martinthomson",
+          "authorAssociation": "MEMBER",
+          "body": "OK, my mistake.  I had thought that ikm was always decently large, but the _hash labels are used to hash inputs smaller than Nsk, so they don't overflow.  While there are multiple iterations of the compression function at multiple points, there is no real choice there as one of the inputs is always a full block and you also need something extra to distinguish between that and other uses.\r\n\r\nIn short, only dropping the PSK gunk would give us a real shot at improving this.",
+          "createdAt": "2021-03-02T03:30:59Z",
+          "updatedAt": "2021-03-02T03:30:59Z"
         }
       ]
     }
